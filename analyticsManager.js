@@ -174,14 +174,14 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
     let userVoiceXp = 0;
 
     if (period === 'today') {
-      userTextXp = (u.dailyXp || 0) > 0 ? (u.dailyXp || 0) : 0;
-      userVoiceXp = (u.dailyXp || 0) > 0 ? (u.dailyXp || 0) : 0;
+      userTextXp = u.dailyTextXp || (u.dailyXp || 0);
+      userVoiceXp = u.dailyVoiceXp || 0;
     } else if (period === 'week') {
-      userTextXp = u.weeklyXp || 0;
-      userVoiceXp = u.weeklyXp || 0;
+      userTextXp = u.weeklyTextXp || (u.weeklyXp || 0);
+      userVoiceXp = u.weeklyVoiceXp || 0;
     } else if (period === 'month') {
-      userTextXp = u.monthlyXp || 0;
-      userVoiceXp = u.monthlyXp || 0;
+      userTextXp = u.monthlyTextXp || (u.monthlyXp || 0);
+      userVoiceXp = u.monthlyVoiceXp || 0;
     } else {
       userTextXp = u.textXp || 0;
       userVoiceXp = u.voiceXp || 0;
@@ -200,7 +200,7 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
 
   // Calculate total text XP in period
   const totalTextXpInPeriod = allUsersData.reduce((acc, u) => {
-    let xp = (period === 'all' ? (u.textXp || 0) : (period === 'month' ? (u.monthlyXp || 0) : (period === 'week' ? (u.weeklyXp || 0) : (u.dailyXp || 0))));
+    let xp = (period === 'all' ? (u.textXp || 0) : (period === 'month' ? (u.monthlyTextXp || u.monthlyXp || 0) : (period === 'week' ? (u.weeklyTextXp || u.weeklyXp || 0) : (u.dailyTextXp || u.dailyXp || 0))));
     return acc + xp;
   }, 0);
 
@@ -213,12 +213,12 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
 
   let totalMessagesCount = messagesInPeriod.length;
   if (totalMessagesCount === 0 && totalTextXpInPeriod > 0) {
-    totalMessagesCount = Math.max(1, Math.round(totalTextXpInPeriod / 15));
+    totalMessagesCount = Math.max(1, Math.round(totalTextXpInPeriod / 12.5));
   }
 
-  // Calculate voice minutes
+  // Calculate voice minutes strictly from voiceXp
   totalVoiceMinutes = Math.floor(allUsersData.reduce((acc, u) => {
-    let xp = (period === 'all' ? (u.voiceXp || 0) : (period === 'month' ? (u.monthlyXp || 0) : (period === 'week' ? (u.weeklyXp || 0) : (u.dailyXp || 0))));
+    let xp = (period === 'all' ? (u.voiceXp || 0) : (period === 'month' ? (u.monthlyVoiceXp || 0) : (period === 'week' ? (u.weeklyVoiceXp || 0) : (u.dailyVoiceXp || 0))));
     return acc + (xp / 25);
   }, 0));
 
