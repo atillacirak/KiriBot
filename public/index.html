@@ -1048,6 +1048,65 @@
           </div>
         </div>
 
+        <!-- CARD 3.5: DM NOTIFICATIONS AUTOMATION -->
+        <div class="glass-card rounded-3xl p-6 space-y-5 border-pond-500/30">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🔔</span>
+              <div>
+                <h3 class="font-display font-bold text-white text-base">Otomatik DM & Bildirim Kontrolleri</h3>
+                <p class="text-xs text-gray-400">Botun üyelere hangi durumlarda otomatik özel mesaj (DM) göndereceğini belirleyin</p>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-pond-500/20 text-pond-400 border border-pond-500/30 self-start sm:self-auto">
+              ⚙️ DM Tetikleyicileri
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <!-- TRIGGER 1: LEVEL UP DM -->
+            <div class="p-4 rounded-2xl bg-black/30 border border-pond-border/60 space-y-3 flex flex-col justify-between hover:border-pond-500/40 transition">
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl">🎉</span>
+                  <input type="checkbox" id="settingDmLevelUp" onchange="updateDmSwitchStatus()" class="w-5 h-5 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                </div>
+                <h4 class="font-bold text-white text-xs">Seviye Atlama DM'i</h4>
+                <p class="text-[11px] text-gray-400">Üye her yeni seviyeye ulaştığında bot tarafından tebrik DM'i ve sıralama linki iletilir.</p>
+              </div>
+              <div id="statusDmLevelUp" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 self-start">⚪ Kapalı</div>
+            </div>
+
+            <!-- TRIGGER 2: ROLE REWARD DM -->
+            <div class="p-4 rounded-2xl bg-black/30 border border-pond-border/60 space-y-3 flex flex-col justify-between hover:border-pond-500/40 transition">
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl">👑</span>
+                  <input type="checkbox" id="settingDmRoleReward" onchange="updateDmSwitchStatus()" class="w-5 h-5 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                </div>
+                <h4 class="font-bold text-white text-xs">Rol Kazanım DM'i</h4>
+                <p class="text-[11px] text-gray-400">Üye yeni bir Kurbağa seviye rolü kazandığında özel rol tebriği DM'i iletilir.</p>
+              </div>
+              <div id="statusDmRoleReward" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 self-start">⚪ Kapalı</div>
+            </div>
+
+            <!-- TRIGGER 3: WELCOME DM -->
+            <div class="p-4 rounded-2xl bg-black/30 border border-pond-border/60 space-y-3 flex flex-col justify-between hover:border-pond-500/40 transition">
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl">👋</span>
+                  <input type="checkbox" id="settingDmWelcome" onchange="updateDmSwitchStatus()" class="w-5 h-5 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                </div>
+                <h4 class="font-bold text-white text-xs">Hoş Geldin DM'i</h4>
+                <p class="text-[11px] text-gray-400">Sunucuya yeni katılan üyelere gölet kuralları ve XP sistemi rehberi DM olarak iletilir.</p>
+              </div>
+              <div id="statusDmWelcome" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 self-start">⚪ Kapalı</div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- CARD 4: BOT COMMUNICATION CENTER (DM & CHANNEL MESSAGES) -->
         <div class="glass-card rounded-3xl p-6 space-y-5 border-pond-500/30">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
@@ -1848,6 +1907,28 @@
       }
     }
 
+    function updateDmSwitchStatus() {
+      const isLvl = document.getElementById('settingDmLevelUp')?.checked;
+      const isRole = document.getElementById('settingDmRoleReward')?.checked;
+      const isWel = document.getElementById('settingDmWelcome')?.checked;
+
+      const setBadge = (id, active) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (active) {
+          el.className = "text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 self-start";
+          el.innerText = "🟢 Aktif";
+        } else {
+          el.className = "text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 border border-gray-500/20 self-start";
+          el.innerText = "⚪ Kapalı";
+        }
+      };
+
+      setBadge('statusDmLevelUp', isLvl);
+      setBadge('statusDmRoleReward', isRole);
+      setBadge('statusDmWelcome', isWel);
+    }
+
     function populateAdminUI() {
       if (!currentSettings) return;
 
@@ -1857,6 +1938,13 @@
       document.getElementById('settingTextXpMin').value = currentSettings.textXpMin || 10;
       document.getElementById('settingTextXpMax').value = currentSettings.textXpMax || 15;
       document.getElementById('settingMutedEarnsXp').checked = !!currentSettings.mutedEarnsXp;
+
+      // Card 3.5: DM Notifications
+      const dm = currentSettings.dmNotifications || {};
+      if (document.getElementById('settingDmLevelUp')) document.getElementById('settingDmLevelUp').checked = !!dm.levelUp;
+      if (document.getElementById('settingDmRoleReward')) document.getElementById('settingDmRoleReward').checked = !!dm.roleReward;
+      if (document.getElementById('settingDmWelcome')) document.getElementById('settingDmWelcome').checked = !!dm.welcome;
+      updateDmSwitchStatus();
 
       // Initialize disabled channels state
       disabledChannelsState = new Set(currentSettings.disabledChannels || []);
@@ -2235,7 +2323,12 @@
         textXpMax: parseInt(document.getElementById('settingTextXpMax').value, 10) || 15,
         mutedEarnsXp: document.getElementById('settingMutedEarnsXp').checked,
         disabledChannels,
-        roleRewards
+        roleRewards,
+        dmNotifications: {
+          levelUp: !!document.getElementById('settingDmLevelUp')?.checked,
+          roleReward: !!document.getElementById('settingDmRoleReward')?.checked,
+          welcome: !!document.getElementById('settingDmWelcome')?.checked
+        }
       };
 
       try {

@@ -25,6 +25,11 @@ export const DEFAULT_SETTINGS = {
     25: '1439006338402484305', // kurbağa
     50: '1439006370769666140', // göl müdavimi kurbağa
     80: '1439006516282785964'  // bu direkt göl olmuş
+  },
+  dmNotifications: {
+    levelUp: false,
+    roleReward: false,
+    welcome: false
   }
 };
 
@@ -252,10 +257,114 @@ const ROLE_CUSTOM_MESSAGES = {
   80: 'Sen kurbağa değil direkt göl olmuşsun, biraz çimene dokunmak iyi gelebilir!!! 👑🏞️'
 };
 
-// Send DM Congratulation Notification (DISABLED)
-export async function sendLevelUpDm(guild, member, newLevel, roleRewardRole = null) {
-  // Automatic level up DMs temporarily disabled per user request
-  return;
+// Send DM Level-Up Notification (Controlled by settings.dmNotifications.levelUp)
+export async function sendLevelUpDm(guild, member, newLevel) {
+  if (!guild || !member || !member.user || member.user.bot) return;
+  const settings = getGuildSettings(guild.id);
+  if (!settings.dmNotifications?.levelUp) return;
+
+  try {
+    const embed = new EmbedBuilder()
+      .setColor('#5EA454')
+      .setTitle('🎉 TEBRİKLER, SEVİYE ATLADIN!')
+      .setDescription(
+        `Selam **${member.user.username}**! 🌿\n\n` +
+        `**${guild.name}** sunucusundaki aktifliğin sayesinde **Seviye ${newLevel}** oldun! 🐸✨\n\n` +
+        `🏆 Sıralamadaki yerini ve istatistiklerini görmek için sunucuda \`/rank\` komutunu kullanabilir veya web sitemizi ziyaret edebilirsin.`
+      )
+      .setThumbnail(guild.iconURL({ dynamic: true, size: 256 }) || member.user.displayAvatarURL())
+      .setFooter({ text: `${guild.name} • Seviye Sistemi`, iconURL: guild.iconURL() })
+      .setTimestamp();
+
+    const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('🌐 Sıralama Tablosu')
+        .setStyle(ButtonStyle.Link)
+        .setURL(`${dashboardUrl}/#u/${member.id}`)
+    );
+
+    await member.send({ embeds: [embed], components: [row] });
+    console.log(`✉️ [Level Up DM] ${member.user.tag} kullanıcısına Level ${newLevel} tebrik DM'i gönderildi.`);
+  } catch (err) {
+    // Member DMs closed
+  }
+}
+
+// Send DM Role Reward Notification (Controlled by settings.dmNotifications.roleReward)
+export async function sendRoleRewardDm(guild, member, newLevel, roleRewardRole) {
+  if (!guild || !member || !member.user || member.user.bot || !roleRewardRole) return;
+  const settings = getGuildSettings(guild.id);
+  if (!settings.dmNotifications?.roleReward) return;
+
+  try {
+    let specialNote = '';
+    if (ROLE_CUSTOM_MESSAGES[newLevel]) {
+      specialNote = `\n\n> 💬 **${ROLE_CUSTOM_MESSAGES[newLevel]}**`;
+    }
+
+    const embed = new EmbedBuilder()
+      .setColor('#FFD700')
+      .setTitle('🎖️ YENİ KURBAĞA ROLÜ KAZANDIN!')
+      .setDescription(
+        `Tebrikler **${member.user.username}**! 🐸👑\n\n` +
+        `**${guild.name}** sunucusunda **Seviye ${newLevel}** seviyesine ulaştın ve **${roleRewardRole.name}** rolünü kazandın!` +
+        specialNote + '\n\n' +
+        `🌟 Profilinde ve liderlik tablosunda yeni unvanınla parlamaya hazır ol!`
+      )
+      .setThumbnail(guild.iconURL({ dynamic: true, size: 256 }) || member.user.displayAvatarURL())
+      .setFooter({ text: `${guild.name} • Seviye Ödülleri`, iconURL: guild.iconURL() })
+      .setTimestamp();
+
+    const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('🌐 Profilini İncele')
+        .setStyle(ButtonStyle.Link)
+        .setURL(`${dashboardUrl}/#u/${member.id}`)
+    );
+
+    await member.send({ embeds: [embed], components: [row] });
+    console.log(`✉️ [Role Reward DM] ${member.user.tag} kullanıcısına ${roleRewardRole.name} ödül DM'i gönderildi.`);
+  } catch (err) {
+    // Member DMs closed
+  }
+}
+
+// Send DM Welcome Notification (Controlled by settings.dmNotifications.welcome)
+export async function sendWelcomeDm(member) {
+  if (!member || !member.guild || !member.user || member.user.bot) return;
+  const settings = getGuildSettings(member.guild.id);
+  if (!settings.dmNotifications?.welcome) return;
+
+  try {
+    const embed = new EmbedBuilder()
+      .setColor('#5EA454')
+      .setTitle(`🌿 Yeşil Gölet'e Hoş Geldin!`)
+      .setDescription(
+        `Selam **${member.user.username}**! Yeşil Gölet Discord topluluğumuza katıldığın için çok mutluyuz. 🐸✨\n\n` +
+        `💬 **Yazılı Kanallar:** Sohbet ederek mesaj başına XP kazanabilirsin.\n` +
+        `🎙️ **Sesli Kanallar:** Arkadaşlarınla sohbette vakit geçirerek dakikada 25 XP kazanabilirsin.\n` +
+        `🏆 **Kurbağa Rolleri:** Seviye atladıkça otomatik rol ve unvan ödülleri kazanırsın!\n\n` +
+        `Canlı sıralama tablosunu ve profilini web sitemizden takip edebilirsin.`
+      )
+      .setThumbnail(member.guild.iconURL({ dynamic: true, size: 256 }) || member.user.displayAvatarURL())
+      .setFooter({ text: `${member.guild.name} • Hoş Geldin`, iconURL: member.guild.iconURL() })
+      .setTimestamp();
+
+    const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('🌐 Gölet Liderlik Tablosu')
+        .setStyle(ButtonStyle.Link)
+        .setURL(dashboardUrl)
+    );
+
+    await member.send({ embeds: [embed], components: [row] });
+    console.log(`✉️ [Welcome DM] ${member.user.tag} kullanıcısına hoş geldin DM'i gönderildi.`);
+  } catch (err) {
+    // Member DMs closed
+  }
 }
 
 // Check & Award Role Rewards
@@ -324,7 +433,11 @@ export async function handleTextMessage(message) {
 
     // Send DM notification
     if (member) {
-      await sendLevelUpDm(guild, member, newLevel, awardedRole);
+      if (awardedRole) {
+        await sendRoleRewardDm(guild, member, newLevel, awardedRole);
+      } else {
+        await sendLevelUpDm(guild, member, newLevel);
+      }
     }
 
     const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
@@ -383,7 +496,11 @@ export function startVoiceXpTicker(client) {
             if (newLevel > oldLevel) {
               data.level = newLevel;
               const awardedRole = await checkRoleRewards(guild, member, newLevel);
-              await sendLevelUpDm(guild, member, newLevel, awardedRole);
+              if (awardedRole) {
+                await sendRoleRewardDm(guild, member, newLevel, awardedRole);
+              } else {
+                await sendLevelUpDm(guild, member, newLevel);
+              }
             }
           }
         }

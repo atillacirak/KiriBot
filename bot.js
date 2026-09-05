@@ -27,7 +27,8 @@ import {
   handleSetLevelCommand,
   handleAddXpCommand,
   handleRemoveXpCommand,
-  handleResetLevelCommand
+  handleResetLevelCommand,
+  sendWelcomeDm
 } from './levelSystem.js';
 import { 
   initAnalyticsMongo, 
@@ -272,6 +273,7 @@ client.on('messageCreate', (message) => {
 // Member Join & Leave Tracking
 client.on('guildMemberAdd', (member) => {
   recordMemberJoin(member).catch(err => console.warn('Record join error:', err.message));
+  sendWelcomeDm(member).catch(err => console.warn('Welcome DM error:', err.message));
 });
 
 client.on('guildMemberRemove', (member) => {
