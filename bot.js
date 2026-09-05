@@ -387,7 +387,7 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
 
     // 6. /dashboard
     else if (commandName === 'dashboard') {
-      const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+      const dashboardUrl = process.env.DASHBOARD_URL || 'http://yesilgolet.duckdns.org';
       const embed = new EmbedBuilder()
         .setColor('#5EA454')
         .setTitle('🌐 Yeşil Gölet • Canlı Web Dashboard & Liderlik Tablosu')
