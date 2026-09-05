@@ -210,7 +210,7 @@ export function startDashboard(client, port = 3000) {
       res.json({
         success: true,
         bot: {
-          tag: client.user ? client.user.tag : 'Kur Bot#2895',
+          tag: client.user ? client.user.tag : 'KurBot#2895',
           avatar: client.user ? client.user.displayAvatarURL() : null,
           uptime: process.uptime()
         },
@@ -975,7 +975,7 @@ export function startDashboard(client, port = 3000) {
   });
 
   const server = app.listen(port, () => {
-    console.log(`🌐 Kur Bot Dashboard & Liderlik Tablosu aktif: http://localhost:${port}`);
+    console.log(`🌐 KurBot Dashboard & Liderlik Tablosu aktif: http://localhost:${port}`);
   });
 
   return server;

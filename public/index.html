@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kur Bot • Yeşil Gölet Canlı Dashboard & Liderlik Tablosu</title>
+  <title>KurBot • Yeşil Gölet Canlı Dashboard & Liderlik Tablosu</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐸</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -177,7 +177,7 @@
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <span class="font-display font-bold text-lg text-white tracking-wide group-hover:text-pond-400 transition">Kur Bot</span>
+          <span class="font-display font-bold text-lg text-white tracking-wide group-hover:text-pond-400 transition">KurBot</span>
           <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-pond-500/20 text-pond-400 border border-pond-500/30">V1.0 LIVE</span>
         </div>
         <p class="text-xs text-gray-400">Yeşil Gölet Discord Ekosistemi</p>
@@ -1645,7 +1645,7 @@
   <footer class="glass-card border-t border-pond-border py-8 px-4 text-center text-xs text-gray-500 mt-12">
     <a href="/" onclick="event.preventDefault(); window.location.hash=''; showTab('leaderboard');" class="inline-flex items-center justify-center gap-2 mb-2 hover:opacity-80 transition cursor-pointer">
       <span class="text-base">🐸</span>
-      <span class="font-display font-bold text-gray-300 hover:text-pond-400 transition">Kur Bot • Yeşil Gölet</span>
+      <span class="font-display font-bold text-gray-300 hover:text-pond-400 transition">KurBot • Yeşil Gölet</span>
     </a>
     <p class="mb-4">Tüm hakları saklıdır. AWS 7/24 Kesintisiz Bulut Altyapısı & MongoDB Atlas ile güçlendirilmiştir.</p>
     <div class="flex items-center justify-center gap-6 pt-3 border-t border-pond-border/50">
@@ -1951,42 +1951,32 @@
 
       let visibleUsers = [];
       const totalUsers = users.length;
-      const PAGE_SIZE = 20;
+      const PAGE_SIZE = leaderboardLimit; // 10 or 20
 
-      if (leaderboardLimit === 10) {
-        // Initial state: show top 10
-        visibleUsers = users.slice(0, 10);
-        if (toggleText) toggleText.innerText = 'Daha Fazla Göster (İlk 20)';
-        if (toggleIcon) {
-          toggleIcon.innerText = '↓';
-          toggleIcon.className = 'w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:translate-y-0.5';
-        }
-        if (pageNav) pageNav.classList.add('hidden');
-      } else {
-        // Expanded state: paginated by 20
-        if (toggleText) toggleText.innerText = 'Listeyi Daralt (İlk 10)';
-        if (toggleIcon) {
-          toggleIcon.innerText = '↑';
-          toggleIcon.className = 'w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:-translate-y-0.5';
-        }
+      if (toggleText) toggleText.innerText = (PAGE_SIZE === 10) ? 'Daha Fazla Göster (20\'li Gösterim)' : 'Listeyi Daralt (10\'lu Gösterim)';
+      if (toggleIcon) {
+        toggleIcon.innerText = (PAGE_SIZE === 10) ? '↓' : '↑';
+        toggleIcon.className = (PAGE_SIZE === 10)
+          ? 'w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:translate-y-0.5'
+          : 'w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:-translate-y-0.5';
+      }
 
-        const totalPages = Math.ceil(totalUsers / PAGE_SIZE) || 1;
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+      const totalPages = Math.ceil(totalUsers / PAGE_SIZE) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
 
-        const startIndex = (currentPage - 1) * PAGE_SIZE;
-        const endIndex = startIndex + PAGE_SIZE;
-        visibleUsers = users.slice(startIndex, endIndex);
+      const startIndex = (currentPage - 1) * PAGE_SIZE;
+      const endIndex = startIndex + PAGE_SIZE;
+      visibleUsers = users.slice(startIndex, endIndex);
 
-        if (totalUsers > 20 && pageNav) {
-          pageNav.classList.remove('hidden');
-          if (countEl) countEl.innerText = `Sayfa ${currentPage} (${startIndex + 1} - ${Math.min(endIndex, totalUsers)} / ${totalUsers} üye)`;
-          if (pageIndicator) pageIndicator.innerText = `Sayfa ${currentPage} / ${totalPages}`;
-          if (prevBtn) prevBtn.disabled = (currentPage <= 1);
-          if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
-        } else if (pageNav) {
-          pageNav.classList.add('hidden');
-        }
+      if (totalUsers > PAGE_SIZE && pageNav) {
+        pageNav.classList.remove('hidden');
+        if (countEl) countEl.innerText = `Sayfa ${currentPage} (${startIndex + 1} - ${Math.min(endIndex, totalUsers)} / ${totalUsers} üye)`;
+        if (pageIndicator) pageIndicator.innerText = `Sayfa ${currentPage} / ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = (currentPage <= 1);
+        if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
+      } else if (pageNav) {
+        pageNav.classList.add('hidden');
       }
 
       const rows = visibleUsers.map(user => {
@@ -2047,15 +2037,19 @@
 
     function toggleLeaderboardExpand() {
       if (leaderboardLimit === 10) {
+        // Switching to 20-item mode
+        const startIndex = (currentPage - 1) * 10;
         leaderboardLimit = 20;
-        currentPage = 1;
+        currentPage = Math.floor(startIndex / 20) + 1;
       } else {
+        // Switching to 10-item mode
+        const startIndex = (currentPage - 1) * 20;
         leaderboardLimit = 10;
-        currentPage = 1;
-        const listEl = document.getElementById('leaderboardList');
-        if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        currentPage = Math.floor(startIndex / 10) + 1;
       }
       renderTable(allUsers);
+      const listEl = document.getElementById('leaderboardList');
+      if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function changeLeaderboardPage(delta) {

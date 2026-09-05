@@ -652,7 +652,7 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
     .setColor('#5EA454')
     .setTitle(title)
     .setDescription(desc)
-    .setFooter({ text: 'Kur Bot • Butonlara basarak kategoriyi değiştirebilirsin', iconURL: guild.iconURL() })
+    .setFooter({ text: 'KurBot • Butonlara basarak kategoriyi değiştirebilirsin', iconURL: guild.iconURL() })
     .setTimestamp();
 
   const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
@@ -713,7 +713,7 @@ export async function handleRankCommand(interaction) {
       { name: '💬 Yazılı Sohbet XP', value: `\`${data.textXp.toLocaleString()} XP\``, inline: true },
       { name: '🎙️ Sesli Sohbet XP', value: `\`${data.voiceXp.toLocaleString()} XP\` (${voiceHours} Sa)`, inline: true }
     )
-    .setFooter({ text: 'Kur Bot • Yeşil Gölet', iconURL: guild.iconURL() })
+    .setFooter({ text: 'KurBot • Yeşil Gölet', iconURL: guild.iconURL() })
     .setTimestamp();
 
   const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';

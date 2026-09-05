@@ -423,7 +423,7 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
           { name: '✨ Aura', value: `\`${data.aura || 'Zümrüt Yeşil'}\``, inline: true },
           { name: '🤫 Gizli Zevk (Guilty Pleasure)', value: data.guiltyPleasure || 'Gece sohbetinde sabahlamak', inline: false }
         )
-        .setFooter({ text: 'Kur Bot • Yeşil Gölet AI X-Ray', iconURL: guild.iconURL() })
+        .setFooter({ text: 'KurBot • Yeşil Gölet AI X-Ray', iconURL: guild.iconURL() })
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });
@@ -440,7 +440,7 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
         .setColor(score > 75 ? '#FF69B4' : '#5EA454')
         .setTitle(`💘 ${u1.username} & ${u2.username} • Uyum Analizi`)
         .setDescription(`**Aşk & Uyum Oranı: %${score}**\n\n> Bu ikili aynı frekansta takıldığında sunucunun en ikonik ikilisi olabilir! ✨`)
-        .setFooter({ text: 'Kur Bot Ship Metresi', iconURL: guild.iconURL() });
+        .setFooter({ text: 'KurBot Ship Metresi', iconURL: guild.iconURL() });
 
       await interaction.editReply({ embeds: [embed] });
     }
@@ -452,7 +452,7 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
         .setColor('#5EA454')
         .setTitle(`✨ ${user.username} • Ruh İkizi Kehaneti`)
         .setDescription('Sunucudaki mesaj dalga boyun incelendi: Gece seslilerinde aynı odada bulunduğun kişilerle kozmik bir bağın var!')
-        .setFooter({ text: 'Kur Bot • Ruh İkizi Kehaneti', iconURL: guild.iconURL() });
+        .setFooter({ text: 'KurBot • Ruh İkizi Kehaneti', iconURL: guild.iconURL() });
 
       await interaction.editReply({ embeds: [embed] });
     }
@@ -464,7 +464,7 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
         .setColor('#5EA454')
         .setTitle('🌐 Yeşil Gölet • Canlı Web Dashboard & Liderlik Tablosu')
         .setDescription(`Sunucudaki tüm üyelerin canlı XP sıralamasını, kurbağa unvanlarını ve sunucu istatistiklerini web sitemizden anlık olarak takip edebilirsin!\n\n🔗 **Web Sitesi:** [Yeşil Gölet Web Dashboard](${dashboardUrl})`)
-        .setFooter({ text: 'Kur Bot Canlı Dashboard', iconURL: guild.iconURL() });
+        .setFooter({ text: 'KurBot Canlı Dashboard', iconURL: guild.iconURL() });
 
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
