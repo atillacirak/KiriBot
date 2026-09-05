@@ -209,6 +209,9 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
   const retainedActiveUsers = [];
   const casualDropperUsers = [];
   const ghostInactiveUsers = [];
+  let retainedActiveCount = 0;
+  let casualDroppersCount = 0;
+  let ghostInactiveCount = 0;
 
   cohortMembers.forEach(m => {
     const u = levelCache.get(`${guild.id}_${m.id}`) || { totalXp: 0, textXp: 0, voiceXp: 0, level: 0 };

@@ -53,6 +53,13 @@
       backdrop-filter: blur(14px);
       border: 1px solid rgba(94, 164, 84, 0.2);
     }
+    input::-webkit-search-cancel-button,
+    input::-webkit-search-decoration,
+    input::-webkit-clear-button,
+    input::-ms-clear {
+      display: none !important;
+      -webkit-appearance: none !important;
+    }
     .glass-card-hover:hover {
       background: rgba(22, 37, 25, 0.9);
       border-color: rgba(94, 164, 84, 0.4);
@@ -1051,9 +1058,8 @@
               <div id="botMsgUserSelectorGroup" class="space-y-1.5 relative">
                 <label class="block text-xs font-bold text-gray-300">Hedef Üye (Arama / Seçim)</label>
                 <div class="relative">
-                  <input type="text" id="botMsgUserSearchInput" onfocus="openMemberDropdown()" oninput="searchMembersDropdown(this.value)" placeholder="🔍 Üye adı, etiket veya ID ara..." class="w-full bg-black/40 border border-pond-border rounded-xl pl-3.5 pr-8 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+                  <input type="text" id="botMsgUserSearchInput" onfocus="openMemberDropdown()" oninput="searchMembersDropdown(this.value)" placeholder="🔍 Üye adı, etiket veya ID ara..." class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
                   <input type="hidden" id="botMsgSelectedUserId">
-                  <button type="button" onclick="clearSelectedMember()" id="botMsgClearUserBtn" class="hidden absolute right-2.5 top-2 text-xs text-gray-400 hover:text-white">✕</button>
                 </div>
 
                 <!-- SELECTED USER PREVIEW CHIP -->
@@ -1219,6 +1225,8 @@
     let guildChannels = [];
     let guildRoles = [];
     let currentSettings = null;
+    let botMsgMode = 'dm';
+    let currentAnalyticsData = null;
 
     // --- TAB SWITCHER ---
     function showTab(tab) {
@@ -1933,12 +1941,17 @@
 
     function filterChannels() {
       const q = document.getElementById('channelSearchInput').value;
+      const clearBtn = document.getElementById('channelSearchClearBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', !q);
       renderChannelsList(q);
     }
 
     function clearChannelSearch() {
       document.getElementById('channelSearchInput').value = '';
+      const clearBtn = document.getElementById('channelSearchClearBtn');
+      if (clearBtn) clearBtn.classList.add('hidden');
       renderChannelsList('');
+      document.getElementById('channelSearchInput').focus();
     }
 
     // --- PROBOT-STYLE ROLE REWARDS SELECTOR ---
@@ -2404,7 +2417,6 @@
     function selectBotMsgUser(id, name, avatar, roleName) {
       document.getElementById('botMsgSelectedUserId').value = id;
       document.getElementById('botMsgUserSearchInput').classList.add('hidden');
-      document.getElementById('botMsgClearUserBtn').classList.remove('hidden');
 
       const chip = document.getElementById('botMsgSelectedUserChip');
       chip.classList.remove('hidden');
@@ -2422,8 +2434,8 @@
       document.getElementById('botMsgSelectedUserId').value = '';
       document.getElementById('botMsgUserSearchInput').value = '';
       document.getElementById('botMsgUserSearchInput').classList.remove('hidden');
-      document.getElementById('botMsgClearUserBtn').classList.add('hidden');
       document.getElementById('botMsgSelectedUserChip').classList.add('hidden');
+      document.getElementById('botMsgUserSearchInput').focus();
     }
 
     // Close member dropdown on outside click
