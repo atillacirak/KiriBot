@@ -18,7 +18,8 @@ import {
   rankCommand, 
   topCommand, 
   handleRankCommand, 
-  handleTopCommand 
+  handleTopCommand,
+  buildTopEmbedAndButtons
 } from './levelSystem.js';
 import { startDashboard } from './dashboard.js';
 
@@ -248,8 +249,19 @@ client.on('error', (err) => {
   console.warn('⚠️ Discord Client Hatası:', err.message);
 });
 
-// Handle Slash Commands
+// Handle Interactions (Slash Commands & Buttons)
 client.on('interactionCreate', async (interaction) => {
+  // Handle Interactive Category Buttons for /top
+  if (interaction.isButton()) {
+    const customId = interaction.customId;
+    if (customId.startsWith('top_')) {
+      const category = customId.replace('top_', '');
+      const payload = buildTopEmbedAndButtons(interaction.guild, category);
+      await interaction.update(payload).catch(() => {});
+    }
+    return;
+  }
+
   if (!interaction.isChatInputCommand()) return;
 
   const { commandName, guild, user } = interaction;

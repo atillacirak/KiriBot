@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { levelCache, getXpForLevel } from './levelSystem.js';
+import { levelCache, getXpForLevel, checkAndResetTimeBuckets } from './levelSystem.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,8 +18,7 @@ export function startDashboard(client, port = 3000) {
     if (level >= 80) return { name: 'Bu Direkt Göl Olmuş', color: '#1B5E20', badge: '👑', minLevel: 80 };
     if (level >= 50) return { name: 'Göl Müdavimi Kurbağa', color: '#2E7D32', badge: '🌿', minLevel: 50 };
     if (level >= 25) return { name: 'Kurbağa', color: '#4CAF50', badge: '🐸', minLevel: 25 };
-    if (level >= 10) return { name: 'Mini Kurbağa', color: '#8BC34A', badge: '🌱', minLevel: 10 };
-    return { name: 'Yeni İribaş', color: '#9E9E9E', badge: '🥚', minLevel: 0 };
+    return { name: 'Gölet Sakini', color: '#8BC34A', badge: '🌱', minLevel: 0 };
   }
 
   // API: Global & Guild Stats
@@ -33,15 +32,14 @@ export function startDashboard(client, port = 3000) {
       const totalXp = guildUsers.reduce((sum, u) => sum + (u.totalXp || 0), 0);
       const totalVoiceXp = guildUsers.reduce((sum, u) => sum + (u.voiceXp || 0), 0);
       const totalTextXp = guildUsers.reduce((sum, u) => sum + (u.textXp || 0), 0);
-      const totalVoiceHours = ((totalVoiceXp / 15) / 60).toFixed(1);
+      const totalVoiceHours = ((totalVoiceXp / 25) / 60).toFixed(1);
 
       // Role distribution
       const roleCounts = {
         tier80: guildUsers.filter(u => u.level >= 80).length,
         tier50: guildUsers.filter(u => u.level >= 50 && u.level < 80).length,
         tier25: guildUsers.filter(u => u.level >= 25 && u.level < 50).length,
-        tier10: guildUsers.filter(u => u.level >= 10 && u.level < 25).length,
-        tier0: guildUsers.filter(u => u.level < 10).length
+        tier0: guildUsers.filter(u => u.level < 25).length
       };
 
       res.json({
@@ -81,7 +79,12 @@ export function startDashboard(client, port = 3000) {
       const limit = Math.min(parseInt(req.query.limit || '100', 10), 200);
 
       const guild = client.guilds.cache.get(guildId) || client.guilds.cache.first();
-      let users = Array.from(levelCache.values()).filter(u => !guild || u.guildId === guild.id);
+      let users = Array.from(levelCache.values())
+        .filter(u => !guild || u.guildId === guild.id)
+        .map(u => {
+          checkAndResetTimeBuckets(u);
+          return u;
+        });
 
       // Sort
       users.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
@@ -117,7 +120,10 @@ export function startDashboard(client, port = 3000) {
             totalXp: u.totalXp || 0,
             voiceXp: u.voiceXp || 0,
             textXp: u.textXp || 0,
-            voiceHours: (((u.voiceXp || 0) / 15) / 60).toFixed(1),
+            dailyXp: u.dailyXp || 0,
+            weeklyXp: u.weeklyXp || 0,
+            monthlyXp: u.monthlyXp || 0,
+            voiceHours: (((u.voiceXp || 0) / 25) / 60).toFixed(1),
             progressInLevel,
             neededInLevel,
             progressPercent,

@@ -202,15 +202,24 @@
           </div>
 
           <!-- SORT TABS -->
-          <div class="flex items-center p-1 rounded-xl bg-black/40 border border-pond-border text-xs font-semibold">
-            <button onclick="changeSort('totalXp')" id="sortTotalXp" class="px-3 py-1.5 rounded-lg bg-pond-500 text-white transition">
-              Toplam XP
+          <div class="flex flex-wrap items-center p-1 rounded-xl bg-black/40 border border-pond-border text-xs font-semibold gap-1">
+            <button onclick="changeSort('totalXp')" id="sortTotalXp" class="px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition">
+              🏆 Genel
             </button>
-            <button onclick="changeSort('voiceXp')" id="sortVoiceXp" class="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+            <button onclick="changeSort('voiceXp')" id="sortVoiceXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
               🎙️ Sesli
             </button>
-            <button onclick="changeSort('textXp')" id="sortTextXp" class="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+            <button onclick="changeSort('textXp')" id="sortTextXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
               💬 Yazılı
+            </button>
+            <button onclick="changeSort('dailyXp')" id="sortDailyXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+              📅 Günlük
+            </button>
+            <button onclick="changeSort('weeklyXp')" id="sortWeeklyXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+              🗓️ Haftalık
+            </button>
+            <button onclick="changeSort('monthlyXp')" id="sortMonthlyXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+              📆 Aylık
             </button>
           </div>
 
@@ -244,19 +253,6 @@
         </div>
 
         <div class="space-y-2.5 pt-2">
-          <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-pond-border/60">
-            <div class="flex items-center gap-3">
-              <span class="text-xl">🌱</span>
-              <div>
-                <div class="text-sm font-bold text-white">@mini kurbağa</div>
-                <div class="text-[11px] text-gray-400">Gölete ilk adımını atan hevesli kurbağa</div>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-pond-500/20 text-pond-400 border border-pond-500/30">
-              Seviye 10
-            </span>
-          </div>
-
           <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-pond-border/60">
             <div class="flex items-center gap-3">
               <span class="text-xl">🐸</span>
@@ -294,6 +290,12 @@
             <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
               Seviye 80
             </span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-pond-500/10 border border-pond-500/20 text-[11px] text-gray-300 flex items-center justify-between">
+            <span>🎙️ Sesli: <b>25 XP / Dk</b></span>
+            <span>•</span>
+            <span>💬 Yazılı: <b>10-15 XP (20sn CD)</b></span>
           </div>
         </div>
       </div>
@@ -504,10 +506,10 @@
             <!-- RIGHT: LEVEL & TOTAL XP -->
             <div class="text-right shrink-0 min-w-[100px]">
               <div class="text-sm md:text-base font-display font-bold text-amberOrange">
-                ${user.totalXp.toLocaleString()} <span class="text-xs text-gray-400 font-normal">XP</span>
+                ${(user[currentSort] !== undefined ? user[currentSort] : user.totalXp).toLocaleString()} <span class="text-xs text-gray-400 font-normal">XP</span>
               </div>
               <div class="text-xs font-semibold text-pond-400">
-                Seviye ${user.level}
+                ${currentSort === 'dailyXp' ? '📅 Günlük' : currentSort === 'weeklyXp' ? '🗓️ Haftalık' : currentSort === 'monthlyXp' ? '📆 Aylık' : `Seviye ${user.level}`}
               </div>
             </div>
           </div>
@@ -519,12 +521,13 @@
 
     function changeSort(type) {
       currentSort = type;
-      ['totalXp', 'voiceXp', 'textXp'].forEach(t => {
+      ['totalXp', 'voiceXp', 'textXp', 'dailyXp', 'weeklyXp', 'monthlyXp'].forEach(t => {
         const btn = document.getElementById(`sort${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (!btn) return;
         if (t === type) {
-          btn.className = "px-3 py-1.5 rounded-lg bg-pond-500 text-white transition";
+          btn.className = "px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition";
         } else {
-          btn.className = "px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition";
+          btn.className = "px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition";
         }
       });
       loadLeaderboard();

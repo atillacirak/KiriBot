@@ -102,13 +102,43 @@ export function getLevelForXp(xp) {
 
 // Server Role Rewards mapping for Yeşil Gölet
 const ROLE_REWARDS = {
-  10: '1439005386886742117', // mini kurbağa
   25: '1439006338402484305', // kurbağa
   50: '1439006370769666140', // göl müdavimi kurbağa
   80: '1439006516282785964'  // bu direkt göl olmuş
 };
 
-export { levelCache, ROLE_REWARDS };
+// Time Bucket Helper (Daily, Weekly, Monthly Resets)
+function checkAndResetTimeBuckets(data) {
+  const now = new Date();
+  
+  // Daily Reset (UTC midnight)
+  const currentDay = now.toISOString().slice(0, 10);
+  if (data.lastDay !== currentDay) {
+    data.dailyXp = 0;
+    data.lastDay = currentDay;
+  }
+
+  // Weekly Reset (ISO Week)
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  const currentWeek = `${d.getUTCFullYear()}-W${weekNo}`;
+  if (data.lastWeek !== currentWeek) {
+    data.weeklyXp = 0;
+    data.lastWeek = currentWeek;
+  }
+
+  // Monthly Reset (YYYY-MM)
+  const currentMonth = now.toISOString().slice(0, 7);
+  if (data.lastMonth !== currentMonth) {
+    data.monthlyXp = 0;
+    data.lastMonth = currentMonth;
+  }
+}
+
+export { levelCache, ROLE_REWARDS, checkAndResetTimeBuckets };
 export function getUserData(guildId, userId) {
   const key = `${guildId}_${userId}`;
   if (!levelCache.has(key)) {
@@ -118,11 +148,19 @@ export function getUserData(guildId, userId) {
       textXp: 0,
       voiceXp: 0,
       totalXp: 0,
+      dailyXp: 0,
+      weeklyXp: 0,
+      monthlyXp: 0,
       level: 0,
-      lastMessageAt: 0
+      lastMessageAt: 0,
+      lastDay: '',
+      lastWeek: '',
+      lastMonth: ''
     });
   }
-  return levelCache.get(key);
+  const data = levelCache.get(key);
+  checkAndResetTimeBuckets(data);
+  return data;
 }
 
 // Check & Award Role Rewards
@@ -155,14 +193,17 @@ export async function handleTextMessage(message) {
   const data = getUserData(guild.id, author.id);
   const now = Date.now();
 
-  // 60-second cooldown per user for text XP
-  if (now - data.lastMessageAt < 60000) return;
+  // 20-second cooldown per user for text XP
+  if (now - data.lastMessageAt < 20000) return;
 
   data.lastMessageAt = now;
-  // Award 15 - 25 XP
-  const earnedXp = Math.floor(Math.random() * 11) + 15;
-  data.textXp += earnedXp;
-  data.totalXp += earnedXp;
+  // Award 10 - 15 XP
+  const earnedXp = Math.floor(Math.random() * 6) + 10;
+  data.textXp = (data.textXp || 0) + earnedXp;
+  data.totalXp = (data.totalXp || 0) + earnedXp;
+  data.dailyXp = (data.dailyXp || 0) + earnedXp;
+  data.weeklyXp = (data.weeklyXp || 0) + earnedXp;
+  data.monthlyXp = (data.monthlyXp || 0) + earnedXp;
 
   const oldLevel = data.level;
   const newLevel = getLevelForXp(data.totalXp);
@@ -172,8 +213,8 @@ export async function handleTextMessage(message) {
     const member = message.member || await guild.members.fetch(author.id).catch(() => null);
     await checkRoleRewards(guild, member, newLevel);
 
-    // Send level up celebration if high tier
-    if ([10, 25, 50, 80].includes(newLevel)) {
+    // Send level up celebration if high tier (25, 50, 80)
+    if ([25, 50, 80].includes(newLevel)) {
       const celebrateEmbed = new EmbedBuilder()
         .setColor('#5EA454')
         .setTitle('🎉 SEVİYE ATLADIN!')
@@ -205,10 +246,13 @@ export function startVoiceXpTicker(client) {
             if (member.voice.deaf || member.voice.serverDeaf) continue;
 
             const data = getUserData(guildId, member.id);
-            // Award 15 XP per minute of voice chat
-            const earnedXp = 15;
-            data.voiceXp += earnedXp;
-            data.totalXp += earnedXp;
+            // Award 25 XP per minute of voice chat (1500 XP/hour)
+            const earnedXp = 25;
+            data.voiceXp = (data.voiceXp || 0) + earnedXp;
+            data.totalXp = (data.totalXp || 0) + earnedXp;
+            data.dailyXp = (data.dailyXp || 0) + earnedXp;
+            data.weeklyXp = (data.weeklyXp || 0) + earnedXp;
+            data.monthlyXp = (data.monthlyXp || 0) + earnedXp;
 
             const oldLevel = data.level;
             const newLevel = getLevelForXp(data.totalXp);
@@ -242,7 +286,87 @@ export const rankCommand = new SlashCommandBuilder()
 
 export const topCommand = new SlashCommandBuilder()
   .setName('top')
-  .setDescription('Sunucunun en aktif üyelerinin yer aldığı liderlik tablosunu açar.');
+  .setDescription('Sunucunun liderlik tablosunu açar.')
+  .addStringOption(opt =>
+    opt.setName('kategori')
+      .setDescription('Liderlik tablosu kategorisi')
+      .setRequired(false)
+      .addChoices(
+        { name: '🏆 Genel Sıralama (Toplam XP)', value: 'totalXp' },
+        { name: '🎙️ Sesli Sohbet Sıralaması', value: 'voiceXp' },
+        { name: '💬 Yazılı Sohbet Sıralaması', value: 'textXp' },
+        { name: '📅 Günlük Aktiflik', value: 'dailyXp' },
+        { name: '🗓️ Haftalık Aktiflik', value: 'weeklyXp' },
+        { name: '📆 Aylık Aktiflik', value: 'monthlyXp' }
+      )
+  );
+
+// Helper to build leaderboard embed and buttons
+export function buildTopEmbedAndButtons(guild, category = 'totalXp') {
+  const titles = {
+    totalXp: '🌿 Yeşil Gölet • Genel Liderlik Tablosu (Top 10)',
+    voiceXp: '🎙️ Yeşil Gölet • En Çok Sesli Konuşanlar (Top 10)',
+    textXp: '💬 Yeşil Gölet • En Çok Mesaj Yazanlar (Top 10)',
+    dailyXp: '📅 Yeşil Gölet • Günlük Aktiflik Sıralaması (Top 10)',
+    weeklyXp: '🗓️ Yeşil Gölet • Haftalık Aktiflik Sıralaması (Top 10)',
+    monthlyXp: '📆 Yeşil Gölet • Aylık Aktiflik Sıralaması (Top 10)'
+  };
+
+  const allGuildUsers = Array.from(levelCache.values())
+    .filter(d => d.guildId === guild.id)
+    .map(u => {
+      checkAndResetTimeBuckets(u);
+      return u;
+    })
+    .sort((a, b) => (b[category] || 0) - (a[category] || 0))
+    .slice(0, 10);
+
+  const title = titles[category] || titles.totalXp;
+
+  let desc = 'Henüz bu kategoride kaydedilmiş aktiflik verisi bulunmuyor 🌱';
+  if (allGuildUsers.length > 0 && (allGuildUsers[0][category] || 0) > 0) {
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+    desc = allGuildUsers
+      .filter(u => (u[category] || 0) > 0)
+      .map((u, i) => {
+        let valueStr = `${(u[category] || 0).toLocaleString()} XP`;
+        if (category === 'voiceXp') {
+          const hours = (((u.voiceXp || 0) / 25) / 60).toFixed(1);
+          valueStr = `\`${(u.voiceXp || 0).toLocaleString()} XP\` (${hours} Saat)`;
+        } else if (category === 'textXp') {
+          valueStr = `\`${(u.textXp || 0).toLocaleString()} XP\``;
+        } else {
+          valueStr = `**Lvl ${u.level}** (\`${(u[category] || 0).toLocaleString()} XP\`)`;
+        }
+        return `${medals[i]} <@${u.userId}> — ${valueStr}`;
+      }).join('\n\n');
+  }
+
+  const embed = new EmbedBuilder()
+    .setColor('#5EA454')
+    .setTitle(title)
+    .setDescription(desc)
+    .setFooter({ text: 'Kiri Bot • Butonlara basarak kategoriyi değiştirebilirsin', iconURL: guild.iconURL() })
+    .setTimestamp();
+
+  const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+
+  // Category switch buttons
+  const rowCategory = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId('top_totalXp').setLabel('🏆 Genel').setStyle(category === 'totalXp' ? ButtonStyle.Success : ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('top_voiceXp').setLabel('🎙️ Sesli').setStyle(category === 'voiceXp' ? ButtonStyle.Success : ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('top_textXp').setLabel('💬 Yazılı').setStyle(category === 'textXp' ? ButtonStyle.Success : ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('top_dailyXp').setLabel('📅 Günlük').setStyle(category === 'dailyXp' ? ButtonStyle.Success : ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('top_weeklyXp').setLabel('🗓️ Haftalık').setStyle(category === 'weeklyXp' ? ButtonStyle.Success : ButtonStyle.Secondary)
+  );
+
+  const rowLink = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId('top_monthlyXp').setLabel('📆 Aylık').setStyle(category === 'monthlyXp' ? ButtonStyle.Success : ButtonStyle.Secondary),
+    new ButtonBuilder().setLabel('🌐 Web Dashboard').setStyle(ButtonStyle.Link).setURL(dashboardUrl)
+  );
+
+  return { embeds: [embed], components: [rowCategory, rowLink] };
+}
 
 // --- COMMAND HANDLERS ---
 export async function handleRankCommand(interaction) {
@@ -266,6 +390,8 @@ export async function handleRankCommand(interaction) {
   const rankIndex = allGuildUsers.findIndex(d => d.userId === targetUser.id);
   const rankPos = rankIndex !== -1 ? `#${rankIndex + 1}` : '#-';
 
+  const voiceHours = (((data.voiceXp || 0) / 25) / 60).toFixed(1);
+
   const embed = new EmbedBuilder()
     .setColor('#5EA454')
     .setAuthor({ name: `${targetUser.username} • Seviye Kartı`, iconURL: targetUser.displayAvatarURL() })
@@ -280,7 +406,7 @@ export async function handleRankCommand(interaction) {
         inline: false 
       },
       { name: '💬 Yazılı Sohbet XP', value: `\`${data.textXp.toLocaleString()} XP\``, inline: true },
-      { name: '🎙️ Sesli Sohbet XP', value: `\`${data.voiceXp.toLocaleString()} XP\``, inline: true }
+      { name: '🎙️ Sesli Sohbet XP', value: `\`${data.voiceXp.toLocaleString()} XP\` (${voiceHours} Sa)`, inline: true }
     )
     .setFooter({ text: 'Kiri Bot • Yeşil Gölet', iconURL: guild.iconURL() })
     .setTimestamp();
@@ -298,34 +424,7 @@ export async function handleRankCommand(interaction) {
 
 export async function handleTopCommand(interaction) {
   const { guild } = interaction;
-  const allGuildUsers = Array.from(levelCache.values())
-    .filter(d => d.guildId === guild.id)
-    .sort((a, b) => b.totalXp - a.totalXp)
-    .slice(0, 10);
-
-  if (allGuildUsers.length === 0) {
-    return interaction.reply({ content: 'Henüz sunucuda kaydedilmiş seviye verisi bulunmuyor.', ephemeral: true });
-  }
-
-  const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-  const desc = allGuildUsers.map((u, i) => {
-    return `${medals[i]} <@${u.userId}> — **Lvl ${u.level}** (\`${u.totalXp.toLocaleString()} XP\` • 💬 ${u.textXp.toLocaleString()} | 🎙️ ${u.voiceXp.toLocaleString()})`;
-  }).join('\n\n');
-
-  const embed = new EmbedBuilder()
-    .setColor('#5EA454')
-    .setTitle('🌿 Yeşil Gölet • Liderlik Tablosu (Top 10)')
-    .setDescription(desc)
-    .setFooter({ text: 'Kiri Bot • Gerçek Zamanlı XP Sıralaması', iconURL: guild.iconURL() })
-    .setTimestamp();
-
-  const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setLabel('🌐 Tam Liderlik Tablosunu Aç')
-      .setStyle(ButtonStyle.Link)
-      .setURL(dashboardUrl)
-  );
-
-  await interaction.reply({ embeds: [embed], components: [row] });
+  const category = interaction.options?.getString('kategori') || 'totalXp';
+  const payload = buildTopEmbedAndButtons(guild, category);
+  await interaction.reply(payload);
 }
