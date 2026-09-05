@@ -530,6 +530,8 @@
             <input 
               type="password" 
               id="adminPasswordInput" 
+              name="admin_password"
+              autocomplete="current-password"
               placeholder="Admin Parolası veya PIN" 
               class="w-full bg-black/50 border border-pond-border focus:border-pond-500 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none transition text-center"
               onkeydown="if(event.key==='Enter') loginAdmin()"
@@ -1062,7 +1064,22 @@
               <div id="botMsgUserSelectorGroup" class="space-y-1.5 relative">
                 <label class="block text-xs font-bold text-gray-300">Hedef Üye (Arama / Seçim)</label>
                 <div class="relative">
-                  <input type="text" id="botMsgUserSearchInput" onfocus="openMemberDropdown()" oninput="searchMembersDropdown(this.value)" placeholder="🔍 Üye adı, etiket veya ID ara..." class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+                  <input 
+                    type="search" 
+                    id="botMsgUserSearchInput" 
+                    name="member_search_filter"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-form-type="other"
+                    onfocus="openMemberDropdown()" 
+                    oninput="searchMembersDropdown(this.value)" 
+                    placeholder="🔍 Üye adı, etiket veya ID ara..." 
+                    class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none"
+                  >
                   <input type="hidden" id="botMsgSelectedUserId">
                 </div>
 
@@ -1134,7 +1151,22 @@
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
             <div class="sm:col-span-1 relative">
               <label class="block text-xs font-bold text-gray-300 mb-1.5">Kullanıcı (ID / Seçim)</label>
-              <input type="text" id="adminTargetUserId" onfocus="openMemberDropdown()" oninput="searchMembersDropdown(this.value)" placeholder="ID yazın veya arayın..." class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+              <input 
+                type="search" 
+                id="adminTargetUserId" 
+                name="quick_user_target_id"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
+                onfocus="openMemberDropdown()" 
+                oninput="searchMembersDropdown(this.value)" 
+                placeholder="ID yazın veya arayın..." 
+                class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none"
+              >
               <!-- Inline Dropdown Overlay -->
               <div id="adminUserMemberDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl bg-[#0c140e] border border-pond-border shadow-2xl p-2 max-h-56 overflow-y-auto space-y-1 backdrop-blur-2xl"></div>
             </div>
