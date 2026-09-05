@@ -252,44 +252,10 @@ const ROLE_CUSTOM_MESSAGES = {
   80: 'Sen kurbağa değil direkt göl olmuşsun, biraz çimene dokunmak iyi gelebilir!!! 👑🏞️'
 };
 
-// Send DM Congratulation Notification
+// Send DM Congratulation Notification (DISABLED)
 export async function sendLevelUpDm(guild, member, newLevel, roleRewardRole = null) {
-  if (!member || !member.user || member.user.bot) return;
-
-  try {
-    let specialNote = '';
-    if (ROLE_CUSTOM_MESSAGES[newLevel]) {
-      specialNote = `\n\n> 💬 **${ROLE_CUSTOM_MESSAGES[newLevel]}**`;
-    }
-
-    const embed = new EmbedBuilder()
-      .setColor('#5EA454')
-      .setTitle('🎉 TEBRİKLER, SEVİYE ATLADIN!')
-      .setDescription(
-        `Selam **${member.user.username}**! 🌿\n\n` +
-        `**${guild.name}** sunucusundaki aktifliğin sayesinde **Seviye ${newLevel}** oldun! 🐸✨` +
-        specialNote + '\n\n' +
-        (roleRewardRole ? `🎖️ **Yeni Rolün:** <@&${roleRewardRole.id}> (${roleRewardRole.name})\n` : '') +
-        `🏆 Sıralamadaki yerini ve istatistiklerini görmek için sunucuda \`/rank\` komutunu kullanabilir veya web sitemize göz atabilirsin.`
-      )
-      .setThumbnail(guild.iconURL({ dynamic: true, size: 256 }) || member.user.displayAvatarURL())
-      .setFooter({ text: `${guild.name} • Seviye Sistemi`, iconURL: guild.iconURL() })
-      .setTimestamp();
-
-    const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setLabel('🌐 Sıralama Tablosu')
-        .setStyle(ButtonStyle.Link)
-        .setURL(`${dashboardUrl}/#u/${member.id}`)
-    );
-
-    await member.send({ embeds: [embed], components: [row] });
-    console.log(`✉️ [Level Up DM] ${member.user.tag} kullanıcısına Level ${newLevel} tebrik DM'i gönderildi.`);
-  } catch (err) {
-    // DM'leri kapalı olan kullanıcılar için sessizce hata yakalama
-    console.log(`ℹ️ [Level Up DM Kapalı] ${member.user?.tag || member.id} DM mesajlarına kapalı.`);
-  }
+  // Automatic level up DMs temporarily disabled per user request
+  return;
 }
 
 // Check & Award Role Rewards
