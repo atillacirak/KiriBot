@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐸 Kiri Bot • Yeşil Gölet Discord Botu & Web Dashboard
+# 🐸 Kur Bot • Yeşil Gölet Discord Botu & Web Dashboard
 
 [![Discord.js](https://img.shields.io/badge/Discord.js-v14.27.0-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.js.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -83,8 +83,8 @@
 
 ### 2. Projeyi Klonlama ve Bağımlılıkları Yükleme
 ```bash
-git clone https://github.com/your-username/KiriBot.git
-cd KiriBot
+git clone https://github.com/your-username/KurBot.git
+cd KurBot
 npm install
 ```
 
@@ -133,7 +133,7 @@ pm2 restart kiribot
 ## 📁 Proje Dizin Yapısı
 
 ```
-KiriBot/
+KurBot/
 ├── public/                 # Web Dashboard & SPA
 │   ├── index.html          # TailwindCSS & Glassmorphism Arayüzü
 │   └── ...

@@ -210,7 +210,7 @@ export function startDashboard(client, port = 3000) {
       res.json({
         success: true,
         bot: {
-          tag: client.user ? client.user.tag : 'Kiri Bot#2895',
+          tag: client.user ? client.user.tag : 'Kur Bot#2895',
           avatar: client.user ? client.user.displayAvatarURL() : null,
           uptime: process.uptime()
         },
@@ -886,12 +886,77 @@ export function startDashboard(client, port = 3000) {
       };
 
       const dateStr = new Date().toISOString().slice(0, 10);
-      res.setHeader('Content-Disposition', `attachment; filename="kiribot-backup-${dateStr}.json"`);
+      res.setHeader('Content-Disposition', `attachment; filename="kurbot-backup-${dateStr}.json"`);
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(backupData, null, 2));
     } catch (e) {
       res.status(500).json({ success: false, error: e.message });
     }
+  });
+
+  // Contact Requests Store
+  const contactRequests = [];
+
+  // POST /api/contact — public form submission
+  app.post('/api/contact', (req, res) => {
+    try {
+      const { subject, discordUsername, discordId, email, message } = req.body || {};
+      if (!subject || !message || message.length < 10) {
+        return res.status(400).json({ success: false, error: 'Gerekli alanlar eksik.' });
+      }
+      if (!discordUsername && !discordId) {
+        return res.status(400).json({ success: false, error: 'Discord kullanıcı adı veya ID gerekli.' });
+      }
+      const id = `CR-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      const record = {
+        id,
+        subject: String(subject).slice(0, 100),
+        discordUsername: String(discordUsername || '').slice(0, 64),
+        discordId: String(discordId || '').replace(/[^0-9]/g, '').slice(0, 20),
+        email: String(email || '').slice(0, 120),
+        message: String(message).slice(0, 1000),
+        status: 'new',
+        createdAt: new Date().toISOString()
+      };
+      contactRequests.unshift(record);
+      if (contactRequests.length > 500) contactRequests.splice(500);
+      console.log(`📩 Yeni iletişim talebi: [${id}] ${record.subject} — @${record.discordUsername || record.discordId}`);
+      res.json({ success: true, id });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // GET /api/contact-requests — admin only
+  app.get('/api/contact-requests', (req, res) => {
+    const pw = req.headers['x-admin-password'] || req.query.pw || '';
+    if (pw !== ADMIN_PASSWORD) return res.status(401).json({ success: false, error: 'Yetkisiz.' });
+    res.json({ success: true, requests: contactRequests, total: contactRequests.length });
+  });
+
+  // PATCH /api/contact-requests/:id — mark as resolved
+  app.patch('/api/contact-requests/:id', (req, res) => {
+    const pw = req.headers['x-admin-password'] || req.query.pw || '';
+    if (pw !== ADMIN_PASSWORD) return res.status(401).json({ success: false, error: 'Yetkisiz.' });
+    const record = contactRequests.find(r => r.id === req.params.id);
+    if (!record) return res.status(404).json({ success: false, error: 'Talep bulunamadı.' });
+    record.status = req.body?.status || 'resolved';
+    res.json({ success: true, record });
+  });
+
+  // DELETE /api/contact-requests/:id — admin only
+  app.delete('/api/contact-requests/:id', (req, res) => {
+    const pw = req.headers['x-admin-password'] || req.query.pw || '';
+    if (pw !== ADMIN_PASSWORD) return res.status(401).json({ success: false, error: 'Yetkisiz.' });
+    const idx = contactRequests.findIndex(r => r.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ success: false, error: 'Talep bulunamadı.' });
+    contactRequests.splice(idx, 1);
+    res.json({ success: true });
+  });
+
+  // Contact Page Route
+  app.get(['/contact', '/iletisim'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'contact.html'));
   });
 
   // Privacy Policy Route (Discord Developer Portal Compliant)
@@ -905,7 +970,7 @@ export function startDashboard(client, port = 3000) {
   });
 
   const server = app.listen(port, () => {
-    console.log(`🌐 Kiri Bot Dashboard & Liderlik Tablosu aktif: http://localhost:${port}`);
+    console.log(`🌐 Kur Bot Dashboard & Liderlik Tablosu aktif: http://localhost:${port}`);
   });
 
   return server;

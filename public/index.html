@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kiri Bot • Yeşil Gölet Canlı Dashboard & Liderlik Tablosu</title>
+  <title>Kur Bot • Yeşil Gölet Canlı Dashboard & Liderlik Tablosu</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐸</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -177,7 +177,7 @@
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <span class="font-display font-bold text-lg text-white tracking-wide group-hover:text-pond-400 transition">Kiri Bot</span>
+          <span class="font-display font-bold text-lg text-white tracking-wide group-hover:text-pond-400 transition">Kur Bot</span>
           <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-pond-500/20 text-pond-400 border border-pond-500/30">V1.0 LIVE</span>
         </div>
         <p class="text-xs text-gray-400">Yeşil Gölet Discord Ekosistemi</p>
@@ -1278,7 +1278,7 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-1.5">
-                      <span class="font-bold text-white text-xs">Kiri Bot</span>
+                      <span class="font-bold text-white text-xs">Kur Bot</span>
                       <span class="bg-[#5865F2] text-white text-[9px] font-bold px-1 py-0.2 rounded">BOT</span>
                       <span class="text-[10px] text-[#949ba4] ml-1">Bugün <span id="card4PreviewTime">00:30</span></span>
                     </div>
@@ -1393,7 +1393,7 @@
                   <span class="text-xl">💬</span>
                   <div>
                     <h3 class="font-display font-bold text-white text-base">Gelen & Giden DM Kutusu</h3>
-                    <p class="text-[11px] text-gray-400">KiriBot ile üye sohbet geçmişi</p>
+                    <p class="text-[11px] text-gray-400">KurBot ile üye sohbet geçmişi</p>
                   </div>
                 </div>
                 <button onclick="loadAdminConversations()" title="Sohbetleri Yenile" class="group p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-pond-300 transition shadow-sm active:scale-95 flex items-center justify-center">
@@ -1433,7 +1433,7 @@
                 </div>
                 <h4 class="font-display font-bold text-white text-base">Mesajlaşma ve Destek Merkezi</h4>
                 <p class="text-xs text-gray-400 max-w-md">
-                  Discord üzerinden KiriBot'a gelen şikayet, öneri veya mesajları görmek ya da bir üyeye doğrudan bot adına yanıt iletmek için soldaki listeden bir sohbet seçin.
+                  Discord üzerinden KurBot'a gelen şikayet, öneri veya mesajları görmek ya da bir üyeye doğrudan bot adına yanıt iletmek için soldaki listeden bir sohbet seçin.
                 </p>
                 <button onclick="switchAdminSubtab('settings')" class="mt-2 px-4 py-2 rounded-xl bg-pond-500/20 text-pond-300 border border-pond-500/30 text-xs font-bold hover:bg-pond-500/30 transition">
                   ➕ Yeni Bir Kullanıcıya Mesaj Başlat
@@ -1488,7 +1488,7 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-1.5">
-                          <span class="font-bold text-white text-xs">Kiri Bot</span>
+                          <span class="font-bold text-white text-xs">Kur Bot</span>
                           <span class="bg-[#5865F2] text-white text-[9px] font-bold px-1 py-0.2 rounded">BOT</span>
                           <span class="text-[10px] text-[#949ba4] ml-1">Bugün <span id="dmReplyPreviewTime">00:30</span></span>
                         </div>
@@ -1615,7 +1615,7 @@
   <footer class="glass-card border-t border-pond-border py-8 px-4 text-center text-xs text-gray-500 mt-12">
     <a href="/" onclick="event.preventDefault(); window.location.hash=''; showTab('leaderboard');" class="inline-flex items-center justify-center gap-2 mb-2 hover:opacity-80 transition cursor-pointer">
       <span class="text-base">🐸</span>
-      <span class="font-display font-bold text-gray-300 hover:text-pond-400 transition">Kiri Bot • Yeşil Gölet</span>
+      <span class="font-display font-bold text-gray-300 hover:text-pond-400 transition">Kur Bot • Yeşil Gölet</span>
     </a>
     <p class="mb-4">Tüm hakları saklıdır. AWS 7/24 Kesintisiz Bulut Altyapısı & MongoDB Atlas ile güçlendirilmiştir.</p>
     <div class="flex items-center justify-center gap-6 pt-3 border-t border-pond-border/50">
@@ -2411,11 +2411,11 @@
                 : (m.userAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png');
 
               if (isOutgoing) {
-                // Outgoing (KiriBot -> User)
+                // Outgoing (KurBot -> User)
                 return `
                   <div class="flex flex-col items-end space-y-1">
                     <div class="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
-                      <span class="text-pond-400 font-bold">KiriBot</span>
+                      <span class="text-pond-400 font-bold">KurBot</span>
                       <span class="bg-[#5865F2] text-white text-[8px] font-bold px-1 rounded">BOT</span>
                       <span>•</span>
                       <span>${timeStr}</span>
@@ -2438,7 +2438,7 @@
                   </div>
                 `;
               } else {
-                // Incoming (User -> KiriBot)
+                // Incoming (User -> KurBot)
                 return `
                   <div class="flex items-start gap-2.5 max-w-md">
                     <img src="${escapeHtml(avatarUrl)}" class="w-7 h-7 rounded-full border border-pond-border object-cover mt-0.5 shrink-0" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
@@ -3744,7 +3744,7 @@
   <!-- Site Footer -->
   <footer style="background:rgba(8,14,9,0.95);border-top:1px solid rgba(94,164,84,0.18);" class="mt-10 py-6 px-4 text-center text-xs text-gray-500">
     <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-      <span>© 2026 <span class="text-emerald-400 font-semibold">Yeşil Gölet</span> &amp; KiriBot 🐸</span>
+      <span>© 2026 <span class="text-emerald-400 font-semibold">Yeşil Gölet</span> &amp; KurBot 🐸</span>
       <div class="flex items-center gap-5">
         <a href="/privacy" class="text-emerald-400 hover:text-emerald-300 transition font-medium hover:underline flex items-center gap-1">
           <span>🔒</span> Gizlilik Politikası (Privacy Policy)
