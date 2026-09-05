@@ -322,9 +322,19 @@
             <button id="prevPageBtn" onclick="changeLeaderboardPage(-1)" class="px-3.5 py-1.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
               ← Önceki
             </button>
-            <span id="pageIndicator" class="px-3 py-1 rounded-lg bg-black/60 border border-pond-border/50 text-white font-mono">
-              Sayfa 1 / 1
-            </span>
+            <div class="flex items-center gap-1 bg-black/60 border border-pond-border/50 rounded-lg px-2 py-1">
+              <span class="text-gray-400">Sayfa</span>
+              <input 
+                type="number" 
+                id="pageInput" 
+                min="1" 
+                value="1" 
+                onchange="goToLeaderboardPage(this.value)" 
+                onkeydown="if(event.key==='Enter') goToLeaderboardPage(this.value)"
+                class="w-10 bg-black/50 border border-pond-border/80 rounded text-center text-white font-mono font-bold focus:outline-none focus:border-pond-500 py-0.5"
+              >
+              <span id="totalPagesText" class="text-gray-400 font-mono">/ 1</span>
+            </div>
             <button id="nextPageBtn" onclick="changeLeaderboardPage(1)" class="px-3.5 py-1.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
               Sonraki →
             </button>
@@ -1932,7 +1942,8 @@
       const toggleIcon = document.getElementById('toggleLeaderboardIcon');
       const pageNav = document.getElementById('leaderboardPageNav');
       const countEl = document.getElementById('leaderboardShowingCount');
-      const pageIndicator = document.getElementById('pageIndicator');
+      const pageInput = document.getElementById('pageInput');
+      const totalPagesText = document.getElementById('totalPagesText');
       const prevBtn = document.getElementById('prevPageBtn');
       const nextBtn = document.getElementById('nextPageBtn');
       
@@ -1972,7 +1983,11 @@
       if (totalUsers > PAGE_SIZE && pageNav) {
         pageNav.classList.remove('hidden');
         if (countEl) countEl.innerText = `Sayfa ${currentPage} (${startIndex + 1} - ${Math.min(endIndex, totalUsers)} / ${totalUsers} üye)`;
-        if (pageIndicator) pageIndicator.innerText = `Sayfa ${currentPage} / ${totalPages}`;
+        if (pageInput) {
+          pageInput.value = currentPage;
+          pageInput.max = totalPages;
+        }
+        if (totalPagesText) totalPagesText.innerText = `/ ${totalPages}`;
         if (prevBtn) prevBtn.disabled = (currentPage <= 1);
         if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
       } else if (pageNav) {
@@ -2054,6 +2069,17 @@
 
     function changeLeaderboardPage(delta) {
       currentPage += delta;
+      renderTable(allUsers);
+      const listEl = document.getElementById('leaderboardList');
+      if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function goToLeaderboardPage(targetPageVal) {
+      const pageNum = parseInt(targetPageVal, 10);
+      if (isNaN(pageNum)) return;
+      const PAGE_SIZE = leaderboardLimit;
+      const totalPages = Math.ceil(allUsers.length / PAGE_SIZE) || 1;
+      currentPage = Math.max(1, Math.min(pageNum, totalPages));
       renderTable(allUsers);
       const listEl = document.getElementById('leaderboardList');
       if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
