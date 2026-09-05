@@ -724,12 +724,12 @@
             </div>
 
             <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
-              <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Toplam Sunucu XP</div>
-              <div id="statTotalXp" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
+              <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Atılan Mesaj Sayısı</div>
+              <div id="statTotalMessages" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
               <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-                <span>⚡</span> Sesli + Yazılı Sohbet
+                <span>💬</span> Toplam Sohbet Mesajı
               </div>
-              <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">⚡</div>
+              <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">💬</div>
             </div>
 
             <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
@@ -1745,9 +1745,13 @@
         const res = await fetch('/api/stats');
         const data = await res.json();
         if (data.success) {
-          document.getElementById('statTrackedUsers').innerText = data.stats.trackedUsers.toLocaleString();
-          document.getElementById('statTotalXp').innerText = data.stats.totalXp.toLocaleString() + ' XP';
-          document.getElementById('statVoiceHours').innerText = data.stats.totalVoiceHours + ' Sa';
+          const trackedUsersEl = document.getElementById('statTrackedUsers');
+          const totalMsgsEl = document.getElementById('statTotalMessages');
+          const voiceHoursEl = document.getElementById('statVoiceHours');
+
+          if (trackedUsersEl) trackedUsersEl.innerText = data.stats.trackedUsers.toLocaleString();
+          if (totalMsgsEl) totalMsgsEl.innerText = (data.stats.totalMessages || 0).toLocaleString() + ' Mesaj';
+          if (voiceHoursEl) voiceHoursEl.innerText = data.stats.totalVoiceHours + ' Sa';
         }
       } catch (err) {
         console.warn('Stats fetch error:', err);
@@ -1761,6 +1765,9 @@
       
       try {
         const res = await fetch(`/api/leaderboard?type=${currentTypeFilter}&period=${currentPeriodFilter}&search=${encodeURIComponent(searchVal)}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = await res.json();
         
         if (!data.success || !data.users || data.users.length === 0) {

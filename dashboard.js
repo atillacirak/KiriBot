@@ -210,6 +210,8 @@ export function startDashboard(client, port = 3000) {
         tier0: guildUsers.filter(u => u.level < 25).length
       };
 
+      const totalMessages = Math.max(0, Math.round(totalTextXp / 12.5));
+
       res.json({
         success: true,
         bot: {
@@ -229,6 +231,7 @@ export function startDashboard(client, port = 3000) {
           totalVoiceXp,
           totalTextXp,
           totalVoiceHours,
+          totalMessages,
           roleCounts
         }
       });
