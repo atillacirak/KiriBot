@@ -77,6 +77,41 @@
       background: linear-gradient(135deg, #CD7F32 0%, #8C531B 100%);
       color: #FFF;
     }
+
+    /* SPINNING & GLOWING ROLE RINGS */
+    @keyframes spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 8px var(--glow-c)) drop-shadow(0 0 16px var(--glow-c)); }
+      50% { opacity: 1; filter: drop-shadow(0 0 14px var(--glow-c)) drop-shadow(0 0 24px var(--glow-c)); }
+    }
+    .animated-role-ring {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      padding: 3px;
+      z-index: 1;
+    }
+    .animated-role-ring::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 9999px;
+      background: conic-gradient(from 0deg, var(--glow-c), transparent 45%, var(--glow-c), transparent 90%, var(--glow-c));
+      animation: spin-slow 4s linear infinite, pulse-glow 2.5s ease-in-out infinite;
+      z-index: -1;
+    }
+    .animated-role-ring-lg {
+      padding: 4px;
+    }
+    .animated-role-ring-lg::before {
+      inset: -3px;
+      animation: spin-slow 5s linear infinite, pulse-glow 3s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-pond-500 selection:text-white">
@@ -344,8 +379,10 @@
           <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
             <!-- AVATAR WITH BADGE -->
             <div class="relative">
-              <img id="uAvatar" src="" class="w-24 h-24 md:w-28 md:h-28 rounded-full ring-4 ring-pond-500/40 object-cover shadow-xl">
-              <div id="uRankBadge" class="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-full text-xs font-extrabold shadow-lg">
+              <div id="uAvatarRingWrapper" class="animated-role-ring animated-role-ring-lg" style="--glow-c: #4CAF50;">
+                <img id="uAvatar" src="" class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-2xl bg-black">
+              </div>
+              <div id="uRankBadge" class="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-full text-xs font-extrabold shadow-lg z-10">
                 #1
               </div>
             </div>
@@ -1293,19 +1330,19 @@
       const [first, second, third] = users;
       const sortLabel = getSortLabel();
 
-      const getRoleGlow = (role) => {
-        if (!role) return 'border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 10px rgba(255,255,255,0.1);';
-        const color = role.color || '#4CAF50';
-        return `border: 2.5px solid ${color}; box-shadow: 0 0 14px ${color}60;`;
-      };
+      const getRoleColor = (role) => role?.color || '#4CAF50';
 
       podiumEl.innerHTML = `
         <!-- 2ND PLACE -->
         <div onclick="openUserProfile('${second.userId}')" class="glass-card rounded-2xl p-5 text-center relative border-gray-400/30 order-2 md:order-1 transform hover:-translate-y-1 transition cursor-pointer group">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold badge-silver shadow">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold badge-silver shadow z-10">
             🥈 #2 GÜMÜŞ
           </div>
-          <img src="${second.avatar}" class="w-16 h-16 rounded-full mx-auto mt-2 object-cover group-hover:scale-105 transition" style="${getRoleGlow(second.frogRole)}">
+          <div class="mt-2 inline-flex justify-center">
+            <div class="animated-role-ring" style="--glow-c: ${getRoleColor(second.frogRole)};">
+              <img src="${second.avatar}" class="w-16 h-16 rounded-full object-cover group-hover:scale-105 transition bg-black">
+            </div>
+          </div>
           <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${second.username}</h4>
           <div class="mt-1 flex justify-center">
             ${renderRolePill(second.frogRole)}
@@ -1316,10 +1353,14 @@
 
         <!-- 1ST PLACE (GOLD) -->
         <div onclick="openUserProfile('${first.userId}')" class="glass-card rounded-2xl p-6 text-center relative border-yellow-500/50 order-1 md:order-2 transform md:-translate-y-4 glow-green hover:-translate-y-5 transition cursor-pointer group">
-          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full text-xs font-extrabold badge-gold shadow-lg shadow-yellow-500/20 flex items-center gap-1">
+          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full text-xs font-extrabold badge-gold shadow-lg shadow-yellow-500/20 flex items-center gap-1 z-10">
             <span>👑</span> #1 ŞAMPİYON
           </div>
-          <img src="${first.avatar}" class="w-20 h-20 rounded-full mx-auto mt-2 object-cover group-hover:scale-105 transition" style="${getRoleGlow(first.frogRole)}">
+          <div class="mt-2 inline-flex justify-center">
+            <div class="animated-role-ring animated-role-ring-lg" style="--glow-c: ${getRoleColor(first.frogRole)};">
+              <img src="${first.avatar}" class="w-20 h-20 rounded-full object-cover group-hover:scale-105 transition bg-black">
+            </div>
+          </div>
           <h4 class="font-extrabold text-white text-base mt-2 truncate group-hover:text-yellow-300 transition">${first.username}</h4>
           <div class="mt-1 flex justify-center">
             ${renderRolePill(first.frogRole)}
@@ -1330,10 +1371,14 @@
 
         <!-- 3RD PLACE -->
         <div onclick="openUserProfile('${third.userId}')" class="glass-card rounded-2xl p-5 text-center relative border-amber-700/40 order-3 md:order-3 transform hover:-translate-y-1 transition cursor-pointer group">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold badge-bronze shadow">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold badge-bronze shadow z-10">
             🥉 #3 BRONZ
           </div>
-          <img src="${third.avatar}" class="w-16 h-16 rounded-full mx-auto mt-2 object-cover group-hover:scale-105 transition" style="${getRoleGlow(third.frogRole)}">
+          <div class="mt-2 inline-flex justify-center">
+            <div class="animated-role-ring" style="--glow-c: ${getRoleColor(third.frogRole)};">
+              <img src="${third.avatar}" class="w-16 h-16 rounded-full object-cover group-hover:scale-105 transition bg-black">
+            </div>
+          </div>
           <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${third.username}</h4>
           <div class="mt-1 flex justify-center">
             ${renderRolePill(third.frogRole)}
@@ -1346,12 +1391,7 @@
 
     function renderTable(users) {
       const listEl = document.getElementById('leaderboardList');
-      
-      const getRoleGlow = (role) => {
-        if (!role) return 'border: 2px solid rgba(255,255,255,0.15);';
-        const color = role.color || '#4CAF50';
-        return `border: 2px solid ${color}; box-shadow: 0 0 10px ${color}50;`;
-      };
+      const getRoleColor = (role) => role?.color || '#4CAF50';
 
       const rows = users.map(user => {
         let rankBadge = `<span class="font-display font-bold text-gray-400">#${user.rank}</span>`;
@@ -1366,7 +1406,9 @@
               <div class="w-8 flex items-center justify-center">
                 ${rankBadge}
               </div>
-              <img src="${user.avatar}" class="w-11 h-11 rounded-full object-cover group-hover:scale-105 transition shrink-0" style="${getRoleGlow(user.frogRole)}">
+              <div class="animated-role-ring shrink-0" style="--glow-c: ${getRoleColor(user.frogRole)};">
+                <img src="${user.avatar}" class="w-11 h-11 rounded-full object-cover group-hover:scale-105 transition bg-black">
+              </div>
               <div class="truncate">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-white text-sm truncate group-hover:text-pond-400 transition">${user.username}</span>
@@ -2402,10 +2444,12 @@
         const avatarEl = document.getElementById('uAvatar');
         avatarEl.src = u.avatar;
 
-        // Apply role color halo to profile avatar
+        // Apply role color halo and spinning gradient ring to profile avatar
         const roleColor = u.currentFrogRole?.color || '#4CAF50';
-        avatarEl.style.border = `3px solid ${roleColor}`;
-        avatarEl.style.boxShadow = `0 0 20px ${roleColor}60`;
+        const ringWrapper = document.getElementById('uAvatarRingWrapper');
+        if (ringWrapper) {
+          ringWrapper.style.setProperty('--glow-c', roleColor);
+        }
 
         document.getElementById('uUsername').innerText = u.username;
         document.getElementById('uTag').innerText = u.tag;
