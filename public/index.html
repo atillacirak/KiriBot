@@ -303,27 +303,12 @@
         </div>
       </div>
 
-      <!-- PAGINATION & EXPAND CONTROLS -->
-      <div id="leaderboardPaginationContainer" class="hidden border-t border-pond-border/60 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold">
-        <div class="flex items-center gap-2">
-          <button id="expandLeaderboardBtn" onclick="expandTo30()" class="px-4 py-2 rounded-xl bg-pond-500/20 hover:bg-pond-500/30 text-pond-300 border border-pond-500/40 transition flex items-center gap-1.5 shadow-sm">
-            <span>🔽</span>
-            <span>Daha Fazla Göster (İlk 30)</span>
-          </button>
-          <span id="leaderboardShowingCount" class="text-gray-400">10 üye listeleniyor</span>
-        </div>
-
-        <div id="leaderboardPageNav" class="hidden flex items-center gap-2">
-          <button id="prevPageBtn" onclick="changeLeaderboardPage(-1)" class="px-3 py-1.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
-            ← Önceki
-          </button>
-          <span id="pageIndicator" class="px-3 py-1 rounded-lg bg-black/60 border border-pond-border/50 text-white font-mono">
-            Sayfa 1 / 1
-          </span>
-          <button id="nextPageBtn" onclick="changeLeaderboardPage(1)" class="px-3 py-1.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
-            Sonraki →
-          </button>
-        </div>
+      <!-- MODERN EXPAND & COLLAPSE CONTROL -->
+      <div id="leaderboardPaginationContainer" class="hidden pt-2 flex flex-col items-center justify-center">
+        <button id="toggleLeaderboardBtn" onclick="toggleLeaderboardExpand()" class="group px-5 py-2.5 rounded-full bg-black/40 hover:bg-pond-500/20 border border-pond-border/80 hover:border-pond-500/50 text-gray-300 hover:text-white text-xs font-bold transition-all shadow-lg flex items-center gap-2">
+          <span id="toggleLeaderboardText">İlk 20 Üyeyi Göster</span>
+          <span id="toggleLeaderboardIcon" class="w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:translate-y-0.5">↓</span>
+        </button>
       </div>
     </section>
 
@@ -1921,12 +1906,8 @@
     function renderTable(users) {
       const listEl = document.getElementById('leaderboardList');
       const containerEl = document.getElementById('leaderboardPaginationContainer');
-      const expandBtn = document.getElementById('expandLeaderboardBtn');
-      const pageNav = document.getElementById('leaderboardPageNav');
-      const countEl = document.getElementById('leaderboardShowingCount');
-      const pageIndicator = document.getElementById('pageIndicator');
-      const prevBtn = document.getElementById('prevPageBtn');
-      const nextBtn = document.getElementById('nextPageBtn');
+      const toggleText = document.getElementById('toggleLeaderboardText');
+      const toggleIcon = document.getElementById('toggleLeaderboardIcon');
       
       const getRoleColor = (role) => role?.color || '#4CAF50';
 
@@ -1935,34 +1916,27 @@
         return;
       }
 
-      if (containerEl) containerEl.classList.remove('hidden');
+      if (users.length <= 10) {
+        if (containerEl) containerEl.classList.add('hidden');
+      } else {
+        if (containerEl) containerEl.classList.remove('hidden');
+      }
 
       let visibleUsers = [];
-      const totalUsers = users.length;
-
       if (leaderboardLimit === 10) {
-        // Initial state: show top 10
         visibleUsers = users.slice(0, 10);
-        if (expandBtn) expandBtn.classList.remove('hidden');
-        if (pageNav) pageNav.classList.add('hidden');
-        if (countEl) countEl.innerText = `İlk 10 / ${totalUsers} üye listeleniyor`;
+        if (toggleText) toggleText.innerText = 'Daha Fazla Göster (İlk 20)';
+        if (toggleIcon) {
+          toggleIcon.innerText = '↓';
+          toggleIcon.className = 'w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:translate-y-0.5';
+        }
       } else {
-        // Expanded state: paginated by 30
-        if (expandBtn) expandBtn.classList.add('hidden');
-        if (pageNav) pageNav.classList.remove('hidden');
-
-        const totalPages = Math.ceil(totalUsers / PAGE_SIZE) || 1;
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
-
-        const startIndex = (currentPage - 1) * PAGE_SIZE;
-        const endIndex = startIndex + PAGE_SIZE;
-        visibleUsers = users.slice(startIndex, endIndex);
-
-        if (countEl) countEl.innerText = `Sayfa ${currentPage} (${startIndex + 1} - ${Math.min(endIndex, totalUsers)} / ${totalUsers} üye)`;
-        if (pageIndicator) pageIndicator.innerText = `Sayfa ${currentPage} / ${totalPages}`;
-        if (prevBtn) prevBtn.disabled = (currentPage <= 1);
-        if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
+        visibleUsers = users.slice(0, 20);
+        if (toggleText) toggleText.innerText = 'Listeyi Daralt (İlk 10)';
+        if (toggleIcon) {
+          toggleIcon.innerText = '↑';
+          toggleIcon.className = 'w-6 h-6 rounded-full bg-pond-500/20 text-pond-400 flex items-center justify-center text-xs transition-transform duration-300 group-hover:-translate-y-0.5';
+        }
       }
 
       const rows = visibleUsers.map(user => {
@@ -2021,17 +1995,15 @@
       listEl.innerHTML = rows;
     }
 
-    function expandTo30() {
-      leaderboardLimit = 30;
-      currentPage = 1;
+    function toggleLeaderboardExpand() {
+      if (leaderboardLimit === 10) {
+        leaderboardLimit = 20;
+      } else {
+        leaderboardLimit = 10;
+        const listEl = document.getElementById('leaderboardList');
+        if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       renderTable(allUsers);
-    }
-
-    function changeLeaderboardPage(delta) {
-      currentPage += delta;
-      renderTable(allUsers);
-      const listEl = document.getElementById('leaderboardList');
-      if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // Legacy changeSort fallback for any internal calls
