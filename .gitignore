@@ -1,3 +1,33 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Environment Variables & Secrets
 .env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Logs & Databases
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pm2/
+database_events.json
+
+# System & OS Files
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+tmp/
+temp/
