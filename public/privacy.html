@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="tr" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KiriBot • Privacy Policy & Terms</title>
+  <title>KiriBot • Gizlilik Politikası & Privacy Policy</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐸</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
       background-attachment: fixed;
     }
     .glass-card {
-      background: rgba(16, 27, 18, 0.8);
+      background: rgba(16, 27, 18, 0.85);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(94, 164, 84, 0.25);
     }
@@ -30,19 +30,112 @@
 
   <div class="max-w-3xl w-full glass-card rounded-3xl p-6 md:p-10 space-y-6 shadow-2xl">
     
-    <!-- Header -->
-    <div class="flex items-center gap-4 border-b border-green-900/50 pb-6">
-      <div class="w-14 h-14 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
-        🐸
+    <!-- Header with Language Selector Tabs -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-pond-border pb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
+          🐸
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">KiriBot Gizlilik Politikası</h1>
+          <p class="text-xs text-gray-400 mt-0.5">Yeşil Gölet Discord Ekosistemi • Privacy Policy & Terms</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-2xl font-bold text-white tracking-wide">KiriBot Privacy Policy</h1>
-        <p class="text-xs text-gray-400 mt-0.5">Last Updated: September 6, 2026 • Yeşil Gölet Discord Ecosystem</p>
+
+      <!-- Language Selector Tabs -->
+      <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-black/50 border border-pond-border self-start sm:self-auto text-xs font-semibold">
+        <button id="langBtnTr" onclick="switchLanguage('tr')" class="px-4 py-2 rounded-xl bg-pond-500 text-white transition flex items-center gap-1.5 shadow-sm">
+          <span>🇹🇷</span>
+          <span>Türkçe</span>
+        </button>
+        <button id="langBtnEn" onclick="switchLanguage('en')" class="px-4 py-2 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1.5">
+          <span>🇬🇧</span>
+          <span>English</span>
+        </button>
       </div>
     </div>
 
-    <!-- Content (English) -->
-    <div class="space-y-6 text-sm text-gray-300 leading-relaxed">
+    <!-- TURKISH CONTENT -->
+    <div id="contentTr" class="space-y-6 text-sm text-gray-300 leading-relaxed">
+      
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">1.</span> Genel Bakış
+        </h2>
+        <p>
+          KiriBot, <strong>Yeşil Gölet</strong> Discord topluluk sunucusu için özel olarak geliştirilmiş bir seviye, istatistik ve topluluk yönetim botudur. Bu gizlilik politikası, kullanıcı verilerinin nasıl toplandığını, saklandığını ve korunduğunu açıklar.
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">2.</span> Toplanan Veriler
+        </h2>
+        <ul class="list-disc list-inside space-y-1.5 text-gray-300 ml-2">
+          <li><strong>Discord Kullanıcı Bilgileri:</strong> Liderlik tablosunu görüntülemek ve seviye takibi yapabilmek amacıyla Kullanıcı ID'si (User ID), Kullanıcı Adı, Görünen Ad ve Profil Resmi (Avatar) saklanır.</li>
+          <li><strong>Aktivite Metrikleri:</strong> Üyelerin seviye (XP) puanlarını hesaplamak için sesli kanallarda geçirilen süre ve gönderilen mesaj sayıları işlenir.</li>
+          <li><strong>Sunucu İstatistikleri:</strong> Sunucu büyüme analizi için toplam katılan/ayrılan üye sayıları ve kanallardaki mesaj yoğunlukları anonim istatistik olarak derlenir.</li>
+          <li><strong>DM İletişim Kayıtları:</strong> Bota doğrudan atılan özel mesajlar (şikayet, öneri, destek talepleri) yönetim panelinde yanıtlanabilmesi için saklanır.</li>
+        </ul>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">3.</span> Toplanmayan Veriler
+        </h2>
+        <p>
+          KiriBot metin kanallarındaki sohbet içeriklerini veri tabanında saklamaz (mesajlar sadece anlık XP hesaplaması için işlenir ve hemen silinir). Gerçek ad-soyad, e-posta, şifre, konum veya ödeme bilgileri gibi kişisel veriler kesinlikle toplanmaz.
+        </p>
+      </section>
+
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">4.</span> Veri Güvenliği ve Saklama
+        </h2>
+        <p>
+          Toplanan seviye ve profil verileri, SSL/TLS şifrelemeli kurumsal <strong>MongoDB Atlas</strong> bulut veritabanında güvenli şekilde saklanmaktadır. Verileriniz hiçbir üçüncü taraf kurum veya şahısla kesinlikle paylaşılmaz ve satılmaz.
+        </p>
+      </section>
+
+      <section id="contactTr" class="space-y-4 scroll-mt-8">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">5.</span> Veri Silme Talebi ve İletişim
+        </h2>
+        <p>
+          Herhangi bir kullanıcı, Discord hesabına bağlı tüm verilerin sistemimizden kalıcı olarak silinmesini talep etme hakkına sahiptir. Talebiniz üzerine XP kayıtlarınız, seviye geçmişiniz ve mesaj kayıtlarınız en geç <strong class="text-white">30 gün</strong> içerisinde sistemimizden tamamen temizlenir.
+        </p>
+
+        <div class="rounded-2xl border border-emerald-700/40 bg-emerald-900/10 p-5 space-y-4">
+          <p class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">📩 Veri Silme Talebi Nasıl İletilir?</p>
+
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-emerald-400">1</span>
+              <div>
+                <p class="font-semibold text-white text-sm">Discord — Bota Özel Mesaj (DM) Gönderin</p>
+                <p class="text-gray-400 text-xs mt-0.5">Discord üzerinden <span class="text-emerald-300 font-mono">KiriBot</span> profilini açıp veri silme talebinizi ve Discord User ID'nizi belirten bir mesaj atın.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-emerald-400">2</span>
+              <div>
+                <p class="font-semibold text-white text-sm">Discord — Sunucu Yönetimi İle İletişime Geçin</p>
+                <p class="text-gray-400 text-xs mt-0.5"><span class="text-emerald-300 font-semibold">Yeşil Gölet</span> Discord sunucusundaki yetkililere ulaşıp veri silme isteğinizi iletebilirsiniz.</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-gray-500 pt-1 border-t border-emerald-900/50">
+            Talepleriniz en geç 30 gün içinde işleme alınıp veritabanından kalıcı olarak silinecektir.
+          </p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ENGLISH CONTENT -->
+    <div id="contentEn" class="hidden space-y-6 text-sm text-gray-300 leading-relaxed">
       
       <section class="space-y-2">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
@@ -57,10 +150,11 @@
         <h2 class="text-base font-bold text-white flex items-center gap-2">
           <span class="text-emerald-400">2.</span> Data We Collect
         </h2>
-        <ul class="list-disc list-inside space-y-1 text-gray-300 ml-2">
-          <li><strong>Discord User Information:</strong> User ID, Username, Display Name, and Avatar URL to display on the leaderboard and manage user levels.</li>
-          <li><strong>Activity Metrics:</strong> Voice channel activity duration and message count/XP points solely used for calculating user levels and rank progression.</li>
+        <ul class="list-disc list-inside space-y-1.5 text-gray-300 ml-2">
+          <li><strong>Discord User Information:</strong> Discord User ID, Username, Display Name, and Avatar URL to display on the leaderboard and manage user levels.</li>
+          <li><strong>Activity Metrics:</strong> Voice channel activity duration and message counts used solely for calculating user levels and rank progression.</li>
           <li><strong>Server Analytics:</strong> Aggregated member join/leave counts and channel message volume for server growth statistics.</li>
+          <li><strong>Direct Messages:</strong> Direct messages sent to the bot (inquiries, feedback, tickets) stored for admin customer support.</li>
         </ul>
       </section>
 
@@ -69,25 +163,25 @@
           <span class="text-emerald-400">3.</span> What We Do NOT Collect
         </h2>
         <p>
-          We do not store passwords, credit card details, or personal real-world identities. Message content is processed in real-time solely for XP calculation purposes. Direct messages sent <em>to the bot</em> are stored in the admin inbox for community management and can be deleted upon request.
+          We do not store chat message contents in our database (messages are processed in real-time for XP calculation and discarded). We do not collect passwords, payment details, or real-world identity information.
         </p>
       </section>
 
       <section class="space-y-2">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <span class="text-emerald-400">4.</span> Data Storage &amp; Security
+          <span class="text-emerald-400">4.</span> Data Storage & Security
         </h2>
         <p>
-          All data is securely hosted on an enterprise-grade MongoDB Atlas cloud database with SSL/TLS encryption in transit and AES-256 encryption at rest. Data is retained as long as necessary for the bot's functionality (e.g. XP leaderboard). We never sell, rent, or share any user data with third parties.
+          All data is securely hosted on an enterprise-grade MongoDB Atlas cloud database with SSL/TLS encryption in transit and AES-256 encryption at rest. We never sell, rent, or share user data with third parties.
         </p>
       </section>
 
-      <section id="contact" class="space-y-4 scroll-mt-8">
+      <section id="contactEn" class="space-y-4 scroll-mt-8">
         <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <span class="text-emerald-400">5.</span> Data Deletion &amp; Contact
+          <span class="text-emerald-400">5.</span> Data Deletion & Contact
         </h2>
         <p>
-          You have the right to request deletion of all data associated with your Discord account at any time. Upon a verified request, we will permanently remove your XP records, join/leave history, and any stored messages from both our cloud database and local backups within <strong class="text-white">30 days</strong>.
+          You have the right to request deletion of all data associated with your Discord account at any time. Upon a verified request, we will permanently remove your XP records, join/leave history, and any stored messages within <strong class="text-white">30 days</strong>.
         </p>
 
         <div class="rounded-2xl border border-emerald-700/40 bg-emerald-900/10 p-5 space-y-4">
@@ -102,20 +196,11 @@
               </div>
             </div>
 
-
             <div class="flex items-start gap-3">
               <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-emerald-400">2</span>
               <div>
                 <p class="font-semibold text-white text-sm">Discord — Server Admin Contact</p>
-                <p class="text-gray-400 text-xs mt-0.5">Open a ticket or contact an admin in the <span class="text-emerald-300 font-semibold">Yeşil Gölet</span> Discord server and request data deletion with your Discord User ID.</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3">
-              <span class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-emerald-400">3</span>
-              <div>
-                <p class="font-semibold text-white text-sm">Privacy Policy Page</p>
-                <p class="text-gray-400 text-xs mt-0.5">This page is publicly accessible at <span class="text-emerald-300 font-mono">https://yesilgolet.duckdns.org/privacy</span> and linked in the bot's Discord profile.</p>
+                <p class="text-gray-400 text-xs mt-0.5">Contact an admin in the <span class="text-emerald-300 font-semibold">Yeşil Gölet</span> Discord server and request data deletion with your Discord User ID.</p>
               </div>
             </div>
           </div>
@@ -129,14 +214,38 @@
     </div>
 
     <!-- Footer -->
-    <div class="pt-6 border-t border-green-900/50 flex items-center justify-between text-xs text-gray-400">
+    <div class="pt-6 border-t border-pond-border flex items-center justify-between text-xs text-gray-400">
       <a href="/" class="text-emerald-400 hover:text-emerald-300 transition font-medium flex items-center gap-1">
-        <span>←</span> Back to Leaderboard
+        <span>←</span> <span id="backText">Liderlik Tablosuna Dön</span>
       </a>
       <span>© 2026 Yeşil Gölet & KiriBot</span>
     </div>
 
   </div>
+
+  <script>
+    function switchLanguage(lang) {
+      const contentTr = document.getElementById('contentTr');
+      const contentEn = document.getElementById('contentEn');
+      const btnTr = document.getElementById('langBtnTr');
+      const btnEn = document.getElementById('langBtnEn');
+      const backText = document.getElementById('backText');
+
+      if (lang === 'tr') {
+        contentTr.classList.remove('hidden');
+        contentEn.classList.add('hidden');
+        btnTr.className = "px-4 py-2 rounded-xl bg-pond-500 text-white transition flex items-center gap-1.5 shadow-sm";
+        btnEn.className = "px-4 py-2 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1.5";
+        backText.innerText = 'Liderlik Tablosuna Dön';
+      } else {
+        contentTr.classList.add('hidden');
+        contentEn.classList.remove('hidden');
+        btnEn.className = "px-4 py-2 rounded-xl bg-pond-500 text-white transition flex items-center gap-1.5 shadow-sm";
+        btnTr.className = "px-4 py-2 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1.5";
+        backText.innerText = 'Back to Leaderboard';
+      }
+    }
+  </script>
 
 </body>
 </html>
