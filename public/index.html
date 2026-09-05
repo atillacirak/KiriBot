@@ -119,9 +119,8 @@
     <!-- LEADERBOARD TAB -->
     <div id="leaderboardTab" class="space-y-8">
       
-      <!-- HERO SECTION & LIVE STATS -->
-      <section class="space-y-6">
-      <div class="text-center max-w-3xl mx-auto space-y-3 pt-4">
+      <!-- HERO SECTION -->
+      <section class="text-center max-w-3xl mx-auto space-y-3 pt-4 pb-2">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pond-500/10 border border-pond-500/20 text-pond-400 text-xs font-medium">
           <span>✨</span> Gerçek Zamanlı Seviye & Sesli XP Merkezi
         </div>
@@ -131,50 +130,7 @@
         <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto">
           Sunucuda sohbet ederek ve sesli odalarda vakit geçirerek XP kazan, seviye atla ve efsanevi kurbağa unvanlarının sahibi ol!
         </p>
-      </div>
-
-      <!-- LIVE STATS TILES -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Aktif Üye</div>
-          <div id="statTrackedUsers" class="text-2xl md:text-3xl font-display font-bold text-white mt-1">...</div>
-          <div class="text-[11px] text-pond-400 mt-2 flex items-center gap-1">
-            <span>👥</span> Seviye Sisteminde Kayıtlı
-          </div>
-          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">👥</div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Toplam Kazanılan XP</div>
-          <div id="statTotalXp" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
-          <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-            <span>⚡</span> Sesli + Yazılı Sohbet
-          </div>
-          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">⚡</div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Sesli Sohbet Süresi</div>
-          <div id="statVoiceHours" class="text-2xl md:text-3xl font-display font-bold text-pond-400 mt-1">...</div>
-          <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-            <span>🎙️</span> Saat Boyunca Konuşuldu
-          </div>
-          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">🎙️</div>
-        </div>
-
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Veritabanı Durumu</div>
-          <div class="text-2xl md:text-3xl font-display font-bold text-emerald-400 mt-1 flex items-center gap-2">
-            <span>Atlas</span>
-            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">0ms</span>
-          </div>
-          <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-            <span>☁️</span> MongoDB Bulut Senkron
-          </div>
-          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">☁️</div>
-        </div>
-      </div>
-    </section>
+      </section>
 
     <!-- TOP 3 PODIUM SECTION -->
     <section id="podiumSection" class="hidden">
@@ -421,6 +377,48 @@
 
         <!-- NOTIFICATION BANNER -->
         <div id="adminStatusAlert" class="hidden p-4 rounded-2xl text-xs font-medium items-center justify-between"></div>
+
+        <!-- LIVE STATS TILES (ADMIN ONLY) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Kayıtlı Üye</div>
+            <div id="statTrackedUsers" class="text-2xl md:text-3xl font-display font-bold text-white mt-1">...</div>
+            <div class="text-[11px] text-pond-400 mt-2 flex items-center gap-1">
+              <span>👥</span> Seviye Sisteminde Kayıtlı
+            </div>
+            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">👥</div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Toplam Sunucu XP</div>
+            <div id="statTotalXp" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
+            <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+              <span>⚡</span> Sesli + Yazılı Sohbet
+            </div>
+            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">⚡</div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Sesli Sohbet Süresi</div>
+            <div id="statVoiceHours" class="text-2xl md:text-3xl font-display font-bold text-pond-400 mt-1">...</div>
+            <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+              <span>🎙️</span> Saat Boyunca Konuşuldu
+            </div>
+            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">🎙️</div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Veritabanı Durumu</div>
+            <div class="text-2xl md:text-3xl font-display font-bold text-emerald-400 mt-1 flex items-center gap-2">
+              <span>Atlas</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">0ms</span>
+            </div>
+            <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+              <span>☁️</span> MongoDB Bulut Senkron
+            </div>
+            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">☁️</div>
+          </div>
+        </div>
 
         <!-- GRID: SETTINGS & BLACKLIST -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
