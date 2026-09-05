@@ -48,6 +48,32 @@
         radial-gradient(circle at 85% 80%, rgba(247, 159, 54, 0.08) 0%, transparent 40%);
       background-attachment: fixed;
     }
+    /* GLOBAL MODERN CUSTOM SCROLLBAR (YEŞİL GÖLET THEME) */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(94, 164, 84, 0.45) rgba(0, 0, 0, 0.25);
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(94, 164, 84, 0.4);
+      border-radius: 9999px;
+      border: 1px solid rgba(94, 164, 84, 0.15);
+      transition: background 0.2s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(94, 164, 84, 0.75);
+      box-shadow: 0 0 10px rgba(94, 164, 84, 0.5);
+    }
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
     .glass-card {
       background: rgba(16, 27, 18, 0.75);
       backdrop-filter: blur(14px);
