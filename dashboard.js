@@ -43,6 +43,18 @@ export function startDashboard(client, port = 3000) {
       };
     }
 
+    // 1.1 Stache (Special Title / Founder)
+    if (username.toLowerCase().includes('stache') || tag.toLowerCase().includes('stache') || userId === 'stache1') {
+      return {
+        name: 'Stache',
+        color: '#FFD700',
+        bg: 'rgba(255, 215, 0, 0.25)',
+        border: 'rgba(255, 215, 0, 0.6)',
+        badge: '👑',
+        isStache: true
+      };
+    }
+
     // Role Matchers
     const roles = member?.roles?.cache ? Array.from(member.roles.cache.values()) : [];
     const hasRole = (id, namePattern) => roles.some(r => r.id === id || (namePattern && namePattern.test(r.name)));

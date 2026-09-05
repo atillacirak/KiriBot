@@ -1111,20 +1111,29 @@
       if (!role) return '';
       if (role.isChio) {
         return `
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-gradient-to-r from-orange-500/25 via-amber-500/20 to-yellow-500/15 text-orange-400 border border-orange-500/50 shadow-md shadow-orange-500/10 shrink-0">
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-gradient-to-r from-orange-600/30 via-amber-500/20 to-yellow-500/10 text-orange-400 border border-orange-500/80 shadow-[0_0_12px_rgba(249,115,22,0.45)] shrink-0 transition hover:scale-105">
             <span>👑</span>
-            <span>Chio</span>
+            <span class="tracking-wide uppercase font-extrabold">Chio</span>
             <span>🔥</span>
+          </span>
+        `;
+      }
+      if (role.isStache) {
+        return `
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-gradient-to-r from-yellow-500/30 via-amber-400/20 to-orange-400/10 text-yellow-300 border border-yellow-400/80 shadow-[0_0_12px_rgba(250,204,21,0.45)] shrink-0 transition hover:scale-105">
+            <span>👑</span>
+            <span class="tracking-wide uppercase font-extrabold">Stache</span>
+            <span>✨</span>
           </span>
         `;
       }
       const color = role.color || '#4CAF50';
       const bg = role.bg || `${color}25`;
-      const border = role.border || `${color}45`;
+      const border = role.border || `${color}80`;
       return `
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold shrink-0 shadow-sm" style="color: ${color}; background-color: ${bg}; border: 1px solid ${border};">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 shadow-sm transition hover:scale-105" style="color: ${color}; background-color: ${bg}; border: 1.5px solid ${border}; box-shadow: 0 0 10px ${color}35;">
           <span>${role.badge || '🐸'}</span>
-          <span>${escapeHtml(role.name)}</span>
+          <span class="font-semibold tracking-wide">${escapeHtml(role.name)}</span>
         </span>
       `;
     }
