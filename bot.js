@@ -450,7 +450,7 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
       const embed = new EmbedBuilder()
         .setColor('#5EA454')
         .setTitle('🌐 Yeşil Gölet • Canlı Web Dashboard & Liderlik Tablosu')
-        .setDescription(`Sunucudaki tüm üyelerin canlı XP sıralamasını, kurbağa unvanlarını ve sunucu istatistiklerini web sitemizden anlık olarak takip edebilirsin!\n\n🔗 **Web Sitesi:** [${dashboardUrl}](${dashboardUrl})`)
+        .setDescription(`Sunucudaki tüm üyelerin canlı XP sıralamasını, kurbağa unvanlarını ve sunucu istatistiklerini web sitemizden anlık olarak takip edebilirsin!\n\n🔗 **Web Sitesi:** [Yeşil Gölet Web Dashboard](${dashboardUrl})`)
         .setFooter({ text: 'Kur Bot Canlı Dashboard', iconURL: guild.iconURL() });
 
       const row = new ActionRowBuilder().addComponents(
