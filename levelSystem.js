@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -108,7 +108,8 @@ const ROLE_REWARDS = {
   80: '1439006516282785964'  // bu direkt göl olmuş
 };
 
-function getUserData(guildId, userId) {
+export { levelCache, ROLE_REWARDS };
+export function getUserData(guildId, userId) {
   const key = `${guildId}_${userId}`;
   if (!levelCache.has(key)) {
     levelCache.set(key, {
@@ -284,7 +285,15 @@ export async function handleRankCommand(interaction) {
     .setFooter({ text: 'Kiri Bot • Yeşil Gölet', iconURL: guild.iconURL() })
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed] });
+  const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel('🌐 Canlı Liderlik Tablosu')
+      .setStyle(ButtonStyle.Link)
+      .setURL(dashboardUrl)
+  );
+
+  await interaction.reply({ embeds: [embed], components: [row] });
 }
 
 export async function handleTopCommand(interaction) {
@@ -310,5 +319,13 @@ export async function handleTopCommand(interaction) {
     .setFooter({ text: 'Kiri Bot • Gerçek Zamanlı XP Sıralaması', iconURL: guild.iconURL() })
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed] });
+  const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel('🌐 Tam Liderlik Tablosunu Aç')
+      .setStyle(ButtonStyle.Link)
+      .setURL(dashboardUrl)
+  );
+
+  await interaction.reply({ embeds: [embed], components: [row] });
 }

@@ -20,6 +20,7 @@ import {
   handleRankCommand, 
   handleTopCommand 
 } from './levelSystem.js';
+import { startDashboard } from './dashboard.js';
 
 dotenv.config();
 
@@ -208,6 +209,9 @@ const commands = [
   new SlashCommandBuilder()
     .setName('ruh-ikizi')
     .setDescription('Sunucudaki mesaj tarzına göre senin gizli kozmik ruh ikizini bulur!'),
+  new SlashCommandBuilder()
+    .setName('dashboard')
+    .setDescription('Yeşil Gölet canlı web sitesi ve liderlik tablosu linkini görüntüler.'),
   rankCommand,
   topCommand
 ].map(cmd => cmd.toJSON());
@@ -217,6 +221,10 @@ client.once('ready', async () => {
   
   // Start Voice XP Tracker
   startVoiceXpTicker(client);
+
+  // Start Web Dashboard
+  const DASHBOARD_PORT = process.env.PORT || 3000;
+  startDashboard(client, DASHBOARD_PORT);
 
   try {
     const rest = new REST({ version: '10' }).setToken(TOKEN);
@@ -351,6 +359,25 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
         .setFooter({ text: 'Kiri Bot • Ruh İkizi Kehaneti', iconURL: guild.iconURL() });
 
       await interaction.editReply({ embeds: [embed] });
+    }
+
+    // 6. /dashboard
+    else if (commandName === 'dashboard') {
+      const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+      const embed = new EmbedBuilder()
+        .setColor('#5EA454')
+        .setTitle('🌐 Yeşil Gölet • Canlı Web Dashboard & Liderlik Tablosu')
+        .setDescription(`Sunucudaki tüm üyelerin canlı XP sıralamasını, kurbağa unvanlarını ve sunucu istatistiklerini web sitemizden anlık olarak takip edebilirsin!\n\n🔗 **Web Sitesi:** [${dashboardUrl}](${dashboardUrl})`)
+        .setFooter({ text: 'Kiri Bot Canlı Dashboard', iconURL: guild.iconURL() });
+
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('🌐 Web Sitesini Aç')
+          .setStyle(ButtonStyle.Link)
+          .setURL(dashboardUrl)
+      );
+
+      await interaction.reply({ embeds: [embed], components: [row] });
     }
 
   } catch (err) {

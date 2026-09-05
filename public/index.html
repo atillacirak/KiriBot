@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiri Bot • Yeşil Gölet Canlı Dashboard & Liderlik Tablosu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            pond: {
+              50: '#F2F9F1',
+              100: '#E2F2E0',
+              400: '#7BB972',
+              500: '#5EA454',
+              600: '#4A8742',
+              800: '#264E20',
+              900: '#142C10',
+              dark: '#0A120B',
+              card: '#101B12',
+              cardHover: '#162519',
+              border: '#1E3322'
+            },
+            amberOrange: '#F79F36',
+            creamGlow: '#FFF0B8'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #080E09;
+      color: #E6EDE5;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(94, 164, 84, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(247, 159, 54, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+    .glass-card {
+      background: rgba(16, 27, 18, 0.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(94, 164, 84, 0.2);
+    }
+    .glass-card-hover:hover {
+      background: rgba(22, 37, 25, 0.9);
+      border-color: rgba(94, 164, 84, 0.4);
+      transform: translateY(-2px);
+      transition: all 0.2s ease;
+    }
+    .glow-green {
+      box-shadow: 0 0 25px rgba(94, 164, 84, 0.25);
+    }
+    .glow-orange {
+      box-shadow: 0 0 25px rgba(247, 159, 54, 0.25);
+    }
+    .badge-gold {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
+    }
+    .badge-silver {
+      background: linear-gradient(135deg, #E0E0E0 0%, #9E9E9E 100%);
+      color: #000;
+    }
+    .badge-bronze {
+      background: linear-gradient(135deg, #CD7F32 0%, #8C531B 100%);
+      color: #FFF;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-pond-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <nav class="sticky top-0 z-50 glass-card border-b border-pond-border px-4 lg:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-pond-500 flex items-center justify-center text-2xl shadow-lg shadow-pond-500/30">
+        🐸
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-display font-bold text-lg text-white tracking-wide">Kiri Bot</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-pond-500/20 text-pond-400 border border-pond-500/30">V1.0 LIVE</span>
+        </div>
+        <p class="text-xs text-gray-400">Yeşil Gölet Discord Ekosistemi</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-pond-border text-xs text-gray-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>AWS 7/24 Kesintisiz</span>
+      </div>
+      <a href="https://discord.com" target="_blank" class="px-4 py-2 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/20">
+        <span>Yeşil Gölet'e Git</span>
+        <span>🌿</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8 space-y-8">
+    
+    <!-- HERO SECTION & LIVE STATS -->
+    <section class="space-y-6">
+      <div class="text-center max-w-3xl mx-auto space-y-3 pt-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pond-500/10 border border-pond-500/20 text-pond-400 text-xs font-medium">
+          <span>✨</span> Gerçek Zamanlı Seviye & Sesli XP Merkezi
+        </div>
+        <h1 class="text-3xl md:text-5xl font-display font-extrabold text-white tracking-tight">
+          Yeşil Gölet <span class="text-transparent bg-clip-text bg-gradient-to-r from-pond-400 to-amberOrange">Liderlik Tablosu</span>
+        </h1>
+        <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto">
+          Sunucuda sohbet ederek ve sesli odalarda vakit geçirerek XP kazan, seviye atla ve efsanevi kurbağa unvanlarının sahibi ol!
+        </p>
+      </div>
+
+      <!-- LIVE STATS TILES -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Aktif Üye</div>
+          <div id="statTrackedUsers" class="text-2xl md:text-3xl font-display font-bold text-white mt-1">...</div>
+          <div class="text-[11px] text-pond-400 mt-2 flex items-center gap-1">
+            <span>👥</span> Seviye Sisteminde Kayıtlı
+          </div>
+          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">👥</div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Toplam Kazanılan XP</div>
+          <div id="statTotalXp" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
+          <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+            <span>⚡</span> Sesli + Yazılı Sohbet
+          </div>
+          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">⚡</div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Sesli Sohbet Süresi</div>
+          <div id="statVoiceHours" class="text-2xl md:text-3xl font-display font-bold text-pond-400 mt-1">...</div>
+          <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+            <span>🎙️</span> Saat Boyunca Konuşuldu
+          </div>
+          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">🎙️</div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Veritabanı Durumu</div>
+          <div class="text-2xl md:text-3xl font-display font-bold text-emerald-400 mt-1 flex items-center gap-2">
+            <span>Atlas</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">0ms</span>
+          </div>
+          <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+            <span>☁️</span> MongoDB Bulut Senkron
+          </div>
+          <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">☁️</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOP 3 PODIUM SECTION -->
+    <section id="podiumSection" class="hidden">
+      <div class="text-center mb-6">
+        <span class="text-xs font-semibold text-amberOrange uppercase tracking-widest">👑 Liderler Kürsüsü</span>
+        <h2 class="text-xl md:text-2xl font-display font-bold text-white">Göletin En Aktif 3 Kurbağası</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end max-w-4xl mx-auto pt-4" id="podiumCards">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- LEADERBOARD TABLE & FILTERS -->
+    <section class="glass-card rounded-3xl p-4 md:p-6 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-display font-bold text-white flex items-center gap-2">
+            <span>🏆</span> Sıralama Listesi
+          </h3>
+          <p class="text-xs text-gray-400">Yeşil Gölet sunucusundaki tüm üyelerin canlı XP sıralaması</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- SEARCH BOX -->
+          <div class="relative flex-1 md:w-64">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Üye ara..." 
+              class="w-full bg-black/40 border border-pond-border focus:border-pond-500 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none transition"
+            >
+            <span class="absolute right-3 top-2.5 text-gray-500 text-xs">🔍</span>
+          </div>
+
+          <!-- SORT TABS -->
+          <div class="flex items-center p-1 rounded-xl bg-black/40 border border-pond-border text-xs font-semibold">
+            <button onclick="changeSort('totalXp')" id="sortTotalXp" class="px-3 py-1.5 rounded-lg bg-pond-500 text-white transition">
+              Toplam XP
+            </button>
+            <button onclick="changeSort('voiceXp')" id="sortVoiceXp" class="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+              🎙️ Sesli
+            </button>
+            <button onclick="changeSort('textXp')" id="sortTextXp" class="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
+              💬 Yazılı
+            </button>
+          </div>
+
+          <button onclick="loadLeaderboard()" title="Yenile" class="p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-white transition">
+            🔄
+          </button>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD LIST CONTAINER -->
+      <div class="overflow-x-auto">
+        <div id="leaderboardList" class="space-y-3 min-w-[650px]">
+          <div class="text-center py-12 text-gray-500 text-sm">
+            Veriler yükleniyor... ⏳
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOT COMMANDS & FROG ROLES GUIDE -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- FROG ROLES TIERS -->
+      <div class="glass-card rounded-3xl p-6 space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🐸</span>
+          <div>
+            <h4 class="font-display font-bold text-white text-base">Kurbağa Seviye Rolleri</h4>
+            <p class="text-xs text-gray-400">Belirli seviyelere ulaştığında bot tarafından otomatik atanır</p>
+          </div>
+        </div>
+
+        <div class="space-y-2.5 pt-2">
+          <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-pond-border/60">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">🌱</span>
+              <div>
+                <div class="text-sm font-bold text-white">@mini kurbağa</div>
+                <div class="text-[11px] text-gray-400">Gölete ilk adımını atan hevesli kurbağa</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-pond-500/20 text-pond-400 border border-pond-500/30">
+              Seviye 10
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-pond-border/60">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">🐸</span>
+              <div>
+                <div class="text-sm font-bold text-white">@kurbağa</div>
+                <div class="text-[11px] text-gray-400">Sulara alışmış, aktif gölet sakini</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-pond-500/20 text-pond-400 border border-pond-500/30">
+              Seviye 25
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-pond-border/60">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">🌿</span>
+              <div>
+                <div class="text-sm font-bold text-white">@göl müdavimi kurbağa</div>
+                <div class="text-[11px] text-gray-400">Sohbetin ve ses kanallarının vazgeçilmezi</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amberOrange/20 text-amberOrange border border-amberOrange/30">
+              Seviye 50
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-3 rounded-xl bg-black/30 border border-pond-border/60">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">👑</span>
+              <div>
+                <div class="text-sm font-bold text-white">@bu direkt göl olmuş</div>
+                <div class="text-[11px] text-gray-400">Göletin kadim efsanesi, en yüksek rütbe</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
+              Seviye 80
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOT COMMANDS GUIDE -->
+      <div class="glass-card rounded-3xl p-6 space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">⚡</span>
+          <div>
+            <h4 class="font-display font-bold text-white text-base">Slash Komutları Rehberi</h4>
+            <p class="text-xs text-gray-400">Discord sunucusunda kullanabileceğin komutlar</p>
+          </div>
+        </div>
+
+        <div class="space-y-2.5 pt-2">
+          <div class="p-3 rounded-xl bg-black/30 border border-pond-border/60 flex items-start gap-3">
+            <span class="font-mono text-xs font-bold text-pond-400 bg-pond-500/10 px-2 py-1 rounded border border-pond-500/20">/rank</span>
+            <div>
+              <div class="text-xs font-bold text-white">Kişisel Seviye Kartı</div>
+              <div class="text-[11px] text-gray-400">Seviyeni, sıralamanı, yazılı ve sesli XP dağılımını gösterir.</div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-black/30 border border-pond-border/60 flex items-start gap-3">
+            <span class="font-mono text-xs font-bold text-pond-400 bg-pond-500/10 px-2 py-1 rounded border border-pond-500/20">/top</span>
+            <div>
+              <div class="text-xs font-bold text-white">Liderlik Tablosu</div>
+              <div class="text-[11px] text-gray-400">Sunucunun en aktif ilk 10 üyesini madalyalarla listeler.</div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-black/30 border border-pond-border/60 flex items-start gap-3">
+            <span class="font-mono text-xs font-bold text-amberOrange bg-amberOrange/10 px-2 py-1 rounded border border-amberOrange/20">/xray</span>
+            <div>
+              <div class="text-xs font-bold text-white">Gemini AI Kişilik Analizi</div>
+              <div class="text-[11px] text-gray-400">Mesaj tarzına göre MBTI, aura rengi ve toksisite analizi yapar.</div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-black/30 border border-pond-border/60 flex items-start gap-3">
+            <span class="font-mono text-xs font-bold text-amberOrange bg-amberOrange/10 px-2 py-1 rounded border border-amberOrange/20">/ship</span>
+            <div>
+              <div class="text-xs font-bold text-white">Sohbet Uyumu Hesaplayıcı</div>
+              <div class="text-[11px] text-gray-400">İki üyenin geçmiş sohbet dinamiklerine göre aşk/arkadaşlık uyumunu ölçer.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="glass-card border-t border-pond-border py-6 px-4 text-center text-xs text-gray-500 mt-12">
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <span class="text-base">🐸</span>
+      <span class="font-display font-bold text-gray-300">Kiri Bot • Yeşil Gölet</span>
+    </div>
+    <p>Tüm hakları saklıdır. AWS 7/24 Kesintisiz Bulut Altyapısı & MongoDB Atlas ile güçlendirilmiştir.</p>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let currentSort = 'totalXp';
+    let allUsers = [];
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('statTrackedUsers').innerText = data.stats.trackedUsers.toLocaleString();
+          document.getElementById('statTotalXp').innerText = data.stats.totalXp.toLocaleString() + ' XP';
+          document.getElementById('statVoiceHours').innerText = data.stats.totalVoiceHours + ' Sa';
+        }
+      } catch (err) {
+        console.warn('Stats fetch error:', err);
+      }
+    }
+
+    async function loadLeaderboard() {
+      const listEl = document.getElementById('leaderboardList');
+      const searchVal = document.getElementById('searchInput').value;
+      
+      try {
+        const res = await fetch(`/api/leaderboard?sortBy=${currentSort}&search=${encodeURIComponent(searchVal)}`);
+        const data = await res.json();
+        
+        if (!data.success || data.users.length === 0) {
+          listEl.innerHTML = `
+            <div class="text-center py-12 text-gray-500 text-sm">
+              ${searchVal ? 'Aramana uygun üye bulunamadı 🔍' : 'Henüz kaydedilmiş seviye verisi bulunmuyor 🌱'}
+            </div>
+          `;
+          document.getElementById('podiumSection').classList.add('hidden');
+          return;
+        }
+
+        allUsers = data.users;
+        renderPodium(data.users);
+        renderTable(data.users);
+      } catch (err) {
+        listEl.innerHTML = `<div class="text-center py-8 text-rose-400 text-sm">Veri yüklenirken hata oluştu ⚠️</div>`;
+      }
+    }
+
+    function renderPodium(users) {
+      const podiumEl = document.getElementById('podiumCards');
+      const podiumSection = document.getElementById('podiumSection');
+      
+      if (users.length < 3 || document.getElementById('searchInput').value) {
+        podiumSection.classList.add('hidden');
+        return;
+      }
+
+      podiumSection.classList.remove('hidden');
+      const [first, second, third] = users;
+
+      podiumEl.innerHTML = `
+        <!-- 2ND PLACE -->
+        <div class="glass-card rounded-2xl p-5 text-center relative border-gray-400/30 order-2 md:order-1 transform hover:-translate-y-1 transition">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold badge-silver shadow">
+            🥈 #2 GÜMÜŞ
+          </div>
+          <img src="${second.avatar}" class="w-16 h-16 rounded-full mx-auto ring-4 ring-gray-400/40 mt-2 object-cover">
+          <h4 class="font-bold text-white text-sm mt-2 truncate">${second.username}</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-pond-500/20 text-pond-400">
+            ${second.frogRole.badge} ${second.frogRole.name}
+          </span>
+          <div class="text-xs text-amberOrange font-bold mt-2">${second.totalXp.toLocaleString()} XP</div>
+          <div class="text-[11px] text-gray-400">Seviye ${second.level}</div>
+        </div>
+
+        <!-- 1ST PLACE (GOLD) -->
+        <div class="glass-card rounded-2xl p-6 text-center relative border-yellow-500/50 order-1 md:order-2 transform md:-translate-y-4 glow-green hover:-translate-y-5 transition">
+          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full text-xs font-extrabold badge-gold shadow-lg shadow-yellow-500/20 flex items-center gap-1">
+            <span>👑</span> #1 ŞAMPİYON
+          </div>
+          <img src="${first.avatar}" class="w-20 h-20 rounded-full mx-auto ring-4 ring-yellow-400 mt-2 object-cover">
+          <h4 class="font-extrabold text-white text-base mt-2 truncate">${first.username}</h4>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
+            ${first.frogRole.badge} ${first.frogRole.name}
+          </span>
+          <div class="text-sm text-amberOrange font-extrabold mt-2.5">${first.totalXp.toLocaleString()} XP</div>
+          <div class="text-xs text-gray-300 font-semibold">Seviye ${first.level}</div>
+        </div>
+
+        <!-- 3RD PLACE -->
+        <div class="glass-card rounded-2xl p-5 text-center relative border-amber-700/40 order-3 md:order-3 transform hover:-translate-y-1 transition">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-extrabold badge-bronze shadow">
+            🥉 #3 BRONZ
+          </div>
+          <img src="${third.avatar}" class="w-16 h-16 rounded-full mx-auto ring-4 ring-amber-700/50 mt-2 object-cover">
+          <h4 class="font-bold text-white text-sm mt-2 truncate">${third.username}</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-pond-500/20 text-pond-400">
+            ${third.frogRole.badge} ${third.frogRole.name}
+          </span>
+          <div class="text-xs text-amberOrange font-bold mt-2">${third.totalXp.toLocaleString()} XP</div>
+          <div class="text-[11px] text-gray-400">Seviye ${third.level}</div>
+        </div>
+      `;
+    }
+
+    function renderTable(users) {
+      const listEl = document.getElementById('leaderboardList');
+      
+      const rows = users.map(user => {
+        let rankBadge = `<span class="font-display font-bold text-gray-400">#${user.rank}</span>`;
+        if (user.rank === 1) rankBadge = `<span class="w-7 h-7 rounded-full badge-gold font-bold flex items-center justify-center text-xs">1</span>`;
+        if (user.rank === 2) rankBadge = `<span class="w-7 h-7 rounded-full badge-silver font-bold flex items-center justify-center text-xs">2</span>`;
+        if (user.rank === 3) rankBadge = `<span class="w-7 h-7 rounded-full badge-bronze font-bold flex items-center justify-center text-xs">3</span>`;
+
+        return `
+          <div class="glass-card glass-card-hover rounded-2xl p-3.5 px-4 flex items-center justify-between gap-4">
+            <!-- LEFT: RANK & USER INFO -->
+            <div class="flex items-center gap-3.5 min-w-[200px] flex-1">
+              <div class="w-8 flex items-center justify-center">
+                ${rankBadge}
+              </div>
+              <img src="${user.avatar}" class="w-11 h-11 rounded-full ring-2 ring-pond-border object-cover">
+              <div class="truncate">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-white text-sm truncate">${user.username}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pond-500/15 text-pond-400 border border-pond-500/20 shrink-0">
+                    ${user.frogRole.badge} ${user.frogRole.name}
+                  </span>
+                </div>
+                <div class="text-[11px] text-gray-400 flex items-center gap-2 mt-0.5">
+                  <span>💬 ${user.textXp.toLocaleString()} XP</span>
+                  <span>•</span>
+                  <span>🎙️ ${user.voiceXp.toLocaleString()} XP (${user.voiceHours} Sa)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- MIDDLE: PROGRESS BAR -->
+            <div class="hidden md:block w-48 shrink-0">
+              <div class="flex justify-between text-[11px] text-gray-400 mb-1">
+                <span>Lvl ${user.level}</span>
+                <span>%${user.progressPercent}</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-black/50 overflow-hidden border border-pond-border/50">
+                <div class="h-full bg-gradient-to-r from-pond-500 to-amberOrange rounded-full transition-all duration-500" style="width: ${user.progressPercent}%"></div>
+              </div>
+            </div>
+
+            <!-- RIGHT: LEVEL & TOTAL XP -->
+            <div class="text-right shrink-0 min-w-[100px]">
+              <div class="text-sm md:text-base font-display font-bold text-amberOrange">
+                ${user.totalXp.toLocaleString()} <span class="text-xs text-gray-400 font-normal">XP</span>
+              </div>
+              <div class="text-xs font-semibold text-pond-400">
+                Seviye ${user.level}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listEl.innerHTML = rows;
+    }
+
+    function changeSort(type) {
+      currentSort = type;
+      ['totalXp', 'voiceXp', 'textXp'].forEach(t => {
+        const btn = document.getElementById(`sort${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (t === type) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-pond-500 text-white transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-gray-400 hover:text-white transition";
+        }
+      });
+      loadLeaderboard();
+    }
+
+    // Debounce search
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(loadLeaderboard, 300);
+    });
+
+    // Initial load
+    loadStats();
+    loadLeaderboard();
+
+    // Refresh stats every 30 seconds
+    setInterval(loadStats, 30000);
+  </script>
+</body>
+</html>
