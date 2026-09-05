@@ -102,7 +102,7 @@
         <span>🏆 Liderlik Tablosu</span>
       </button>
 
-      <button onclick="showTab('admin')" id="navAdminBtn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5">
+      <button onclick="showTab('admin')" id="navAdminBtn" class="hidden px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition items-center gap-1.5">
         <span>🛠️ Yönetim Paneli</span>
       </button>
 
@@ -592,12 +592,17 @@
         leaderboardTab.classList.remove('hidden');
         adminTab.classList.add('hidden');
         navLeaderboardBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center gap-1.5 shadow-lg shadow-pond-500/20";
-        navAdminBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5";
+        navAdminBtn.className = (navAdminBtn.classList.contains('hidden') ? "hidden " : "") + "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5";
       } else {
+        navAdminBtn.classList.remove('hidden');
         leaderboardTab.classList.add('hidden');
         adminTab.classList.remove('hidden');
         navAdminBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amberOrange text-white transition flex items-center gap-1.5 shadow-lg shadow-amberOrange/20";
         navLeaderboardBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5";
+
+        if (window.location.hash !== '#kiriadmin') {
+          window.location.hash = 'kiriadmin';
+        }
 
         if (currentAdminPassword) {
           fetchAdminData(currentAdminPassword);
@@ -836,7 +841,9 @@
       currentAdminPassword = '';
       sessionStorage.removeItem('kiri_admin_pwd');
       document.getElementById('adminPasswordInput').value = '';
-      showAdminLogin();
+      window.location.hash = '';
+      document.getElementById('navAdminBtn').classList.add('hidden');
+      showTab('leaderboard');
     }
 
     function populateAdminUI() {
@@ -1079,9 +1086,25 @@
       searchTimeout = setTimeout(loadLeaderboard, 300);
     });
 
+    // Hash check for secret #kiriadmin
+    function checkHash() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#kiriadmin' || hash === '#admin') {
+        document.getElementById('navAdminBtn').classList.remove('hidden');
+        showTab('admin');
+      } else {
+        if (!currentAdminPassword) {
+          document.getElementById('navAdminBtn').classList.add('hidden');
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', checkHash);
+
     // Initial load
     loadStats();
     loadLeaderboard();
+    checkHash();
 
     // Refresh stats every 30 seconds
     setInterval(loadStats, 30000);
