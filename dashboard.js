@@ -605,6 +605,162 @@ export function startDashboard(client, port = 3000) {
     }
   });
 
+  // Admin: Get all guild members for quick selection
+  app.get('/api/admin/members', async (req, res) => {
+    try {
+      const { password, guildId, search } = req.query;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const guild = client.guilds.cache.get(guildId || defaultGuildId) || client.guilds.cache.first();
+      if (!guild) return res.status(404).json({ success: false, error: 'Sunucu bulunamadı.' });
+
+      // Fetch or cache members
+      await guild.members.fetch().catch(() => {});
+      const query = (search || '').toLowerCase().trim();
+
+      const memberList = Array.from(guild.members.cache.values())
+        .filter(m => !m.user.bot)
+        .map(m => {
+          const uData = getUserData(guild.id, m.id);
+          const displayRole = getUserDisplayRole(m, m.user, uData?.level || 0);
+          return {
+            id: m.id,
+            username: m.user.username,
+            displayName: m.displayName,
+            tag: m.user.tag,
+            avatar: m.user.displayAvatarURL({ size: 64 }),
+            level: uData?.level || 0,
+            role: displayRole
+          };
+        })
+        .filter(m => {
+          if (!query) return true;
+          return m.username.toLowerCase().includes(query) ||
+                 m.displayName.toLowerCase().includes(query) ||
+                 m.tag.toLowerCase().includes(query) ||
+                 m.id.includes(query);
+        })
+        .slice(0, 50);
+
+      res.json({ success: true, members: memberList });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Admin: Send Bot DM to User
+  app.post('/api/admin/send-dm', async (req, res) => {
+    try {
+      const { password, userId, message, asEmbed, title } = req.body;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+      if (!userId || !message) {
+        return res.status(400).json({ success: false, error: 'Kullanıcı ve mesaj metni gereklidir.' });
+      }
+
+      const user = await client.users.fetch(userId).catch(() => null);
+      if (!user) {
+        return res.status(404).json({ success: false, error: 'Discord kullanıcısı bulunamadı veya ID geçersiz.' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const guild = client.guilds.cache.get(defaultGuildId) || client.guilds.cache.first();
+
+      if (asEmbed) {
+        const { EmbedBuilder } = await import('discord.js');
+        const embed = new EmbedBuilder()
+          .setColor('#5EA454')
+          .setTitle(title || '🌿 Yeşil Gölet Bildirimi')
+          .setDescription(message)
+          .setFooter({ text: `${guild?.name || 'Yeşil Gölet'} • Yönetim Bildirisi`, iconURL: guild?.iconURL() })
+          .setTimestamp();
+        await user.send({ embeds: [embed] });
+      } else {
+        await user.send(message);
+      }
+
+      console.log(`✉️ [Admin DM] ${user.tag} (${userId}) kullanıcısına DM gönderildi.`);
+      res.json({ success: true, message: `Mesaj @${user.tag} kullanıcısına başarıyla iletildi!` });
+    } catch (e) {
+      res.status(500).json({ success: false, error: `DM gönderilemedi: ${e.message} (Kullanıcının DM'leri kapalı olabilir)` });
+    }
+  });
+
+  // Admin: Send Bot Message to Channel
+  app.post('/api/admin/send-channel-msg', async (req, res) => {
+    try {
+      const { password, channelId, message, asEmbed, title } = req.body;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+      if (!channelId || !message) {
+        return res.status(400).json({ success: false, error: 'Kanal ve mesaj metni gereklidir.' });
+      }
+
+      const channel = await client.channels.fetch(channelId).catch(() => null);
+      if (!channel || !channel.isTextBased()) {
+        return res.status(404).json({ success: false, error: 'Metin kanalı bulunamadı.' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const guild = client.guilds.cache.get(defaultGuildId) || client.guilds.cache.first();
+
+      if (asEmbed) {
+        const { EmbedBuilder } = await import('discord.js');
+        const embed = new EmbedBuilder()
+          .setColor('#5EA454')
+          .setTitle(title || '🌿 Yeşil Gölet Duyurusu')
+          .setDescription(message)
+          .setFooter({ text: `${guild?.name || 'Yeşil Gölet'} • Yönetim`, iconURL: guild?.iconURL() })
+          .setTimestamp();
+        await channel.send({ embeds: [embed] });
+      } else {
+        await channel.send(message);
+      }
+
+      console.log(`📢 [Admin Kanal Mesajı] #${channel.name} (${channelId}) kanalına mesaj yollandı.`);
+      res.json({ success: true, message: `Mesaj #${channel.name} kanalına başarıyla gönderildi!` });
+    } catch (e) {
+      res.status(500).json({ success: false, error: `Kanal mesajı gönderilemedi: ${e.message}` });
+    }
+  });
+
+  // Admin: Download Database Backup
+  app.get('/api/admin/backup-download', async (req, res) => {
+    try {
+      const { password } = req.query;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const guild = client.guilds.cache.get(defaultGuildId) || client.guilds.cache.first();
+      const settings = getGuildSettings(defaultGuildId);
+
+      const backupData = {
+        exportedAt: new Date().toISOString(),
+        guild: {
+          id: guild?.id,
+          name: guild?.name,
+          memberCount: guild?.memberCount
+        },
+        settings,
+        users: Array.from(levelCache.values())
+      };
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      res.setHeader('Content-Disposition', `attachment; filename="kiribot-backup-${dateStr}.json"`);
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(backupData, null, 2));
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
   // SPA fallback
   app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

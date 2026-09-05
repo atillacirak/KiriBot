@@ -776,11 +776,62 @@
             </div>
 
           </div>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="downloadDatabaseBackup()" class="px-4 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-blue-500/15">
+              <span>📥</span>
+              <span>Yedeği İndir (.JSON)</span>
+            </button>
+            <button onclick="saveAdminSettings()" id="adminSaveSettingsBtn" class="px-5 py-2.5 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/25">
+              <span>💾 Ayarları Kaydet</span>
+            </button>
+            <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-xl bg-black/40 border border-pond-border hover:border-rose-500/50 text-gray-400 hover:text-rose-400 text-xs font-bold transition">
+              🚪 Çıkış
+            </button>
+          </div>
+        </div>
 
+        <!-- NOTIFICATION BANNER -->
+        <div id="adminStatusAlert" class="hidden p-4 rounded-2xl text-xs font-medium items-center justify-between"></div>
+
+        <!-- SUB-TAB SWITCHER (ANALYTICS VS SETTINGS) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
+          <div class="flex items-center gap-2 p-1 rounded-2xl bg-black/40 border border-pond-border w-full sm:w-auto">
+            <button id="adminSubtabAnalyticsBtn" onclick="switchAdminSubtab('analytics')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center justify-center gap-2 shadow-lg shadow-pond-500/20">
+              <span>📊</span>
+              <span>Sunucu İstatistikleri & Büyüme Analizi</span>
+            </button>
+            <button id="adminSubtabSettingsBtn" onclick="switchAdminSubtab('settings')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
+              <span>⚙️</span>
+              <span>Bot, XP & İletişim</span>
+            </button>
+          </div>
+
+          <!-- TIME PERIOD SELECTOR (FOR ANALYTICS) -->
+          <div id="analyticsPeriodSelector" class="flex items-center gap-1 p-1 rounded-2xl bg-black/40 border border-pond-border text-xs font-semibold self-start sm:self-auto">
+            <button onclick="changeAnalyticsPeriod('today')" id="periodBtn_today" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
+              📅 Bugün
+            </button>
+            <button onclick="changeAnalyticsPeriod('week')" id="periodBtn_week" class="px-3 py-1.5 rounded-xl bg-pond-500 text-white transition">
+              🗓️ Bu Hafta
+            </button>
+            <button onclick="changeAnalyticsPeriod('month')" id="periodBtn_month" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
+              📆 Bu Ay
+            </button>
+            <button onclick="changeAnalyticsPeriod('all')" id="periodBtn_all" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
+              ♾️ Tüm Zamanlar
+            </button>
+          </div>
         </div>
 
         <!-- ========================================== -->
-        <!-- VIEW 2: BOT & XP SETTINGS (CARDS 1-4)      -->
+        <!-- VIEW 1: SERVER ANALYTICS & RETENTION HUB   -->
+        <!-- ========================================== -->
+        <div id="adminAnalyticsView" class="space-y-8">
+          <!-- Live Analytics Cards Rendered Here -->
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: BOT & XP SETTINGS & COMMUNICATION  -->
         <!-- ========================================== -->
         <div id="adminSettingsView" class="hidden space-y-8">
 
@@ -834,8 +885,8 @@
             <div class="flex items-center gap-2.5 border-b border-pond-border/60 pb-3">
               <span class="text-xl">⚡</span>
               <div>
-                <h3 class="font-display font-bold text-white text-base">XP ve Seviye Motoru Oranları</h3>
-                <p class="text-xs text-gray-400">Sesli ve yazılı aktivite için kazanılan puanlar</p>
+                <h3 class="font-display font-bold text-white text-base">XP Kazanım Oranları</h3>
+                <p class="text-xs text-gray-400">Sesli ve yazılı kanallardaki XP çarpanlarını belirle</p>
               </div>
             </div>
 
@@ -947,20 +998,109 @@
           </div>
         </div>
 
-        <!-- CARD 4: QUICK USER XP & LEVEL MANAGER -->
+        <!-- CARD 4: BOT COMMUNICATION CENTER (DM & CHANNEL MESSAGES) -->
+        <div class="glass-card rounded-3xl p-6 space-y-5 border-pond-500/30">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">💬</span>
+              <div>
+                <h3 class="font-display font-bold text-white text-base">Bot Olarak Mesaj & DM Gönder</h3>
+                <p class="text-xs text-gray-400">Kullanıcıyı veya kanalı listeden arayarak bot adına anında mesaj ilet</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 p-1 rounded-xl bg-black/40 border border-pond-border text-xs">
+              <button onclick="switchBotMsgMode('dm')" id="botMsgModeDmBtn" class="px-3 py-1 rounded-lg font-bold bg-pond-500 text-white transition">
+                👤 Kullanıcıya DM
+              </button>
+              <button onclick="switchBotMsgMode('channel')" id="botMsgModeChannelBtn" class="px-3 py-1 rounded-lg font-bold text-gray-400 hover:text-white transition">
+                📢 Kanala Duyuru
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- TARGET SELECTOR -->
+            <div class="lg:col-span-5 space-y-3">
+              <!-- USER SELECTOR (DM MODE) -->
+              <div id="botMsgUserSelectorGroup" class="space-y-1.5 relative">
+                <label class="block text-xs font-bold text-gray-300">Hedef Üye (Arama / Seçim)</label>
+                <div class="relative">
+                  <input type="text" id="botMsgUserSearchInput" onfocus="openMemberDropdown()" oninput="searchMembersDropdown(this.value)" placeholder="🔍 Üye adı, etiket veya ID ara..." class="w-full bg-black/40 border border-pond-border rounded-xl pl-3.5 pr-8 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+                  <input type="hidden" id="botMsgSelectedUserId">
+                  <button type="button" onclick="clearSelectedMember()" id="botMsgClearUserBtn" class="hidden absolute right-2.5 top-2 text-xs text-gray-400 hover:text-white">✕</button>
+                </div>
+
+                <!-- SELECTED USER PREVIEW CHIP -->
+                <div id="botMsgSelectedUserChip" class="hidden flex items-center justify-between p-2 rounded-xl bg-pond-500/15 border border-pond-500/30">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <img id="botMsgSelectedAvatar" src="" class="w-6 h-6 rounded-full border border-pond-500/40">
+                    <span id="botMsgSelectedName" class="text-xs font-bold text-white truncate">...</span>
+                    <span id="botMsgSelectedRole" class="text-[10px] px-1.5 py-0.5 rounded bg-black/40 text-pond-300 font-medium">...</span>
+                  </div>
+                  <button onclick="clearSelectedMember()" class="text-xs text-gray-400 hover:text-rose-400 font-bold px-1.5">✕</button>
+                </div>
+
+                <!-- MEMBER AUTOCOMPLETE DROPDOWN -->
+                <div id="botMsgMemberDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl bg-[#0c140e] border border-pond-border shadow-2xl p-2 max-h-56 overflow-y-auto space-y-1 backdrop-blur-2xl scrollbar-thin">
+                  <div class="text-xs text-gray-500 text-center py-3">Üyeler yükleniyor...</div>
+                </div>
+              </div>
+
+              <!-- CHANNEL SELECTOR (CHANNEL MODE) -->
+              <div id="botMsgChannelSelectorGroup" class="hidden space-y-1.5">
+                <label class="block text-xs font-bold text-gray-300">Hedef Metin Kanalı</label>
+                <select id="botMsgTargetChannelSelect" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+                  <!-- Injected from guildChannels -->
+                </select>
+              </div>
+
+              <!-- EMBED OPTIONS -->
+              <div class="p-3 rounded-2xl bg-black/20 border border-pond-border/40 space-y-2.5">
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="botMsgAsEmbed" checked class="w-4 h-4 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0">
+                  <span class="text-xs font-bold text-white">🌿 Yeşil Gölet Tasarımlı Embed Olarak Gönder</span>
+                </label>
+                <div>
+                  <label class="block text-[11px] font-medium text-gray-400 mb-1">Başlık (Embed İse)</label>
+                  <input type="text" id="botMsgEmbedTitle" placeholder="Örn: 🌿 Yeşil Gölet Yönetim Bildirisi" class="w-full bg-black/40 border border-pond-border rounded-xl px-3 py-1.5 text-xs text-white focus:border-pond-500 focus:outline-none">
+                </div>
+              </div>
+            </div>
+
+            <!-- MESSAGE CONTENT & SEND BUTTON -->
+            <div class="lg:col-span-7 flex flex-col justify-between space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-300 mb-1.5">Mesaj İçeriği</label>
+                <textarea id="botMsgContentInput" rows="4" placeholder="Kullanıcıya veya kanala iletilecek mesajınızı buraya yazın..." class="w-full bg-black/40 border border-pond-border rounded-2xl p-3.5 text-xs text-white placeholder-gray-500 focus:border-pond-500 focus:outline-none resize-none"></textarea>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[11px] text-gray-400">⚡ Discord API üzerinden anında iletilir.</span>
+                <button onclick="sendAdminBotMessage()" id="botMsgSendBtn" class="px-5 py-2 rounded-xl bg-pond-500 hover:bg-pond-600 text-white font-bold text-xs transition shadow-lg shadow-pond-500/25 flex items-center gap-1.5">
+                  <span>📤</span>
+                  <span>Mesajı Gönder</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 5: QUICK USER XP & LEVEL MANAGER -->
         <div class="glass-card rounded-3xl p-6 space-y-5">
           <div class="flex items-center gap-2.5 border-b border-pond-border/60 pb-3">
             <span class="text-xl">👤</span>
             <div>
               <h3 class="font-display font-bold text-white text-base">Hızlı Üye Seviye / XP Düzenleme</h3>
-              <p class="text-xs text-gray-400">Belirli bir üyenin seviyesini doğrudan ayarla, XP ekle veya sıfırla</p>
+              <p class="text-xs text-gray-400">Üyeyi listeden seçerek veya ID yazarak seviyesini doğrudan ayarla, XP ekle veya sıfırla</p>
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
-            <div class="sm:col-span-1">
-              <label class="block text-xs font-bold text-gray-300 mb-1.5">Discord Kullanıcı ID</label>
-              <input type="text" id="adminTargetUserId" placeholder="Örn: 308727142491586562" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+            <div class="sm:col-span-1 relative">
+              <label class="block text-xs font-bold text-gray-300 mb-1.5">Kullanıcı (ID / Seçim)</label>
+              <input type="text" id="adminTargetUserId" onfocus="openMemberDropdown()" oninput="searchMembersDropdown(this.value)" placeholder="ID yazın veya arayın..." class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+              <!-- Inline Dropdown Overlay -->
+              <div id="adminUserMemberDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl bg-[#0c140e] border border-pond-border shadow-2xl p-2 max-h-56 overflow-y-auto space-y-1 backdrop-blur-2xl"></div>
             </div>
 
             <div class="sm:col-span-1">
@@ -1951,6 +2091,215 @@
       window.scrollTo({ top: alertEl.offsetTop - 100, behavior: 'smooth' });
     }
 
+    // --- DATABASE BACKUP DOWNLOAD ---
+    function downloadDatabaseBackup() {
+      if (!currentAdminPassword) return;
+      const url = `/api/admin/backup-download?password=${encodeURIComponent(currentAdminPassword)}`;
+      window.open(url, '_blank');
+    }
+
+    // --- BOT MESSAGING (DM & CHANNEL) LOGIC ---
+    let botMsgMode = 'dm'; // 'dm' | 'channel'
+    let adminCachedMembers = [];
+
+    function switchBotMsgMode(mode) {
+      botMsgMode = mode;
+      const dmBtn = document.getElementById('botMsgModeDmBtn');
+      const channelBtn = document.getElementById('botMsgModeChannelBtn');
+      const userGroup = document.getElementById('botMsgUserSelectorGroup');
+      const channelGroup = document.getElementById('botMsgChannelSelectorGroup');
+
+      if (mode === 'dm') {
+        dmBtn.className = "px-3 py-1 rounded-lg font-bold bg-pond-500 text-white transition";
+        channelBtn.className = "px-3 py-1 rounded-lg font-bold text-gray-400 hover:text-white transition";
+        userGroup.classList.remove('hidden');
+        channelGroup.classList.add('hidden');
+      } else {
+        channelBtn.className = "px-3 py-1 rounded-lg font-bold bg-pond-500 text-white transition";
+        dmBtn.className = "px-3 py-1 rounded-lg font-bold text-gray-400 hover:text-white transition";
+        channelGroup.classList.remove('hidden');
+        userGroup.classList.add('hidden');
+        populateBotMsgChannels();
+      }
+    }
+
+    function populateBotMsgChannels() {
+      const select = document.getElementById('botMsgTargetChannelSelect');
+      if (!select || !guildChannels) return;
+      
+      const textChannels = guildChannels.filter(c => c.type === 0 || c.typeName === 'Metin');
+      select.innerHTML = textChannels.map(c => `
+        <option value="${c.id}"># ${escapeHtml(c.name)} ${c.parentName ? `(${escapeHtml(c.parentName)})` : ''}</option>
+      `).join('');
+    }
+
+    async function fetchAdminMembers(query = '') {
+      if (!currentAdminPassword) return [];
+      try {
+        const res = await fetch(`/api/admin/members?password=${encodeURIComponent(currentAdminPassword)}&search=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.success && data.members) {
+          adminCachedMembers = data.members;
+          return data.members;
+        }
+      } catch (e) {
+        console.warn('Members fetch error:', e);
+      }
+      return [];
+    }
+
+    async function openMemberDropdown() {
+      const dropdown = document.getElementById('botMsgMemberDropdown');
+      dropdown.classList.remove('hidden');
+      const members = await fetchAdminMembers('');
+      renderMemberDropdownItems(members);
+    }
+
+    let memberSearchTimeout;
+    function searchMembersDropdown(val) {
+      clearTimeout(memberSearchTimeout);
+      memberSearchTimeout = setTimeout(async () => {
+        const members = await fetchAdminMembers(val);
+        renderMemberDropdownItems(members);
+      }, 200);
+    }
+
+    function renderMemberDropdownItems(members) {
+      const dropdown = document.getElementById('botMsgMemberDropdown');
+      if (!members || members.length === 0) {
+        dropdown.innerHTML = `<div class="text-xs text-gray-500 text-center py-4">Eşleşen üye bulunamadı.</div>`;
+        return;
+      }
+
+      dropdown.innerHTML = members.map(m => `
+        <div onclick="selectBotMsgUser('${m.id}', '${escapeHtml(m.displayName || m.username)}', '${escapeHtml(m.avatar)}', '${escapeHtml(m.role?.name || 'Üye')}')" class="flex items-center justify-between p-2 rounded-xl hover:bg-pond-500/20 cursor-pointer transition text-xs border border-transparent hover:border-pond-500/30">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <img src="${m.avatar}" class="w-6 h-6 rounded-full shrink-0 border border-pond-border/60">
+            <div class="truncate">
+              <span class="font-bold text-white">${escapeHtml(m.displayName || m.username)}</span>
+              <span class="text-[10px] text-gray-500 font-mono ml-1">@${escapeHtml(m.tag)}</span>
+            </div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0" style="color: ${m.role?.color || '#4CAF50'}; background: ${m.role?.bg || 'rgba(76,175,80,0.2)'}; border: 1px solid ${m.role?.border || 'rgba(76,175,80,0.4)'};">
+            ${m.role?.badge || '👤'} ${escapeHtml(m.role?.name || 'Üye')}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function selectBotMsgUser(id, name, avatar, roleName) {
+      document.getElementById('botMsgSelectedUserId').value = id;
+      document.getElementById('botMsgUserSearchInput').classList.add('hidden');
+      document.getElementById('botMsgClearUserBtn').classList.remove('hidden');
+
+      const chip = document.getElementById('botMsgSelectedUserChip');
+      chip.classList.remove('hidden');
+      document.getElementById('botMsgSelectedAvatar').src = avatar;
+      document.getElementById('botMsgSelectedName').innerText = name;
+      document.getElementById('botMsgSelectedRole').innerText = roleName;
+
+      document.getElementById('botMsgMemberDropdown').classList.add('hidden');
+
+      // Also autofill quick user manager
+      document.getElementById('adminTargetUserId').value = id;
+    }
+
+    function clearSelectedMember() {
+      document.getElementById('botMsgSelectedUserId').value = '';
+      document.getElementById('botMsgUserSearchInput').value = '';
+      document.getElementById('botMsgUserSearchInput').classList.remove('hidden');
+      document.getElementById('botMsgClearUserBtn').classList.add('hidden');
+      document.getElementById('botMsgSelectedUserChip').classList.add('hidden');
+    }
+
+    // Close member dropdown on outside click
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('botMsgMemberDropdown');
+      const input = document.getElementById('botMsgUserSearchInput');
+      if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    async function sendAdminBotMessage() {
+      const content = document.getElementById('botMsgContentInput').value.trim();
+      const asEmbed = document.getElementById('botMsgAsEmbed').checked;
+      const title = document.getElementById('botMsgEmbedTitle').value.trim();
+      const sendBtn = document.getElementById('botMsgSendBtn');
+      const alertEl = document.getElementById('adminStatusAlert');
+
+      if (!content) {
+        alert('Lütfen gönderilecek mesaj içeriğini yazın!');
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = `<span>⏳</span><span>Gönderiliyor...</span>`;
+
+      try {
+        let endpoint = '/api/admin/send-dm';
+        let body = {
+          password: currentAdminPassword,
+          message: content,
+          asEmbed,
+          title
+        };
+
+        if (botMsgMode === 'dm') {
+          const userId = document.getElementById('botMsgSelectedUserId').value.trim() || document.getElementById('botMsgUserSearchInput').value.trim();
+          if (!userId) {
+            alert('Lütfen mesaj gönderilecek bir kullanıcı seçin!');
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `<span>📤</span><span>Mesajı Gönder</span>`;
+            return;
+          }
+          body.userId = userId;
+        } else {
+          endpoint = '/api/admin/send-channel-msg';
+          const channelId = document.getElementById('botMsgTargetChannelSelect').value;
+          if (!channelId) {
+            alert('Lütfen mesaj gönderilecek kanalı seçin!');
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `<span>📤</span><span>Mesajı Gönder</span>`;
+            return;
+          }
+          body.channelId = channelId;
+        }
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alertEl.innerHTML = `
+            <div class="flex items-center gap-2 text-emerald-400">
+              <span>✅</span> ${data.message}
+            </div>
+            <button onclick="this.parentElement.classList.add('hidden')" class="text-emerald-400 hover:text-emerald-300">✖</button>
+          `;
+          alertEl.className = "flex p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium items-center justify-between";
+          document.getElementById('botMsgContentInput').value = '';
+        } else {
+          alertEl.innerHTML = `
+            <div class="flex items-center gap-2 text-rose-400">
+              <span>❌</span> ${data.error}
+            </div>
+            <button onclick="this.parentElement.classList.add('hidden')" class="text-rose-400 hover:text-rose-300">✖</button>
+          `;
+          alertEl.className = "flex p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs font-medium items-center justify-between";
+        }
+      } catch (err) {
+        alert('Mesaj gönderilirken hata oluştu: ' + err.message);
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = `<span>📤</span><span>Mesajı Gönder</span>`;
+        window.scrollTo({ top: alertEl.offsetTop - 100, behavior: 'smooth' });
+      }
+    }
+
     async function executeAdminUserAction() {
       const userId = document.getElementById('adminTargetUserId').value.trim();
       const action = document.getElementById('adminActionSelect').value;
@@ -1978,7 +2327,7 @@
         if (data.success) {
           alertEl.innerHTML = `
             <div class="flex items-center gap-2 text-emerald-400">
-              <span>⚡</span> Kullanıcı işlemi başarıyla tamamlandı! (Güncel Seviye: ${data.data.level}, Toplam XP: ${data.data.totalXp})
+              <span>⚡</span> Kullanıcı işlemi başarıyla tamamlandı! (Güncel Seviye: ${data.user?.level || 0}, Toplam XP: ${data.user?.totalXp || 0})
             </div>
             <button onclick="this.parentElement.classList.add('hidden')" class="text-emerald-400 hover:text-emerald-300">✖</button>
           `;
