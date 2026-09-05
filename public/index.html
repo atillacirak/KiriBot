@@ -653,6 +653,23 @@
       }
     }
 
+    function getDisplayXp(user) {
+      const val = user[currentSort] !== undefined ? user[currentSort] : user.totalXp;
+      return (val || 0).toLocaleString();
+    }
+
+    function getSortLabel() {
+      const map = {
+        totalXp: 'Toplam XP',
+        voiceXp: 'Sesli XP',
+        textXp: 'Yazılı XP',
+        dailyXp: 'Günlük XP',
+        weeklyXp: 'Haftalık XP',
+        monthlyXp: 'Aylık XP'
+      };
+      return map[currentSort] || 'XP';
+    }
+
     function renderPodium(users) {
       const podiumEl = document.getElementById('podiumCards');
       const podiumSection = document.getElementById('podiumSection');
@@ -664,6 +681,7 @@
 
       podiumSection.classList.remove('hidden');
       const [first, second, third] = users;
+      const sortLabel = getSortLabel();
 
       podiumEl.innerHTML = `
         <!-- 2ND PLACE -->
@@ -676,7 +694,7 @@
           <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-pond-500/20 text-pond-400">
             ${second.frogRole.badge} ${second.frogRole.name}
           </span>
-          <div class="text-xs text-amberOrange font-bold mt-2">${second.totalXp.toLocaleString()} XP</div>
+          <div class="text-xs text-amberOrange font-bold mt-2">${getDisplayXp(second)} <span class="text-[10px] text-gray-400">${sortLabel}</span></div>
           <div class="text-[11px] text-gray-400">Seviye ${second.level}</div>
         </div>
 
@@ -690,7 +708,7 @@
           <span class="inline-block mt-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
             ${first.frogRole.badge} ${first.frogRole.name}
           </span>
-          <div class="text-sm text-amberOrange font-extrabold mt-2.5">${first.totalXp.toLocaleString()} XP</div>
+          <div class="text-sm text-amberOrange font-extrabold mt-2.5">${getDisplayXp(first)} <span class="text-xs text-gray-300">${sortLabel}</span></div>
           <div class="text-xs text-gray-300 font-semibold">Seviye ${first.level}</div>
         </div>
 
@@ -704,7 +722,7 @@
           <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-pond-500/20 text-pond-400">
             ${third.frogRole.badge} ${third.frogRole.name}
           </span>
-          <div class="text-xs text-amberOrange font-bold mt-2">${third.totalXp.toLocaleString()} XP</div>
+          <div class="text-xs text-amberOrange font-bold mt-2">${getDisplayXp(third)} <span class="text-[10px] text-gray-400">${sortLabel}</span></div>
           <div class="text-[11px] text-gray-400">Seviye ${third.level}</div>
         </div>
       `;
