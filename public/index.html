@@ -535,26 +535,27 @@
           <p class="text-xs text-gray-400">Yeşil Gölet XP ve Seviye ayarlarını düzenlemek için lütfen Admin parolasını girin.</p>
         </div>
 
-        <div class="space-y-4">
+        <form autocomplete="off" onsubmit="event.preventDefault(); loginAdmin();" class="space-y-4">
+          <!-- Hidden decoy input to satisfy password manager heuristics -->
+          <input type="text" name="username_decoy" style="display:none !important;" tabindex="-1" autocomplete="username">
           <div>
             <input 
               type="password" 
               id="adminPasswordInput" 
-              name="admin_password"
+              name="kiri_admin_pwd_secret"
               autocomplete="current-password"
               placeholder="Admin Parolası veya PIN" 
               class="w-full bg-black/50 border border-pond-border focus:border-pond-500 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none transition text-center"
-              onkeydown="if(event.key==='Enter') loginAdmin()"
             >
           </div>
           
           <div id="loginErrorMsg" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium"></div>
 
-          <button onclick="loginAdmin()" id="adminLoginBtn" class="w-full py-3 rounded-xl bg-pond-500 hover:bg-pond-600 text-white font-bold text-sm transition shadow-lg shadow-pond-500/20 flex items-center justify-center gap-2">
+          <button type="submit" id="adminLoginBtn" class="w-full py-3 rounded-xl bg-pond-500 hover:bg-pond-600 text-white font-bold text-sm transition shadow-lg shadow-pond-500/20 flex items-center justify-center gap-2">
             <span>Giriş Yap</span>
             <span>🚀</span>
           </button>
-        </div>
+        </form>
       </div>
 
       <!-- ADMIN CONTROLS SECTION (when logged in) -->
@@ -1075,20 +1076,25 @@
                 <label class="block text-xs font-bold text-gray-300">Hedef Üye (Arama / Seçim)</label>
                 <div class="relative">
                   <input 
-                    type="search" 
+                    type="text" 
                     id="botMsgUserSearchInput" 
-                    name="member_search_filter"
+                    name="kiri_search_member_query_no_autofill"
                     autocomplete="off"
                     autocorrect="off"
                     autocapitalize="off"
                     spellcheck="false"
-                    data-lpignore="true"
-                    data-1p-ignore="true"
-                    data-form-type="other"
-                    onfocus="openMemberDropdown()" 
+                    readonly
+                    onfocus="this.removeAttribute('readonly'); openMemberDropdown();" 
+                    onclick="this.removeAttribute('readonly'); openMemberDropdown();" 
                     oninput="searchMembersDropdown(this.value)" 
                     placeholder="🔍 Üye adı, etiket veya ID ara..." 
-                    class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none"
+                    class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none cursor-pointer focus:cursor-text"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-bwignore="true"
+                    data-form-type="other"
+                    role="combobox"
+                    aria-autocomplete="list"
                   >
                   <input type="hidden" id="botMsgSelectedUserId">
                 </div>
@@ -1162,20 +1168,25 @@
             <div class="sm:col-span-1 relative">
               <label class="block text-xs font-bold text-gray-300 mb-1.5">Kullanıcı (ID / Seçim)</label>
               <input 
-                type="search" 
+                type="text" 
                 id="adminTargetUserId" 
-                name="quick_user_target_id"
+                name="kiri_admin_target_query_no_autofill"
                 autocomplete="off"
                 autocorrect="off"
                 autocapitalize="off"
                 spellcheck="false"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-form-type="other"
-                onfocus="openMemberDropdown()" 
+                readonly
+                onfocus="this.removeAttribute('readonly'); openMemberDropdown();" 
+                onclick="this.removeAttribute('readonly'); openMemberDropdown();" 
                 oninput="searchMembersDropdown(this.value)" 
                 placeholder="ID yazın veya arayın..." 
-                class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none"
+                class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none cursor-pointer focus:cursor-text"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                role="combobox"
+                aria-autocomplete="list"
               >
               <!-- Inline Dropdown Overlay -->
               <div id="adminUserMemberDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl bg-[#0c140e] border border-pond-border shadow-2xl p-2 max-h-56 overflow-y-auto space-y-1 backdrop-blur-2xl"></div>
