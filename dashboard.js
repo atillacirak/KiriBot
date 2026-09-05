@@ -894,6 +894,11 @@ export function startDashboard(client, port = 3000) {
     }
   });
 
+  // Privacy Policy Route (Discord Developer Portal Compliant)
+  app.get(['/privacy', '/privacy-policy', '/terms'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+  });
+
   // SPA fallback
   app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
