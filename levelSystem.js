@@ -390,24 +390,28 @@ export const topCommand = new SlashCommandBuilder()
 export const setLevelCommand = new SlashCommandBuilder()
   .setName('seviye-ayarla')
   .setDescription('[YETKİLİ] Bir üyenin seviyesini doğrudan belirler.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption(opt => opt.setName('kullanici').setDescription('Seviyesi ayarlanacak üye').setRequired(true))
   .addIntegerOption(opt => opt.setName('seviye').setDescription('Yeni seviye (0-100)').setMinValue(0).setMaxValue(100).setRequired(true));
 
 export const addXpCommand = new SlashCommandBuilder()
   .setName('xp-ekle')
   .setDescription('[YETKİLİ] Bir üyeye özel XP ekler.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption(opt => opt.setName('kullanici').setDescription('XP eklenecek üye').setRequired(true))
   .addIntegerOption(opt => opt.setName('miktar').setDescription('Eklenecek XP miktarı').setMinValue(1).setRequired(true));
 
 export const removeXpCommand = new SlashCommandBuilder()
   .setName('xp-sil')
   .setDescription('[YETKİLİ] Bir üyeden XP düşer.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption(opt => opt.setName('kullanici').setDescription('XP silinecek üye').setRequired(true))
   .addIntegerOption(opt => opt.setName('miktar').setDescription('Silinecek XP miktarı').setMinValue(1).setRequired(true));
 
 export const resetLevelCommand = new SlashCommandBuilder()
   .setName('seviye-sifirla')
   .setDescription('[YETKİLİ] Bir üyenin tüm XP ve seviye verisini sıfırlar.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addUserOption(opt => opt.setName('kullanici').setDescription('Sıfırlanacak üye').setRequired(true));
 
 // Helper to build leaderboard embed and buttons
