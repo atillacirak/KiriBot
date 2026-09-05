@@ -264,7 +264,7 @@ client.once('ready', async () => {
 // Track text messages for XP and channel analytics
 client.on('messageCreate', (message) => {
   if (message.guild && message.channel && !message.author?.bot) {
-    recordChannelMessage(message.channel.id, message.channel.name);
+    recordChannelMessage(message.channel.id, message.channel.name, message.guild.id);
   }
   handleTextMessage(message).catch(err => console.warn('Text XP error:', err.message));
 });

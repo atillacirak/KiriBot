@@ -104,14 +104,25 @@ export async function recordMemberLeave(member) {
   }
 }
 
-// Channel message counters
+// Channel message counters & timestamped message events
 const channelMessageCounts = new Map(); // channelId -> count
+const messageEventsCache = []; // { channelId, guildId, timestamp }
 
-export function recordChannelMessage(channelId, channelName) {
+export function recordChannelMessage(channelId, channelName, guildId) {
   if (!channelId) return;
   const current = channelMessageCounts.get(channelId) || { id: channelId, name: channelName, count: 0 };
   current.count++;
   channelMessageCounts.set(channelId, current);
+
+  messageEventsCache.push({
+    channelId,
+    guildId: guildId || '1315029372519846039',
+    timestamp: new Date()
+  });
+
+  if (messageEventsCache.length > 20000) {
+    messageEventsCache.splice(0, messageEventsCache.length - 20000);
+  }
 }
 
 // Compute Full Server Analytics
@@ -185,6 +196,24 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
       totalActiveUsersCount++;
       totalXpEarnedInPeriod += (userTextXp + userVoiceXp);
     }
+  }
+
+  // Calculate total text XP in period
+  const totalTextXpInPeriod = allUsersData.reduce((acc, u) => {
+    let xp = (period === 'all' ? (u.textXp || 0) : (period === 'month' ? (u.monthlyXp || 0) : (period === 'week' ? (u.weeklyXp || 0) : (u.dailyXp || 0))));
+    return acc + xp;
+  }, 0);
+
+  // Filter message events for period
+  const messagesInPeriod = messageEventsCache.filter(m => {
+    if (m.guildId && m.guildId !== guild.id) return false;
+    const t = new Date(m.timestamp);
+    return t >= startTime && t <= now;
+  });
+
+  let totalMessagesCount = messagesInPeriod.length;
+  if (totalMessagesCount === 0 && totalTextXpInPeriod > 0) {
+    totalMessagesCount = Math.max(1, Math.round(totalTextXpInPeriod / 15));
   }
 
   // Calculate voice minutes
@@ -288,6 +317,8 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
       totalVoiceMinutes,
       totalVoiceHours: (totalVoiceMinutes / 60).toFixed(1),
       totalXpEarnedInPeriod,
+      totalTextXpInPeriod,
+      totalMessagesCount,
       activeRatePercent
     },
     // Growth & Churn Overview

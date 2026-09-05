@@ -694,8 +694,12 @@
                 <span class="text-xs text-gray-400 font-medium">Aktif Yazar</span>
               </div>
               <div class="text-[11px] text-gray-300 mt-2 flex items-center justify-between border-t border-pond-border/40 pt-2">
+                <span>💬 Toplam Mesaj Sayısı:</span>
+                <b id="analyticsTotalMessages" class="text-amberOrange">0 Mesaj</b>
+              </div>
+              <div class="text-[11px] text-gray-400 flex items-center justify-between pt-1">
                 <span>⚡ Kazanılan Yazı XP:</span>
-                <b id="analyticsTextXp" class="text-amberOrange">0 XP</b>
+                <b id="analyticsTextXp" class="text-gray-300">0 XP</b>
               </div>
               <div class="text-[11px] text-gray-400 flex items-center justify-between pt-1">
                 <span>👥 Toplam Aktiflik Payı:</span>
@@ -1643,7 +1647,8 @@
         document.getElementById('analyticsVoiceXp').innerText = (a.activity.totalVoiceMinutes * 25).toLocaleString() + ' XP';
 
         document.getElementById('analyticsTextUsers').innerText = a.activity.textActiveUsersCount.toLocaleString();
-        document.getElementById('analyticsTextXp').innerText = a.activity.totalXpEarnedInPeriod.toLocaleString() + ' XP';
+        document.getElementById('analyticsTotalMessages').innerText = (a.activity.totalMessagesCount || 0).toLocaleString() + ' Mesaj';
+        document.getElementById('analyticsTextXp').innerText = (a.activity.totalTextXpInPeriod || a.activity.totalXpEarnedInPeriod || 0).toLocaleString() + ' XP';
         const textRate = a.totalServerMembers > 0 ? Math.round((a.activity.textActiveUsersCount / a.totalServerMembers) * 100) : 0;
         document.getElementById('analyticsTextRate').innerText = `%${textRate}`;
 
