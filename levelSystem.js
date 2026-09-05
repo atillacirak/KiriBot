@@ -754,7 +754,12 @@ export async function handleSetLevelCommand(interaction) {
 
   const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
   if (targetMember) {
-    await checkRoleRewards(guild, targetMember, targetLevel);
+    const awardedRole = await checkRoleRewards(guild, targetMember, targetLevel);
+    if (awardedRole) {
+      await sendRoleRewardDm(guild, targetMember, targetLevel, awardedRole);
+    } else {
+      await sendLevelUpDm(guild, targetMember, targetLevel);
+    }
   }
 
   const embed = new EmbedBuilder()

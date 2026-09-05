@@ -10,7 +10,9 @@ import {
   getGuildSettings, 
   updateGuildSettings, 
   checkRoleRewards, 
-  getUserData 
+  getUserData,
+  sendRoleRewardDm,
+  sendLevelUpDm
 } from './levelSystem.js';
 import { computeServerAnalytics } from './analyticsManager.js';
 import { 
@@ -656,7 +658,12 @@ export function startDashboard(client, port = 3000) {
       if (guild) {
         const member = await guild.members.fetch(userId).catch(() => null);
         if (member) {
-          await checkRoleRewards(guild, member, data.level);
+          const awardedRole = await checkRoleRewards(guild, member, data.level);
+          if (awardedRole) {
+            await sendRoleRewardDm(guild, member, data.level, awardedRole);
+          } else {
+            await sendLevelUpDm(guild, member, data.level);
+          }
         }
       }
 
