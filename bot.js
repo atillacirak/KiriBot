@@ -340,7 +340,7 @@ client.on('interactionCreate', async (interaction) => {
     const customId = interaction.customId;
     if (customId.startsWith('top_')) {
       const category = customId.replace('top_', '');
-      const payload = buildTopEmbedAndButtons(interaction.guild, category);
+      const payload = buildTopEmbedAndButtons(interaction.guild, category, interaction.user.id);
       await interaction.update(payload).catch(() => {});
     }
     return;

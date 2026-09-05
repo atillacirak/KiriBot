@@ -579,7 +579,7 @@ export const resetLevelCommand = new SlashCommandBuilder()
   .addUserOption(opt => opt.setName('kullanici').setDescription('Sıfırlanacak üye').setRequired(true));
 
 // Helper to build leaderboard embed and buttons
-export function buildTopEmbedAndButtons(guild, category = 'totalXp') {
+export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUserId = null) {
   const titles = {
     totalXp: '🌿 Yeşil Gölet • Genel Liderlik Tablosu (Top 10)',
     voiceXp: '🎙️ Yeşil Gölet • En Çok Sesli Konuşanlar (Top 10)',
@@ -595,28 +595,57 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp') {
       checkAndResetTimeBuckets(u);
       return u;
     })
-    .sort((a, b) => (b[category] || 0) - (a[category] || 0))
-    .slice(0, 10);
+    .sort((a, b) => (b[category] || 0) - (a[category] || 0));
 
+  const top10Users = allGuildUsers.slice(0, 10);
   const title = titles[category] || titles.totalXp;
 
   let desc = 'Henüz bu kategoride kaydedilmiş aktiflik verisi bulunmuyor 🌱';
-  if (allGuildUsers.length > 0 && (allGuildUsers[0][category] || 0) > 0) {
-    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-    desc = allGuildUsers
+
+  if (top10Users.length > 0 && (top10Users[0][category] || 0) > 0) {
+    const listLines = top10Users
       .filter(u => (u[category] || 0) > 0)
       .map((u, i) => {
+        let rankLabel = '';
+        if (i === 0) rankLabel = '🥇';
+        else if (i === 1) rankLabel = '🥈';
+        else if (i === 2) rankLabel = '🥉';
+        else rankLabel = `\`#${i + 1}\``;
+
         let valueStr = `${(u[category] || 0).toLocaleString()} XP`;
         if (category === 'voiceXp') {
           const hours = (((u.voiceXp || 0) / 25) / 60).toFixed(1);
-          valueStr = `\`${(u.voiceXp || 0).toLocaleString()} XP\` (${hours} Saat)`;
+          valueStr = `\`${(u.voiceXp || 0).toLocaleString()} XP\` (${hours} Sa)`;
         } else if (category === 'textXp') {
           valueStr = `\`${(u.textXp || 0).toLocaleString()} XP\``;
         } else {
           valueStr = `**Lvl ${u.level}** (\`${(u[category] || 0).toLocaleString()} XP\`)`;
         }
-        return `${medals[i]} <@${u.userId}> — ${valueStr}`;
-      }).join('\n\n');
+
+        const isRequester = requestUserId && u.userId === requestUserId;
+        const userMention = isRequester ? `**<@${u.userId}>** 👈` : `<@${u.userId}>`;
+        return `${rankLabel} ${userMention} — ${valueStr}`;
+      });
+
+    // Check if requester is NOT in top 10, append their rank at bottom
+    if (requestUserId) {
+      const userIndex = allGuildUsers.findIndex(u => u.userId === requestUserId);
+      if (userIndex >= 10) {
+        const u = allGuildUsers[userIndex];
+        let valueStr = `${(u[category] || 0).toLocaleString()} XP`;
+        if (category === 'voiceXp') {
+          const hours = (((u.voiceXp || 0) / 25) / 60).toFixed(1);
+          valueStr = `\`${(u.voiceXp || 0).toLocaleString()} XP\` (${hours} Sa)`;
+        } else if (category === 'textXp') {
+          valueStr = `\`${(u.textXp || 0).toLocaleString()} XP\``;
+        } else {
+          valueStr = `**Lvl ${u.level}** (\`${(u[category] || 0).toLocaleString()} XP\`)`;
+        }
+        listLines.push(`\n───────────────\n\`#${userIndex + 1}\` **<@${u.userId}>** — ${valueStr} *(Senin Sıralaman)*`);
+      }
+    }
+
+    desc = listLines.join('\n');
   }
 
   const embed = new EmbedBuilder()
@@ -626,7 +655,7 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp') {
     .setFooter({ text: 'Kur Bot • Butonlara basarak kategoriyi değiştirebilirsin', iconURL: guild.iconURL() })
     .setTimestamp();
 
-  const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+  const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
 
   // Category switch buttons
   const rowCategory = new ActionRowBuilder().addComponents(
@@ -687,21 +716,23 @@ export async function handleRankCommand(interaction) {
     .setFooter({ text: 'Kur Bot • Yeşil Gölet', iconURL: guild.iconURL() })
     .setTimestamp();
 
-  const dashboardUrl = process.env.DASHBOARD_URL || 'http://3.75.174.25:3000';
+  const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
+  const userProfileUrl = `${dashboardUrl}/#u/${targetUser.id}`;
+
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setLabel('🌐 Canlı Liderlik Tablosu')
+      .setLabel('🌐 Web Profilini Gör')
       .setStyle(ButtonStyle.Link)
-      .setURL(dashboardUrl)
+      .setURL(userProfileUrl)
   );
 
   await interaction.reply({ embeds: [embed], components: [row] });
 }
 
 export async function handleTopCommand(interaction) {
-  const { guild } = interaction;
+  const { guild, user } = interaction;
   const category = interaction.options?.getString('kategori') || 'totalXp';
-  const payload = buildTopEmbedAndButtons(guild, category);
+  const payload = buildTopEmbedAndButtons(guild, category, user.id);
   await interaction.reply(payload);
 }
 
