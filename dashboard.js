@@ -2,7 +2,16 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { levelCache, getXpForLevel, checkAndResetTimeBuckets } from './levelSystem.js';
+import { 
+  levelCache, 
+  getXpForLevel, 
+  getLevelForXp, 
+  checkAndResetTimeBuckets, 
+  getGuildSettings, 
+  updateGuildSettings, 
+  checkRoleRewards, 
+  getUserData 
+} from './levelSystem.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,8 +22,10 @@ export function startDashboard(client, port = 3000) {
   app.use(express.json());
   app.use(express.static(path.join(__dirname, 'public')));
 
-  // Helper: Get frog role info
-  function getFrogRole(level) {
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'yesilgolet2026';
+
+  // Helper: Get frog role info based on dynamic settings
+  function getFrogRole(level, roleRewards = {}) {
     if (level >= 80) return { name: 'Bu Direkt Göl Olmuş', color: '#1B5E20', badge: '👑', minLevel: 80 };
     if (level >= 50) return { name: 'Göl Müdavimi Kurbağa', color: '#2E7D32', badge: '🌿', minLevel: 50 };
     if (level >= 25) return { name: 'Kurbağa', color: '#4CAF50', badge: '🐸', minLevel: 25 };
@@ -74,11 +85,13 @@ export function startDashboard(client, port = 3000) {
     try {
       const defaultGuildId = '1315029372519846039'; // Yeşil Gölet
       const guildId = req.query.guildId || defaultGuildId;
-      const sortBy = req.query.sortBy || 'totalXp'; // totalXp | voiceXp | textXp
+      const sortBy = req.query.sortBy || 'totalXp'; // totalXp | voiceXp | textXp | dailyXp | weeklyXp | monthlyXp
       const search = (req.query.search || '').trim().toLowerCase();
       const limit = Math.min(parseInt(req.query.limit || '100', 10), 200);
 
       const guild = client.guilds.cache.get(guildId) || client.guilds.cache.first();
+      const settings = getGuildSettings(guild ? guild.id : defaultGuildId);
+
       let users = Array.from(levelCache.values())
         .filter(u => !guild || u.guildId === guild.id)
         .map(u => {
@@ -127,7 +140,7 @@ export function startDashboard(client, port = 3000) {
             progressInLevel,
             neededInLevel,
             progressPercent,
-            frogRole: getFrogRole(currentLevel)
+            frogRole: getFrogRole(currentLevel, settings.roleRewards)
           };
         })
       );
@@ -147,6 +160,113 @@ export function startDashboard(client, port = 3000) {
         total: filtered.length,
         users: filtered.slice(0, limit)
       });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // --- ADMIN APIs ---
+
+  // Admin Auth Verify & Get Guild Channels / Roles
+  app.get('/api/admin/channels-and-roles', async (req, res) => {
+    try {
+      const defaultGuildId = '1315029372519846039';
+      const guildId = req.query.guildId || defaultGuildId;
+      const guild = client.guilds.cache.get(guildId) || client.guilds.cache.first();
+
+      if (!guild) {
+        return res.status(404).json({ success: false, error: 'Sunucu bulunamadı.' });
+      }
+
+      const channels = Array.from(guild.channels.cache.values())
+        .filter(c => c && c.isTextBased())
+        .map(c => ({ id: c.id, name: c.name, type: c.type }));
+
+      const roles = Array.from(guild.roles.cache.values())
+        .filter(r => r.name !== '@everyone')
+        .map(r => ({ id: r.id, name: r.name, color: r.hexColor, position: r.position }))
+        .sort((a, b) => b.position - a.position);
+
+      const settings = getGuildSettings(guild.id);
+
+      res.json({
+        success: true,
+        guild: { id: guild.id, name: guild.name, icon: guild.iconURL() },
+        channels,
+        roles,
+        settings
+      });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Admin Save Settings
+  app.post('/api/admin/settings', async (req, res) => {
+    try {
+      const { password, guildId, settings } = req.body;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası / PIN!' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const targetGuildId = guildId || defaultGuildId;
+
+      const updated = await updateGuildSettings(targetGuildId, settings);
+      console.log(`🛠️ [Admin Panel] ${targetGuildId} sunucu ayarları güncellendi!`);
+
+      res.json({ success: true, settings: updated });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Admin Modify User Level / XP
+  app.post('/api/admin/modify-user', async (req, res) => {
+    try {
+      const { password, guildId, userId, action, value } = req.body;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası / PIN!' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const targetGuildId = guildId || defaultGuildId;
+      const data = getUserData(targetGuildId, userId);
+
+      const numericValue = parseInt(value || '0', 10);
+
+      if (action === 'setLevel') {
+        data.level = numericValue;
+        data.totalXp = getXpForLevel(numericValue);
+      } else if (action === 'addXp') {
+        data.totalXp += numericValue;
+        data.textXp += numericValue;
+        data.dailyXp += numericValue;
+        data.weeklyXp += numericValue;
+        data.monthlyXp += numericValue;
+        data.level = getLevelForXp(data.totalXp);
+      } else if (action === 'removeXp') {
+        data.totalXp = Math.max(0, data.totalXp - numericValue);
+        data.level = getLevelForXp(data.totalXp);
+      } else if (action === 'reset') {
+        data.totalXp = 0;
+        data.textXp = 0;
+        data.voiceXp = 0;
+        data.dailyXp = 0;
+        data.weeklyXp = 0;
+        data.monthlyXp = 0;
+        data.level = 0;
+      }
+
+      const guild = client.guilds.cache.get(targetGuildId);
+      if (guild) {
+        const member = await guild.members.fetch(userId).catch(() => null);
+        if (member) {
+          await checkRoleRewards(guild, member, data.level);
+        }
+      }
+
+      res.json({ success: true, user: data });
     } catch (e) {
       res.status(500).json({ success: false, error: e.message });
     }

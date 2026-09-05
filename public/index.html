@@ -95,13 +95,18 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-pond-border text-xs text-gray-300">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>AWS 7/24 Kesintisiz</span>
-      </div>
-      <a href="https://discord.com" target="_blank" class="px-4 py-2 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/20">
-        <span>Yeşil Gölet'e Git</span>
+    <!-- NAV LINKS & ADMIN BUTTON -->
+    <div class="flex items-center gap-2.5">
+      <button onclick="showTab('leaderboard')" id="navLeaderboardBtn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center gap-1.5">
+        <span>🏆 Liderlik Tablosu</span>
+      </button>
+
+      <button onclick="showTab('admin')" id="navAdminBtn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5">
+        <span>🛠️ Yönetim Paneli</span>
+      </button>
+
+      <a href="https://discord.com" target="_blank" class="hidden sm:flex px-4 py-2 rounded-xl bg-amberOrange hover:bg-amber-600 text-white text-xs font-bold transition items-center gap-1.5 shadow-lg shadow-amberOrange/20">
+        <span>Yeşil Gölet</span>
         <span>🌿</span>
       </a>
     </div>
@@ -110,8 +115,11 @@
   <!-- MAIN CONTAINER -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8 space-y-8">
     
-    <!-- HERO SECTION & LIVE STATS -->
-    <section class="space-y-6">
+    <!-- LEADERBOARD TAB -->
+    <div id="leaderboardTab" class="space-y-8">
+      
+      <!-- HERO SECTION & LIVE STATS -->
+      <section class="space-y-6">
       <div class="text-center max-w-3xl mx-auto space-y-3 pt-4">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pond-500/10 border border-pond-500/20 text-pond-400 text-xs font-medium">
           <span>✨</span> Gerçek Zamanlı Seviye & Sesli XP Merkezi
@@ -346,7 +354,212 @@
       </div>
 
     </section>
+    </div>
+    <!-- /#leaderboardTab -->
 
+    <!-- ADMIN TAB -->
+    <div id="adminTab" class="hidden space-y-8">
+      
+      <!-- LOGIN SECTION (if not logged in) -->
+      <div id="adminLoginSection" class="max-w-md mx-auto glass-card rounded-3xl p-8 text-center space-y-6">
+        <div class="w-16 h-16 rounded-2xl bg-pond-500/20 text-pond-400 border border-pond-500/30 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-pond-500/10">
+          🔒
+        </div>
+        <div class="space-y-2">
+          <h2 class="text-2xl font-display font-bold text-white">Yönetici Girişi</h2>
+          <p class="text-xs text-gray-400">Yeşil Gölet XP ve Seviye ayarlarını düzenlemek için lütfen Admin parolasını girin.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <input 
+              type="password" 
+              id="adminPasswordInput" 
+              placeholder="Admin Parolası veya PIN" 
+              class="w-full bg-black/50 border border-pond-border focus:border-pond-500 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none transition text-center"
+              onkeydown="if(event.key==='Enter') loginAdmin()"
+            >
+          </div>
+          
+          <div id="loginErrorMsg" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium"></div>
+
+          <button onclick="loginAdmin()" id="adminLoginBtn" class="w-full py-3 rounded-xl bg-pond-500 hover:bg-pond-600 text-white font-bold text-sm transition shadow-lg shadow-pond-500/20 flex items-center justify-center gap-2">
+            <span>Giriş Yap</span>
+            <span>🚀</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ADMIN CONTROLS SECTION (when logged in) -->
+      <div id="adminControlsSection" class="hidden space-y-8">
+        
+        <!-- ADMIN HEADER -->
+        <div class="glass-card rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-pond-500/30">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-amberOrange/20 border border-amberOrange/30 flex items-center justify-center text-2xl">
+              🛠️
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="font-display font-bold text-lg md:text-xl text-white">Yeşil Gölet Bot Yönetim Paneli</h2>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">CANLI YÖNETİCİ</span>
+              </div>
+              <p class="text-xs text-gray-400">Tüm değişiklikler anında bot hafızasına ve MongoDB Atlas bulutuna kaydedilir.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="saveAdminSettings()" class="px-5 py-2.5 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/25">
+              <span>💾 Ayarları Kaydet</span>
+            </button>
+            <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-xl bg-black/40 border border-pond-border hover:border-rose-500/50 text-gray-400 hover:text-rose-400 text-xs font-bold transition">
+              🚪 Çıkış
+            </button>
+          </div>
+        </div>
+
+        <!-- NOTIFICATION BANNER -->
+        <div id="adminStatusAlert" class="hidden p-4 rounded-2xl text-xs font-medium items-center justify-between"></div>
+
+        <!-- GRID: SETTINGS & BLACKLIST -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- CARD 1: XP ENGINE SETTINGS -->
+          <div class="glass-card rounded-3xl p-6 space-y-5">
+            <div class="flex items-center gap-2.5 border-b border-pond-border/60 pb-3">
+              <span class="text-xl">⚡</span>
+              <div>
+                <h3 class="font-display font-bold text-white text-base">XP ve Seviye Motoru Oranları</h3>
+                <p class="text-xs text-gray-400">Sesli ve yazılı aktivite için kazanılan puanlar</p>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-gray-300 mb-1.5">🎙️ Sesli XP (Dakika Başına)</label>
+                  <input type="number" id="settingVoiceXpPerMinute" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-sm text-white focus:border-pond-500 focus:outline-none" min="1" max="500">
+                  <span class="text-[10px] text-gray-500">Örn: 25 XP (Saatte 1500 XP)</span>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-gray-300 mb-1.5">⏱️ Yazı Bekleme Süresi (Saniye)</label>
+                  <input type="number" id="settingTextCooldownSeconds" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-sm text-white focus:border-pond-500 focus:outline-none" min="1" max="300">
+                  <span class="text-[10px] text-gray-500">Örn: 20 saniye cooldown</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-gray-300 mb-1.5">💬 Min Yazılı XP</label>
+                  <input type="number" id="settingTextXpMin" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-sm text-white focus:border-pond-500 focus:outline-none" min="1" max="100">
+                  <span class="text-[10px] text-gray-500">Mesaj başına minimum</span>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-gray-300 mb-1.5">💬 Max Yazılı XP</label>
+                  <input type="number" id="settingTextXpMax" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-sm text-white focus:border-pond-500 focus:outline-none" min="1" max="200">
+                  <span class="text-[10px] text-gray-500">Mesaj başına maksimum</span>
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-pond-border/40">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" id="settingMutedEarnsXp" class="w-4 h-4 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0">
+                  <div>
+                    <span class="text-xs font-bold text-white">Susturulmuş / Sağır Üyeler XP Kazansın</span>
+                    <p class="text-[10px] text-gray-400">Kapalı olduğunda self-mute veya server-deaf iken ses XP'si verilmez (Anti-AFK)</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: XP DISABLED CHANNELS (BLACKLIST) -->
+          <div class="glass-card rounded-3xl p-6 space-y-4">
+            <div class="flex items-center gap-2.5 border-b border-pond-border/60 pb-3">
+              <span class="text-xl">🚫</span>
+              <div>
+                <h3 class="font-display font-bold text-white text-base">XP Kazanımı Devre Dışı Kanallar</h3>
+                <p class="text-xs text-gray-400">İşaretlenen kanallara atılan mesajlar XP kazandırmaz (Blacklist)</p>
+              </div>
+            </div>
+
+            <div class="relative">
+              <input type="text" id="channelSearchInput" oninput="filterChannels()" placeholder="Kanal ara..." class="w-full bg-black/40 border border-pond-border rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pond-500">
+            </div>
+
+            <div id="channelsListContainer" class="max-h-56 overflow-y-auto space-y-2 pr-2">
+              <div class="text-xs text-gray-500 text-center py-6">Kanallar yükleniyor...</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CARD 3: DYNAMIC LEVEL - ROLE REWARDS -->
+        <div class="glass-card rounded-3xl p-6 space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-pond-border/60 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🎖️</span>
+              <div>
+                <h3 class="font-display font-bold text-white text-base">Seviye ve Otomatik Rol Eşleşmeleri</h3>
+                <p class="text-xs text-gray-400">Belirtilen seviyeye ulaşan üyeye Discord rolü otomatik atanır</p>
+              </div>
+            </div>
+            <button onclick="addRoleRow()" class="px-3.5 py-1.5 rounded-xl bg-pond-500/20 hover:bg-pond-500/30 text-pond-400 border border-pond-500/30 text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto">
+              <span>➕ Yeni Rol Kuralı Ekle</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <div id="roleRulesContainer" class="space-y-3 min-w-[500px]">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 4: QUICK USER XP & LEVEL MANAGER -->
+        <div class="glass-card rounded-3xl p-6 space-y-5">
+          <div class="flex items-center gap-2.5 border-b border-pond-border/60 pb-3">
+            <span class="text-xl">👤</span>
+            <div>
+              <h3 class="font-display font-bold text-white text-base">Hızlı Üye Seviye / XP Düzenleme</h3>
+              <p class="text-xs text-gray-400">Belirli bir üyenin seviyesini doğrudan ayarla, XP ekle veya sıfırla</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+            <div class="sm:col-span-1">
+              <label class="block text-xs font-bold text-gray-300 mb-1.5">Discord Kullanıcı ID</label>
+              <input type="text" id="adminTargetUserId" placeholder="Örn: 308727142491586562" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+            </div>
+
+            <div class="sm:col-span-1">
+              <label class="block text-xs font-bold text-gray-300 mb-1.5">İşlem</label>
+              <select id="adminActionSelect" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+                <option value="setLevel">Seviyeyi Ayarla</option>
+                <option value="addXp">XP Ekle</option>
+                <option value="removeXp">XP Sil</option>
+                <option value="reset">Seviyeyi Sıfırla (0)</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-1">
+              <label class="block text-xs font-bold text-gray-300 mb-1.5">Değer (Seviye / XP)</label>
+              <input type="number" id="adminActionValue" placeholder="Örn: 50" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none" min="0">
+            </div>
+
+            <div class="sm:col-span-1">
+              <button onclick="executeAdminUserAction()" class="w-full py-2 rounded-xl bg-amberOrange hover:bg-amber-600 text-white font-bold text-xs transition shadow-lg shadow-amberOrange/20">
+                Uygula ⚡
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </main>
 
   <!-- FOOTER -->
@@ -362,7 +575,38 @@
   <script>
     let currentSort = 'totalXp';
     let allUsers = [];
+    let currentAdminPassword = sessionStorage.getItem('kiri_admin_pwd') || '';
+    let guildChannels = [];
+    let guildRoles = [];
+    let currentSettings = null;
 
+    // --- TAB SWITCHER ---
+    function showTab(tab) {
+      const leaderboardTab = document.getElementById('leaderboardTab');
+      const adminTab = document.getElementById('adminTab');
+      const navLeaderboardBtn = document.getElementById('navLeaderboardBtn');
+      const navAdminBtn = document.getElementById('navAdminBtn');
+
+      if (tab === 'leaderboard') {
+        leaderboardTab.classList.remove('hidden');
+        adminTab.classList.add('hidden');
+        navLeaderboardBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center gap-1.5 shadow-lg shadow-pond-500/20";
+        navAdminBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5";
+      } else {
+        leaderboardTab.classList.add('hidden');
+        adminTab.classList.remove('hidden');
+        navAdminBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amberOrange text-white transition flex items-center gap-1.5 shadow-lg shadow-amberOrange/20";
+        navLeaderboardBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-black/40 border border-pond-border text-gray-300 hover:text-white hover:border-pond-500 transition flex items-center gap-1.5";
+
+        if (currentAdminPassword) {
+          fetchAdminData(currentAdminPassword);
+        } else {
+          showAdminLogin();
+        }
+      }
+    }
+
+    // --- LEADERBOARD LOGIC ---
     async function loadStats() {
       try {
         const res = await fetch('/api/stats');
@@ -531,6 +775,300 @@
         }
       });
       loadLeaderboard();
+    }
+
+    // --- ADMIN AUTH & LOGIC ---
+    function showAdminLogin() {
+      document.getElementById('adminLoginSection').classList.remove('hidden');
+      document.getElementById('adminControlsSection').classList.add('hidden');
+    }
+
+    async function loginAdmin() {
+      const pwd = document.getElementById('adminPasswordInput').value.trim();
+      const errEl = document.getElementById('loginErrorMsg');
+      errEl.classList.add('hidden');
+
+      if (!pwd) {
+        errEl.innerText = 'Lütfen bir parola veya PIN girin!';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      await fetchAdminData(pwd);
+    }
+
+    async function fetchAdminData(pwd) {
+      const errEl = document.getElementById('loginErrorMsg');
+      try {
+        const res = await fetch('/api/admin/channels-and-roles');
+        const data = await res.json();
+
+        if (!data.success) {
+          if (errEl) {
+            errEl.innerText = data.error || 'Veri yüklenemedi.';
+            errEl.classList.remove('hidden');
+          }
+          return;
+        }
+
+        // Test credentials by loading channels & roles
+        currentAdminPassword = pwd;
+        sessionStorage.setItem('kiri_admin_pwd', pwd);
+
+        guildChannels = data.channels || [];
+        guildRoles = data.roles || [];
+        currentSettings = data.settings || {};
+
+        document.getElementById('adminLoginSection').classList.add('hidden');
+        document.getElementById('adminControlsSection').classList.remove('hidden');
+
+        populateAdminUI();
+      } catch (err) {
+        if (errEl) {
+          errEl.innerText = 'Sunucuya bağlanılamadı: ' + err.message;
+          errEl.classList.remove('hidden');
+        }
+      }
+    }
+
+    function logoutAdmin() {
+      currentAdminPassword = '';
+      sessionStorage.removeItem('kiri_admin_pwd');
+      document.getElementById('adminPasswordInput').value = '';
+      showAdminLogin();
+    }
+
+    function populateAdminUI() {
+      if (!currentSettings) return;
+
+      // Card 1: Engine rates
+      document.getElementById('settingVoiceXpPerMinute').value = currentSettings.voiceXpPerMinute || 25;
+      document.getElementById('settingTextCooldownSeconds').value = currentSettings.textCooldownSeconds || 20;
+      document.getElementById('settingTextXpMin').value = currentSettings.textXpMin || 10;
+      document.getElementById('settingTextXpMax').value = currentSettings.textXpMax || 15;
+      document.getElementById('settingMutedEarnsXp').checked = !!currentSettings.mutedEarnsXp;
+
+      // Card 2: Channels blacklist
+      renderChannelsList();
+
+      // Card 3: Role rules
+      renderRoleRules();
+    }
+
+    function renderChannelsList(filter = '') {
+      const container = document.getElementById('channelsListContainer');
+      const disabledList = currentSettings.disabledChannels || [];
+
+      const filtered = guildChannels.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-xs text-gray-500 text-center py-4">Kanal bulunamadı</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => {
+        const isChecked = disabledList.includes(c.id);
+        return `
+          <label class="flex items-center justify-between p-2 rounded-xl bg-black/30 hover:bg-black/50 border border-pond-border/40 transition cursor-pointer text-xs">
+            <span class="text-gray-300 flex items-center gap-1.5 font-mono">
+              <span class="text-gray-500">#</span> ${c.name}
+            </span>
+            <input type="checkbox" data-channel-id="${c.id}" ${isChecked ? 'checked' : ''} class="w-4 h-4 rounded text-rose-500 bg-black/50 border-pond-border focus:ring-0 channel-blacklist-cb">
+          </label>
+        `;
+      }).join('');
+    }
+
+    function filterChannels() {
+      const q = document.getElementById('channelSearchInput').value;
+      renderChannelsList(q);
+    }
+
+    let roleRulesState = [];
+
+    function renderRoleRules() {
+      const container = document.getElementById('roleRulesContainer');
+      const rewards = currentSettings.roleRewards || {
+        '25': '1315033783921020978',
+        '50': '1315033878649372722',
+        '80': '1315034015094276188'
+      };
+
+      roleRulesState = Object.entries(rewards).map(([lvl, roleId]) => ({
+        level: parseInt(lvl, 10),
+        roleId
+      })).sort((a, b) => a.level - b.level);
+
+      renderRoleRows();
+    }
+
+    function renderRoleRows() {
+      const container = document.getElementById('roleRulesContainer');
+
+      if (roleRulesState.length === 0) {
+        container.innerHTML = `<div class="text-xs text-gray-500 text-center py-4">Henüz eklenmiş seviye-rol kuralı yok.</div>`;
+        return;
+      }
+
+      container.innerHTML = roleRulesState.map((rule, idx) => {
+        const roleOptions = guildRoles.map(r => `
+          <option value="${r.id}" ${r.id === rule.roleId ? 'selected' : ''}>
+            ${r.name}
+          </option>
+        `).join('');
+
+        return `
+          <div class="flex items-center gap-3 p-3 rounded-2xl bg-black/30 border border-pond-border/60">
+            <div class="w-32 shrink-0">
+              <label class="block text-[10px] text-gray-400 font-bold mb-1">Hedef Seviye</label>
+              <input type="number" value="${rule.level}" onchange="updateRuleLevel(${idx}, this.value)" class="w-full bg-black/50 border border-pond-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pond-500 font-bold" min="1" max="500">
+            </div>
+
+            <div class="flex-1">
+              <label class="block text-[10px] text-gray-400 font-bold mb-1">Verilecek Discord Rolü</label>
+              <select onchange="updateRuleRole(${idx}, this.value)" class="w-full bg-black/50 border border-pond-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-pond-500">
+                <option value="">-- Rol Seçin --</option>
+                ${roleOptions}
+              </select>
+            </div>
+
+            <div class="pt-4">
+              <button onclick="removeRoleRow(${idx})" title="Kuralı Sil" class="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs transition">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addRoleRow() {
+      roleRulesState.push({ level: 10, roleId: '' });
+      renderRoleRows();
+    }
+
+    function removeRoleRow(index) {
+      roleRulesState.splice(index, 1);
+      renderRoleRows();
+    }
+
+    function updateRuleLevel(index, val) {
+      roleRulesState[index].level = parseInt(val || '0', 10);
+    }
+
+    function updateRuleRole(index, val) {
+      roleRulesState[index].roleId = val;
+    }
+
+    async function saveAdminSettings() {
+      const alertEl = document.getElementById('adminStatusAlert');
+      alertEl.className = "hidden p-4 rounded-2xl text-xs font-medium items-center justify-between";
+
+      // Collect disabled channels
+      const disabledChannels = [];
+      document.querySelectorAll('.channel-blacklist-cb:checked').forEach(cb => {
+        disabledChannels.push(cb.getAttribute('data-channel-id'));
+      });
+
+      // Collect role rewards map
+      const roleRewards = {};
+      roleRulesState.forEach(rule => {
+        if (rule.level > 0 && rule.roleId) {
+          roleRewards[rule.level.toString()] = rule.roleId;
+        }
+      });
+
+      const payloadSettings = {
+        voiceXpPerMinute: parseInt(document.getElementById('settingVoiceXpPerMinute').value, 10) || 25,
+        textCooldownSeconds: parseInt(document.getElementById('settingTextCooldownSeconds').value, 10) || 20,
+        textXpMin: parseInt(document.getElementById('settingTextXpMin').value, 10) || 10,
+        textXpMax: parseInt(document.getElementById('settingTextXpMax').value, 10) || 15,
+        mutedEarnsXp: document.getElementById('settingMutedEarnsXp').checked,
+        disabledChannels,
+        roleRewards
+      };
+
+      try {
+        const res = await fetch('/api/admin/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            password: currentAdminPassword,
+            settings: payloadSettings
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          currentSettings = data.settings;
+          alertEl.innerHTML = `
+            <div class="flex items-center gap-2 text-emerald-400">
+              <span>✅</span> Ayarlar başarıyla kaydedildi ve anında sunucuda aktif edildi!
+            </div>
+            <button onclick="this.parentElement.classList.add('hidden')" class="text-emerald-400 hover:text-emerald-300">✖</button>
+          `;
+          alertEl.className = "flex p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium items-center justify-between";
+        } else {
+          alertEl.innerHTML = `
+            <div class="flex items-center gap-2 text-rose-400">
+              <span>❌</span> Hata: ${data.error || 'Kaydedilemedi'}
+            </div>
+            <button onclick="this.parentElement.classList.add('hidden')" class="text-rose-400 hover:text-rose-300">✖</button>
+          `;
+          alertEl.className = "flex p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs font-medium items-center justify-between";
+        }
+      } catch (err) {
+        alertEl.innerHTML = `<span class="text-rose-400">Bağlantı hatası: ${err.message}</span>`;
+        alertEl.className = "flex p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs font-medium items-center justify-between";
+      }
+    }
+
+    async function executeAdminUserAction() {
+      const userId = document.getElementById('adminTargetUserId').value.trim();
+      const action = document.getElementById('adminActionSelect').value;
+      const val = document.getElementById('adminActionValue').value;
+      const alertEl = document.getElementById('adminStatusAlert');
+
+      if (!userId) {
+        alert('Lütfen hedef kullanıcının Discord ID\'sini girin!');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/modify-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            password: currentAdminPassword,
+            userId,
+            action,
+            value: val
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alertEl.innerHTML = `
+            <div class="flex items-center gap-2 text-emerald-400">
+              <span>⚡</span> Kullanıcı işlemi başarıyla tamamlandı! (Güncel Seviye: ${data.data.level}, Toplam XP: ${data.data.totalXp})
+            </div>
+            <button onclick="this.parentElement.classList.add('hidden')" class="text-emerald-400 hover:text-emerald-300">✖</button>
+          `;
+          alertEl.className = "flex p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium items-center justify-between";
+          loadStats();
+          loadLeaderboard();
+        } else {
+          alertEl.innerHTML = `
+            <div class="flex items-center gap-2 text-rose-400">
+              <span>❌</span> Hata: ${data.error}
+            </div>
+            <button onclick="this.parentElement.classList.add('hidden')" class="text-rose-400 hover:text-rose-300">✖</button>
+          `;
+          alertEl.className = "flex p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs font-medium items-center justify-between";
+        }
+      } catch (err) {
+        alert('İşlem başarısız: ' + err.message);
+      }
     }
 
     // Debounce search

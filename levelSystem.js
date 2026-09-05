@@ -1,14 +1,64 @@
-import { EmbedBuilder, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 
-// Local backup file for level data
+// Local backup files
 const LEVELS_DB_FILE = path.join(process.cwd(), 'database_levels.json');
+const SETTINGS_DB_FILE = path.join(process.cwd(), 'database_settings.json');
 
 // In-memory cache for ultra-fast zero-latency operations
-// Key: `${guildId}_${userId}` -> UserLevelData
 const levelCache = new Map();
+const guildSettingsCache = new Map();
+
 let mongoLevelsCollection = null;
+let mongoSettingsCollection = null;
+
+// Default server settings
+export const DEFAULT_SETTINGS = {
+  voiceXpPerMin: 25,
+  textXpMin: 10,
+  textXpMax: 15,
+  textCooldownSeconds: 20,
+  minVoiceMembers: 2,
+  ignoredChannels: ['1439038727644250346', '1315051073781895168', '1439016893322100746'],
+  roleRewards: {
+    25: '1439006338402484305', // kurbağa
+    50: '1439006370769666140', // göl müdavimi kurbağa
+    80: '1439006516282785964'  // bu direkt göl olmuş
+  }
+};
+
+const ADMIN_ROLE_ID = '1315029510672089129';
+
+export function getGuildSettings(guildId) {
+  if (!guildSettingsCache.has(guildId)) {
+    guildSettingsCache.set(guildId, JSON.parse(JSON.stringify(DEFAULT_SETTINGS)));
+  }
+  return guildSettingsCache.get(guildId);
+}
+
+export async function updateGuildSettings(guildId, newSettings) {
+  const current = getGuildSettings(guildId);
+  const merged = { ...current, ...newSettings };
+  guildSettingsCache.set(guildId, merged);
+
+  try {
+    fs.writeFileSync(SETTINGS_DB_FILE, JSON.stringify(Object.fromEntries(guildSettingsCache.entries()), null, 2), 'utf8');
+  } catch (e) {}
+
+  if (mongoSettingsCollection) {
+    try {
+      await mongoSettingsCollection.updateOne(
+        { _id: guildId },
+        { $set: { settings: merged, updatedAt: new Date() } },
+        { upsert: true }
+      );
+    } catch (e) {
+      console.error('Mongo settings update error:', e.message);
+    }
+  }
+  return merged;
+}
 
 function loadLocalLevels() {
   try {
@@ -16,6 +66,12 @@ function loadLocalLevels() {
       const data = JSON.parse(fs.readFileSync(LEVELS_DB_FILE, 'utf8'));
       for (const [k, v] of Object.entries(data)) {
         levelCache.set(k, v);
+      }
+    }
+    if (fs.existsSync(SETTINGS_DB_FILE)) {
+      const data = JSON.parse(fs.readFileSync(SETTINGS_DB_FILE, 'utf8'));
+      for (const [k, v] of Object.entries(data)) {
+        guildSettingsCache.set(k, v);
       }
     }
   } catch (e) {
@@ -40,6 +96,9 @@ export async function initLevelSystemMongo(db) {
   if (!db) return;
   try {
     mongoLevelsCollection = db.collection('user_levels');
+    mongoSettingsCollection = db.collection('guild_settings');
+
+    // Load levels
     const allDocs = await mongoLevelsCollection.find({}).toArray();
     for (const doc of allDocs) {
       const key = `${doc.guildId}_${doc.userId}`;
@@ -49,11 +108,24 @@ export async function initLevelSystemMongo(db) {
         textXp: doc.textXp || 0,
         voiceXp: doc.voiceXp || 0,
         totalXp: doc.totalXp || 0,
+        dailyXp: doc.dailyXp || 0,
+        weeklyXp: doc.weeklyXp || 0,
+        monthlyXp: doc.monthlyXp || 0,
         level: doc.level || 0,
-        lastMessageAt: doc.lastMessageAt || 0
+        lastMessageAt: doc.lastMessageAt || 0,
+        lastDay: doc.lastDay || '',
+        lastWeek: doc.lastWeek || '',
+        lastMonth: doc.lastMonth || ''
       });
     }
-    console.log(`✅ MongoDB Seviye Sistemi aktif! (${allDocs.length} üye verisi yüklendi)`);
+
+    // Load settings
+    const settingDocs = await mongoSettingsCollection.find({}).toArray();
+    for (const doc of settingDocs) {
+      guildSettingsCache.set(doc._id, doc.settings || DEFAULT_SETTINGS);
+    }
+
+    console.log(`✅ MongoDB Seviye Sistemi & Ayar Koleksiyonu aktif! (${allDocs.length} üye verisi yüklendi)`);
   } catch (err) {
     console.error('MongoDB Level System Init Error:', err.message);
   }
@@ -85,7 +157,6 @@ setInterval(async () => {
 }, 60000);
 
 // --- XP & LEVEL FORMULAS ---
-// Amari/Standard Cubic Level Formula
 export function getXpForLevel(level) {
   if (level <= 0) return 0;
   return Math.floor((5.0 / 3.0) * Math.pow(level, 3) + (135.0 / 2.0) * Math.pow(level, 2) + (455.0 / 6.0) * level);
@@ -100,15 +171,8 @@ export function getLevelForXp(xp) {
   return l;
 }
 
-// Server Role Rewards mapping for Yeşil Gölet
-const ROLE_REWARDS = {
-  25: '1439006338402484305', // kurbağa
-  50: '1439006370769666140', // göl müdavimi kurbağa
-  80: '1439006516282785964'  // bu direkt göl olmuş
-};
-
 // Time Bucket Helper (Daily, Weekly, Monthly Resets)
-function checkAndResetTimeBuckets(data) {
+export function checkAndResetTimeBuckets(data) {
   const now = new Date();
   
   // Daily Reset (UTC midnight)
@@ -138,7 +202,7 @@ function checkAndResetTimeBuckets(data) {
   }
 }
 
-export { levelCache, ROLE_REWARDS, checkAndResetTimeBuckets };
+export { levelCache };
 export function getUserData(guildId, userId) {
   const key = `${guildId}_${userId}`;
   if (!levelCache.has(key)) {
@@ -164,9 +228,12 @@ export function getUserData(guildId, userId) {
 }
 
 // Check & Award Role Rewards
-async function checkRoleRewards(guild, member, newLevel) {
+export async function checkRoleRewards(guild, member, newLevel) {
   if (!guild || !member) return;
-  for (const [lvlReqStr, roleId] of Object.entries(ROLE_REWARDS)) {
+  const settings = getGuildSettings(guild.id);
+  const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
+
+  for (const [lvlReqStr, roleId] of Object.entries(roleRewards)) {
     const lvlReq = parseInt(lvlReqStr, 10);
     if (newLevel >= lvlReq) {
       if (!member.roles.cache.has(roleId)) {
@@ -186,19 +253,24 @@ export async function handleTextMessage(message) {
   if (!message.guild || message.author.bot) return;
 
   const { guild, author, channel } = message;
-  // Ignore specific bot/spam channels
-  const ignoreChannels = ['1439038727644250346', '1315051073781895168', '1439016893322100746'];
-  if (ignoreChannels.includes(channel.id)) return;
+  const settings = getGuildSettings(guild.id);
+
+  // Check Ignored channels
+  const ignoredChannels = settings.ignoredChannels || DEFAULT_SETTINGS.ignoredChannels;
+  if (ignoredChannels.includes(channel.id)) return;
 
   const data = getUserData(guild.id, author.id);
   const now = Date.now();
 
-  // 20-second cooldown per user for text XP
-  if (now - data.lastMessageAt < 20000) return;
+  const cooldownMs = (settings.textCooldownSeconds || 20) * 1000;
+  if (now - data.lastMessageAt < cooldownMs) return;
 
   data.lastMessageAt = now;
-  // Award 10 - 15 XP
-  const earnedXp = Math.floor(Math.random() * 6) + 10;
+
+  const minXp = settings.textXpMin || 10;
+  const maxXp = settings.textXpMax || 15;
+  const earnedXp = Math.floor(Math.random() * (maxXp - minXp + 1)) + minXp;
+
   data.textXp = (data.textXp || 0) + earnedXp;
   data.totalXp = (data.totalXp || 0) + earnedXp;
   data.dailyXp = (data.dailyXp || 0) + earnedXp;
@@ -213,8 +285,8 @@ export async function handleTextMessage(message) {
     const member = message.member || await guild.members.fetch(author.id).catch(() => null);
     await checkRoleRewards(guild, member, newLevel);
 
-    // Send level up celebration if high tier (25, 50, 80)
-    if ([25, 50, 80].includes(newLevel)) {
+    const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
+    if (Object.keys(roleRewards).map(Number).includes(newLevel)) {
       const celebrateEmbed = new EmbedBuilder()
         .setColor('#5EA454')
         .setTitle('🎉 SEVİYE ATLADIN!')
@@ -231,6 +303,9 @@ export function startVoiceXpTicker(client) {
     try {
       for (const [guildId, guild] of client.guilds.cache) {
         const afkChannelId = guild.afkChannelId;
+        const settings = getGuildSettings(guildId);
+        const minMembers = settings.minVoiceMembers || 2;
+        const voiceXpAmount = settings.voiceXpPerMin || 25;
 
         // Iterate over all voice channels
         for (const [channelId, channel] of guild.channels.cache) {
@@ -238,21 +313,17 @@ export function startVoiceXpTicker(client) {
 
           // Get human members
           const members = Array.from(channel.members.values()).filter(m => !m.user.bot);
-          // Require at least 2 people in the room to prevent solo AFK farming
-          if (members.length < 2) continue;
+          if (members.length < minMembers) continue;
 
           for (const member of members) {
-            // If deafened, don't award voice XP
             if (member.voice.deaf || member.voice.serverDeaf) continue;
 
             const data = getUserData(guildId, member.id);
-            // Award 25 XP per minute of voice chat (1500 XP/hour)
-            const earnedXp = 25;
-            data.voiceXp = (data.voiceXp || 0) + earnedXp;
-            data.totalXp = (data.totalXp || 0) + earnedXp;
-            data.dailyXp = (data.dailyXp || 0) + earnedXp;
-            data.weeklyXp = (data.weeklyXp || 0) + earnedXp;
-            data.monthlyXp = (data.monthlyXp || 0) + earnedXp;
+            data.voiceXp = (data.voiceXp || 0) + voiceXpAmount;
+            data.totalXp = (data.totalXp || 0) + voiceXpAmount;
+            data.dailyXp = (data.dailyXp || 0) + voiceXpAmount;
+            data.weeklyXp = (data.weeklyXp || 0) + voiceXpAmount;
+            data.monthlyXp = (data.monthlyXp || 0) + voiceXpAmount;
 
             const oldLevel = data.level;
             const newLevel = getLevelForXp(data.totalXp);
@@ -278,6 +349,14 @@ function makeProgressBar(current, target, size = 10) {
   return '🟩'.repeat(filled) + '⬜'.repeat(empty) + ` **${Math.floor(percent * 100)}%**`;
 }
 
+// Check if a member has Admin permissions
+export function isMemberAdmin(member) {
+  if (!member) return false;
+  if (member.permissions?.has(PermissionFlagsBits.Administrator)) return true;
+  if (member.roles?.cache?.has(ADMIN_ROLE_ID)) return true;
+  return false;
+}
+
 // --- SLASH COMMAND BUILDERS ---
 export const rankCommand = new SlashCommandBuilder()
   .setName('rank')
@@ -300,6 +379,30 @@ export const topCommand = new SlashCommandBuilder()
         { name: '📆 Aylık Aktiflik', value: 'monthlyXp' }
       )
   );
+
+// Admin Slash Commands
+export const setLevelCommand = new SlashCommandBuilder()
+  .setName('seviye-ayarla')
+  .setDescription('[YETKİLİ] Bir üyenin seviyesini doğrudan belirler.')
+  .addUserOption(opt => opt.setName('kullanici').setDescription('Seviyesi ayarlanacak üye').setRequired(true))
+  .addIntegerOption(opt => opt.setName('seviye').setDescription('Yeni seviye (0-100)').setMinValue(0).setMaxValue(100).setRequired(true));
+
+export const addXpCommand = new SlashCommandBuilder()
+  .setName('xp-ekle')
+  .setDescription('[YETKİLİ] Bir üyeye özel XP ekler.')
+  .addUserOption(opt => opt.setName('kullanici').setDescription('XP eklenecek üye').setRequired(true))
+  .addIntegerOption(opt => opt.setName('miktar').setDescription('Eklenecek XP miktarı').setMinValue(1).setRequired(true));
+
+export const removeXpCommand = new SlashCommandBuilder()
+  .setName('xp-sil')
+  .setDescription('[YETKİLİ] Bir üyeden XP düşer.')
+  .addUserOption(opt => opt.setName('kullanici').setDescription('XP silinecek üye').setRequired(true))
+  .addIntegerOption(opt => opt.setName('miktar').setDescription('Silinecek XP miktarı').setMinValue(1).setRequired(true));
+
+export const resetLevelCommand = new SlashCommandBuilder()
+  .setName('seviye-sifirla')
+  .setDescription('[YETKİLİ] Bir üyenin tüm XP ve seviye verisini sıfırlar.')
+  .addUserOption(opt => opt.setName('kullanici').setDescription('Sıfırlanacak üye').setRequired(true));
 
 // Helper to build leaderboard embed and buttons
 export function buildTopEmbedAndButtons(guild, category = 'totalXp') {
@@ -372,7 +475,6 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp') {
 export async function handleRankCommand(interaction) {
   const { guild, user } = interaction;
   const targetUser = interaction.options.getUser('kullanici') || user;
-  const member = await guild.members.fetch(targetUser.id).catch(() => null);
 
   const data = getUserData(guild.id, targetUser.id);
   const currentLevel = data.level;
@@ -427,4 +529,114 @@ export async function handleTopCommand(interaction) {
   const category = interaction.options?.getString('kategori') || 'totalXp';
   const payload = buildTopEmbedAndButtons(guild, category);
   await interaction.reply(payload);
+}
+
+// --- ADMIN COMMAND HANDLERS ---
+export async function handleSetLevelCommand(interaction) {
+  const { guild, member } = interaction;
+  if (!isMemberAdmin(member)) {
+    return interaction.reply({ content: '⛔ Bu komutu kullanmak için `ADMIN` yetkisine sahip olmalısınız.', ephemeral: true });
+  }
+
+  const targetUser = interaction.options.getUser('kullanici');
+  const targetLevel = interaction.options.getInteger('seviye');
+
+  const data = getUserData(guild.id, targetUser.id);
+  const targetBaseXp = getXpForLevel(targetLevel);
+  data.level = targetLevel;
+  data.totalXp = targetBaseXp;
+
+  const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+  if (targetMember) {
+    await checkRoleRewards(guild, targetMember, targetLevel);
+  }
+
+  const embed = new EmbedBuilder()
+    .setColor('#5EA454')
+    .setTitle('✅ Seviye Başarıyla Ayarlandı!')
+    .setDescription(`<@${targetUser.id}> adlı üyenin seviyesi **Level ${targetLevel}** (\`${targetBaseXp.toLocaleString()} XP\`) olarak güncellendi ve rolleri senkronize edildi.`)
+    .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+  await interaction.reply({ embeds: [embed] });
+}
+
+export async function handleAddXpCommand(interaction) {
+  const { guild, member } = interaction;
+  if (!isMemberAdmin(member)) {
+    return interaction.reply({ content: '⛔ Bu komutu kullanmak için `ADMIN` yetkisine sahip olmalısınız.', ephemeral: true });
+  }
+
+  const targetUser = interaction.options.getUser('kullanici');
+  const amount = interaction.options.getInteger('miktar');
+
+  const data = getUserData(guild.id, targetUser.id);
+  data.totalXp += amount;
+  data.textXp += amount;
+  data.dailyXp += amount;
+  data.weeklyXp += amount;
+  data.monthlyXp += amount;
+
+  const oldLevel = data.level;
+  const newLevel = getLevelForXp(data.totalXp);
+  data.level = newLevel;
+
+  const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+  if (targetMember && newLevel > oldLevel) {
+    await checkRoleRewards(guild, targetMember, newLevel);
+  }
+
+  const embed = new EmbedBuilder()
+    .setColor('#5EA454')
+    .setTitle('✨ XP Başarıyla Eklendi!')
+    .setDescription(`<@${targetUser.id}> adlı üyeye **+${amount.toLocaleString()} XP** eklendi!\n💎 Yeni Toplam: \`${data.totalXp.toLocaleString()} XP\` (Level ${newLevel})`)
+    .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+  await interaction.reply({ embeds: [embed] });
+}
+
+export async function handleRemoveXpCommand(interaction) {
+  const { guild, member } = interaction;
+  if (!isMemberAdmin(member)) {
+    return interaction.reply({ content: '⛔ Bu komutu kullanmak için `ADMIN` yetkisine sahip olmalısınız.', ephemeral: true });
+  }
+
+  const targetUser = interaction.options.getUser('kullanici');
+  const amount = interaction.options.getInteger('miktar');
+
+  const data = getUserData(guild.id, targetUser.id);
+  data.totalXp = Math.max(0, data.totalXp - amount);
+  data.level = getLevelForXp(data.totalXp);
+
+  const embed = new EmbedBuilder()
+    .setColor('#F79F36')
+    .setTitle('🔻 XP Silindi!')
+    .setDescription(`<@${targetUser.id}> adlı üyeden **-${amount.toLocaleString()} XP** düşüldü.\n💎 Yeni Toplam: \`${data.totalXp.toLocaleString()} XP\` (Level ${data.level})`)
+    .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+  await interaction.reply({ embeds: [embed] });
+}
+
+export async function handleResetLevelCommand(interaction) {
+  const { guild, member } = interaction;
+  if (!isMemberAdmin(member)) {
+    return interaction.reply({ content: '⛔ Bu komutu kullanmak için `ADMIN` yetkisine sahip olmalısınız.', ephemeral: true });
+  }
+
+  const targetUser = interaction.options.getUser('kullanici');
+  const data = getUserData(guild.id, targetUser.id);
+  data.totalXp = 0;
+  data.textXp = 0;
+  data.voiceXp = 0;
+  data.dailyXp = 0;
+  data.weeklyXp = 0;
+  data.monthlyXp = 0;
+  data.level = 0;
+
+  const embed = new EmbedBuilder()
+    .setColor('#E53E3E')
+    .setTitle('🔄 Seviye ve XP Sıfırlandı!')
+    .setDescription(`<@${targetUser.id}> adlı üyenin tüm XP ve seviye verileri sıfırlandı.`)
+    .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+
+  await interaction.reply({ embeds: [embed] });
 }

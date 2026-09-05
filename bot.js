@@ -19,7 +19,15 @@ import {
   topCommand, 
   handleRankCommand, 
   handleTopCommand,
-  buildTopEmbedAndButtons
+  buildTopEmbedAndButtons,
+  setLevelCommand,
+  addXpCommand,
+  removeXpCommand,
+  resetLevelCommand,
+  handleSetLevelCommand,
+  handleAddXpCommand,
+  handleRemoveXpCommand,
+  handleResetLevelCommand
 } from './levelSystem.js';
 import { startDashboard } from './dashboard.js';
 
@@ -214,7 +222,11 @@ const commands = [
     .setName('dashboard')
     .setDescription('Yeşil Gölet canlı web sitesi ve liderlik tablosu linkini görüntüler.'),
   rankCommand,
-  topCommand
+  topCommand,
+  setLevelCommand,
+  addXpCommand,
+  removeXpCommand,
+  resetLevelCommand
 ].map(cmd => cmd.toJSON());
 
 client.once('ready', async () => {
@@ -390,6 +402,38 @@ Kullanıcı mesajları: ${JSON.stringify(messages.slice(0, 50))}
       );
 
       await interaction.reply({ embeds: [embed], components: [row] });
+    }
+
+    // 7. /seviye-ayarla
+    else if (commandName === 'seviye-ayarla') {
+      await handleSetLevelCommand(interaction).catch(err => {
+        console.error('Set level error:', err);
+        interaction.reply({ content: '❌ Seviye ayarlanırken bir hata oluştu.', ephemeral: true }).catch(() => {});
+      });
+    }
+
+    // 8. /xp-ekle
+    else if (commandName === 'xp-ekle') {
+      await handleAddXpCommand(interaction).catch(err => {
+        console.error('Add XP error:', err);
+        interaction.reply({ content: '❌ XP eklenirken bir hata oluştu.', ephemeral: true }).catch(() => {});
+      });
+    }
+
+    // 9. /xp-sil
+    else if (commandName === 'xp-sil') {
+      await handleRemoveXpCommand(interaction).catch(err => {
+        console.error('Remove XP error:', err);
+        interaction.reply({ content: '❌ XP silinirken bir hata oluştu.', ephemeral: true }).catch(() => {});
+      });
+    }
+
+    // 10. /seviye-sifirla
+    else if (commandName === 'seviye-sifirla') {
+      await handleResetLevelCommand(interaction).catch(err => {
+        console.error('Reset level error:', err);
+        interaction.reply({ content: '❌ Seviye sıfırlanırken bir hata oluştu.', ephemeral: true }).catch(() => {});
+      });
     }
 
   } catch (err) {
