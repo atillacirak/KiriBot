@@ -307,15 +307,20 @@ export function startVoiceXpTicker(client) {
         const minMembers = settings.minVoiceMembers || 2;
         const voiceXpAmount = settings.voiceXpPerMin || 25;
 
+        // Role ID for bot / roBOT accounts
+        const ROBOT_ROLE_ID = '1439012819977633843';
+
         // Iterate over all voice channels
         for (const [channelId, channel] of guild.channels.cache) {
           if (!channel.isVoiceBased() || channel.id === afkChannelId) continue;
 
-          // Get human members
-          const members = Array.from(channel.members.values()).filter(m => !m.user.bot);
-          if (members.length < minMembers) continue;
+          // Exclude bot accounts and members holding the roBOT role
+          const validMembers = Array.from(channel.members.values()).filter(m => 
+            !m.user.bot && !m.roles.cache.has(ROBOT_ROLE_ID)
+          );
+          if (validMembers.length < minMembers) continue;
 
-          for (const member of members) {
+          for (const member of validMembers) {
             if (member.voice.deaf || member.voice.serverDeaf) continue;
 
             const data = getUserData(guildId, member.id);
