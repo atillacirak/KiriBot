@@ -302,6 +302,29 @@
           </div>
         </div>
       </div>
+
+      <!-- PAGINATION & EXPAND CONTROLS -->
+      <div id="leaderboardPaginationContainer" class="hidden border-t border-pond-border/60 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold">
+        <div class="flex items-center gap-2">
+          <button id="expandLeaderboardBtn" onclick="expandTo30()" class="px-4 py-2 rounded-xl bg-pond-500/20 hover:bg-pond-500/30 text-pond-300 border border-pond-500/40 transition flex items-center gap-1.5 shadow-sm">
+            <span>🔽</span>
+            <span>Daha Fazla Göster (İlk 30)</span>
+          </button>
+          <span id="leaderboardShowingCount" class="text-gray-400">10 üye listeleniyor</span>
+        </div>
+
+        <div id="leaderboardPageNav" class="hidden flex items-center gap-2">
+          <button id="prevPageBtn" onclick="changeLeaderboardPage(-1)" class="px-3 py-1.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
+            ← Önceki
+          </button>
+          <span id="pageIndicator" class="px-3 py-1 rounded-lg bg-black/60 border border-pond-border/50 text-white font-mono">
+            Sayfa 1 / 1
+          </span>
+          <button id="nextPageBtn" onclick="changeLeaderboardPage(1)" class="px-3 py-1.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
+            Sonraki →
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- BOT COMMANDS & FROG ROLES GUIDE -->
@@ -1649,6 +1672,9 @@
     let currentTypeFilter = 'all'; // all | voice | text
     let currentPeriodFilter = 'all'; // all | daily | weekly | monthly
     let allUsers = [];
+    let leaderboardLimit = 10; // Default showing 10 items
+    let currentPage = 1; // Current page index (1-based)
+    let PAGE_SIZE = 30; // Items per page when paginated
     let currentAdminPassword = sessionStorage.getItem('kiri_admin_pwd') || '';
     let guildChannels = [];
     let guildRoles = [];
@@ -1894,9 +1920,52 @@
 
     function renderTable(users) {
       const listEl = document.getElementById('leaderboardList');
+      const containerEl = document.getElementById('leaderboardPaginationContainer');
+      const expandBtn = document.getElementById('expandLeaderboardBtn');
+      const pageNav = document.getElementById('leaderboardPageNav');
+      const countEl = document.getElementById('leaderboardShowingCount');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const prevBtn = document.getElementById('prevPageBtn');
+      const nextBtn = document.getElementById('nextPageBtn');
+      
       const getRoleColor = (role) => role?.color || '#4CAF50';
 
-      const rows = users.map(user => {
+      if (!users || users.length === 0) {
+        if (containerEl) containerEl.classList.add('hidden');
+        return;
+      }
+
+      if (containerEl) containerEl.classList.remove('hidden');
+
+      let visibleUsers = [];
+      const totalUsers = users.length;
+
+      if (leaderboardLimit === 10) {
+        // Initial state: show top 10
+        visibleUsers = users.slice(0, 10);
+        if (expandBtn) expandBtn.classList.remove('hidden');
+        if (pageNav) pageNav.classList.add('hidden');
+        if (countEl) countEl.innerText = `İlk 10 / ${totalUsers} üye listeleniyor`;
+      } else {
+        // Expanded state: paginated by 30
+        if (expandBtn) expandBtn.classList.add('hidden');
+        if (pageNav) pageNav.classList.remove('hidden');
+
+        const totalPages = Math.ceil(totalUsers / PAGE_SIZE) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+        const endIndex = startIndex + PAGE_SIZE;
+        visibleUsers = users.slice(startIndex, endIndex);
+
+        if (countEl) countEl.innerText = `Sayfa ${currentPage} (${startIndex + 1} - ${Math.min(endIndex, totalUsers)} / ${totalUsers} üye)`;
+        if (pageIndicator) pageIndicator.innerText = `Sayfa ${currentPage} / ${totalPages}`;
+        if (prevBtn) prevBtn.disabled = (currentPage <= 1);
+        if (nextBtn) nextBtn.disabled = (currentPage >= totalPages);
+      }
+
+      const rows = visibleUsers.map(user => {
         let rankBadge = `<span class="font-display font-bold text-gray-400">#${user.rank}</span>`;
         if (user.rank === 1) rankBadge = `<span class="w-7 h-7 rounded-full badge-gold font-bold flex items-center justify-center text-xs">1</span>`;
         if (user.rank === 2) rankBadge = `<span class="w-7 h-7 rounded-full badge-silver font-bold flex items-center justify-center text-xs">2</span>`;
@@ -1950,6 +2019,19 @@
       }).join('');
 
       listEl.innerHTML = rows;
+    }
+
+    function expandTo30() {
+      leaderboardLimit = 30;
+      currentPage = 1;
+      renderTable(allUsers);
+    }
+
+    function changeLeaderboardPage(delta) {
+      currentPage += delta;
+      renderTable(allUsers);
+      const listEl = document.getElementById('leaderboardList');
+      if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // Legacy changeSort fallback for any internal calls
