@@ -623,8 +623,9 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
         }
 
         const isRequester = requestUserId && u.userId === requestUserId;
-        const userMention = isRequester ? `**<@${u.userId}>** 👈` : `<@${u.userId}>`;
-        return `${rankLabel} ${userMention} — ${valueStr}`;
+        const userMention = isRequester ? `**<@${u.userId}>**` : `<@${u.userId}>`;
+        const pointer = isRequester ? ' 👈' : '';
+        return `${rankLabel} ${userMention} — ${valueStr}${pointer}`;
       });
 
     // Check if requester is NOT in top 10, append their rank at bottom
@@ -641,7 +642,7 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
         } else {
           valueStr = `**Lvl ${u.level}** (\`${(u[category] || 0).toLocaleString()} XP\`)`;
         }
-        listLines.push(`\n───────────────\n\`#${userIndex + 1}\` **<@${u.userId}>** — ${valueStr} *(Senin Sıralaman)*`);
+        listLines.push(`\n───────────────\n\`#${userIndex + 1}\` **<@${u.userId}>** — ${valueStr} 👈 *(Senin Sıralaman)*`);
       }
     }
 
