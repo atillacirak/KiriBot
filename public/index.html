@@ -78,14 +78,19 @@
       color: #FFF;
     }
 
-    /* SPINNING & GLOWING ROLE RINGS */
-    @keyframes spin-slow {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes pulse-glow {
-      0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 8px var(--glow-c)) drop-shadow(0 0 16px var(--glow-c)); }
-      50% { opacity: 1; filter: drop-shadow(0 0 14px var(--glow-c)) drop-shadow(0 0 24px var(--glow-c)); }
+    /* SUBTLE ROLE RING HOVER ANIMATION */
+    @keyframes draw-ring {
+      0% {
+        transform: rotate(0deg);
+        opacity: 0;
+      }
+      25% {
+        opacity: 0.85;
+      }
+      100% {
+        transform: rotate(360deg);
+        opacity: 0.85;
+      }
     }
     .animated-role-ring {
       position: relative;
@@ -93,24 +98,38 @@
       align-items: center;
       justify-content: center;
       border-radius: 9999px;
-      padding: 3px;
+      padding: 2.5px;
       z-index: 1;
+      transition: all 0.35s ease;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
     }
     .animated-role-ring::before {
       content: '';
       position: absolute;
       inset: -2px;
       border-radius: 9999px;
-      background: conic-gradient(from 0deg, var(--glow-c), transparent 45%, var(--glow-c), transparent 90%, var(--glow-c));
-      animation: spin-slow 4s linear infinite, pulse-glow 2.5s ease-in-out infinite;
+      background: conic-gradient(from 0deg, var(--glow-c, #4CAF50), transparent 70%, var(--glow-c, #4CAF50));
+      opacity: 0;
+      transform: rotate(0deg);
+      transition: opacity 0.3s ease;
+      pointer-events: none;
       z-index: -1;
     }
+    .group:hover .animated-role-ring,
+    .animated-role-ring:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 12px var(--glow-c, #4CAF50);
+    }
+    .group:hover .animated-role-ring::before,
+    .animated-role-ring:hover::before {
+      animation: draw-ring 0.65s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    }
     .animated-role-ring-lg {
-      padding: 4px;
+      padding: 3.5px;
     }
     .animated-role-ring-lg::before {
       inset: -3px;
-      animation: spin-slow 5s linear infinite, pulse-glow 3s ease-in-out infinite;
     }
   </style>
 </head>
@@ -375,12 +394,12 @@
       <div id="profileContent" class="hidden space-y-6">
         
         <!-- USER HERO CARD -->
-        <div class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden border-pond-500/30">
+        <div class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden border-pond-500/30 group">
           <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
             <!-- AVATAR WITH BADGE -->
             <div class="relative">
               <div id="uAvatarRingWrapper" class="animated-role-ring animated-role-ring-lg" style="--glow-c: #4CAF50;">
-                <img id="uAvatar" src="" class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-2xl bg-black">
+                <img id="uAvatar" src="" class="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-2xl bg-black group-hover:scale-105 transition duration-300">
               </div>
               <div id="uRankBadge" class="absolute -bottom-2 -right-2 px-2.5 py-1 rounded-full text-xs font-extrabold shadow-lg z-10">
                 #1
