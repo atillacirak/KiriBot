@@ -313,6 +313,7 @@ export function startVoiceXpTicker(client) {
         // Iterate over all voice channels
         for (const [channelId, channel] of guild.channels.cache) {
           if (!channel.isVoiceBased() || channel.id === afkChannelId) continue;
+          if (settings.disabledChannels && settings.disabledChannels.includes(channel.id)) continue;
 
           // Exclude bot accounts and members holding the roBOT role
           const validMembers = Array.from(channel.members.values()).filter(m => 

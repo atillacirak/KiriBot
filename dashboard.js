@@ -285,13 +285,62 @@ export function startDashboard(client, port = 3000) {
         return res.status(404).json({ success: false, error: 'Sunucu bulunamadı.' });
       }
 
+      // Ensure all channels and roles are fetched
+      await guild.channels.fetch().catch(() => {});
+      await guild.roles.fetch().catch(() => {});
+
+      // Build category map
+      const categoriesMap = new Map();
+      guild.channels.cache.forEach(c => {
+        if (c.type === 4) { // GuildCategory
+          categoriesMap.set(c.id, {
+            id: c.id,
+            name: c.name,
+            position: c.rawPosition ?? c.position ?? 0
+          });
+        }
+      });
+
+      // Filter out categories from channel items, map type icons and names
       const channels = Array.from(guild.channels.cache.values())
-        .filter(c => c && c.isTextBased())
-        .map(c => ({ id: c.id, name: c.name, type: c.type }));
+        .filter(c => c && c.type !== 4) // exclude categories themselves
+        .map(c => {
+          const parent = c.parentId ? categoriesMap.get(c.parentId) : null;
+          let typeName = 'Metin';
+          let icon = '#';
+          if (c.type === 2) { typeName = 'Ses'; icon = '🔊'; }
+          else if (c.type === 5) { typeName = 'Duyuru'; icon = '📢'; }
+          else if (c.type === 15) { typeName = 'Forum'; icon = '💬'; }
+          else if (c.type === 13) { typeName = 'Sahne'; icon = '🎭'; }
+          else if (c.type === 0) { typeName = 'Metin'; icon = '#'; }
+
+          return {
+            id: c.id,
+            name: c.name,
+            type: c.type,
+            typeName,
+            icon,
+            parentId: c.parentId || null,
+            parentName: parent ? parent.name : 'Genel Kanallar',
+            parentPosition: parent ? parent.position : -1,
+            position: c.rawPosition ?? c.position ?? 0
+          };
+        })
+        .sort((a, b) => {
+          if (a.parentPosition !== b.parentPosition) return a.parentPosition - b.parentPosition;
+          return a.position - b.position;
+        });
 
       const roles = Array.from(guild.roles.cache.values())
         .filter(r => r.name !== '@everyone')
-        .map(r => ({ id: r.id, name: r.name, color: r.hexColor, position: r.position }))
+        .map(r => ({
+          id: r.id,
+          name: r.name,
+          color: (!r.hexColor || r.hexColor === '#000000') ? '#99aab5' : r.hexColor,
+          position: r.position,
+          managed: r.managed || false,
+          memberCount: r.members ? r.members.size : 0
+        }))
         .sort((a, b) => b.position - a.position);
 
       const settings = getGuildSettings(guild.id);
