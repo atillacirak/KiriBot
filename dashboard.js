@@ -12,6 +12,7 @@ import {
   checkRoleRewards, 
   getUserData 
 } from './levelSystem.js';
+import { computeServerAnalytics } from './analyticsManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -351,6 +352,34 @@ export function startDashboard(client, port = 3000) {
         channels,
         roles,
         settings
+      });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Admin Analytics & Growth Endpoint
+  app.get('/api/admin/analytics', async (req, res) => {
+    try {
+      const { password, period, guildId } = req.query;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası / PIN!' });
+      }
+
+      const defaultGuildId = '1315029372519846039';
+      const targetGuildId = guildId || defaultGuildId;
+      const guild = client.guilds.cache.get(targetGuildId) || client.guilds.cache.first();
+
+      if (!guild) {
+        return res.status(404).json({ success: false, error: 'Sunucu bulunamadı.' });
+      }
+
+      const analytics = await computeServerAnalytics(guild, levelCache, period || 'week');
+
+      res.json({
+        success: true,
+        guild: { id: guild.id, name: guild.name, icon: guild.iconURL() },
+        analytics
       });
     } catch (e) {
       res.status(500).json({ success: false, error: e.message });

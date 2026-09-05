@@ -29,6 +29,12 @@ import {
   handleRemoveXpCommand,
   handleResetLevelCommand
 } from './levelSystem.js';
+import { 
+  initAnalyticsMongo, 
+  recordMemberJoin, 
+  recordMemberLeave, 
+  recordChannelMessage 
+} from './analyticsManager.js';
 import { startDashboard } from './dashboard.js';
 
 dotenv.config();
@@ -64,6 +70,9 @@ async function initMongo() {
 
     // Initialize level collection
     await initLevelSystemMongo(mongoDb);
+
+    // Initialize analytics collection
+    await initAnalyticsMongo(mongoDb);
 
     // Hydrate profile cache
     const docs = await profilesCollection.find({}).toArray();
@@ -252,9 +261,21 @@ client.once('ready', async () => {
   }
 });
 
-// Track text messages for XP
+// Track text messages for XP and channel analytics
 client.on('messageCreate', (message) => {
+  if (message.guild && message.channel && !message.author?.bot) {
+    recordChannelMessage(message.channel.id, message.channel.name);
+  }
   handleTextMessage(message).catch(err => console.warn('Text XP error:', err.message));
+});
+
+// Member Join & Leave Tracking
+client.on('guildMemberAdd', (member) => {
+  recordMemberJoin(member).catch(err => console.warn('Record join error:', err.message));
+});
+
+client.on('guildMemberRemove', (member) => {
+  recordMemberLeave(member).catch(err => console.warn('Record leave error:', err.message));
 });
 
 client.on('error', (err) => {
