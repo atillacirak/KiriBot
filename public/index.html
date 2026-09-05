@@ -2047,7 +2047,7 @@
         `;
       }).join('');
 
-      listEl.innerHTML = rows;
+      if (listEl) listEl.innerHTML = rows;
     }
 
     function toggleLeaderboardExpand() {
