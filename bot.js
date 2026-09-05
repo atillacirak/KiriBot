@@ -83,19 +83,32 @@ async function initMongo() {
     // Initialize messages collection
     await initMessagesMongo(mongoDb);
 
-    // Hydrate profile cache
+    // Create TTL Index for auto-expiring raw messages or profile cleanup
+    try {
+      await profilesCollection.createIndex({ updatedAt: 1 }, { expireAfterSeconds: 259200 }); // 3 days (3 * 24 * 3600 = 259,200 sec)
+    } catch (e) {}
+
+    // Hydrate profile cache (clear rawMessages older than 3 days in memory)
+    const now = Date.now();
+    const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
     const docs = await profilesCollection.find({}).toArray();
     docs.forEach(doc => {
       const key = doc._id || doc.key;
-      if (key) PROFILE_CACHE.set(key, doc.data || doc);
+      const data = doc.data || doc;
+      if (data && data.fetchedAt && (now - new Date(data.fetchedAt).getTime() > THREE_DAYS_MS)) {
+        // Delete raw messages text from memory, keep AI analysis
+        delete data.rawMessages;
+      }
+      if (key) PROFILE_CACHE.set(key, data);
     });
-    console.log(`📦 MongoDB'den ${docs.length} profil kaydı hafızaya yüklendi.`);
+    console.log(`📦 MongoDB'den ${docs.length} profil kaydı hafızaya yüklendi (3 günlük ham mesaj temizleme kuralı aktif).`);
   } catch (err) {
     console.error('❌ MongoDB bağlantı hatası:', err.message);
   }
 }
 
 async function persistProfile(key, data) {
+  data.fetchedAt = new Date().toISOString();
   PROFILE_CACHE.set(key, data);
   if (profilesCollection) {
     try {
