@@ -21,7 +21,15 @@ export function startDashboard(client, port = 3000) {
   const app = express();
   app.use(cors());
   app.use(express.json());
-  app.use(express.static(path.join(__dirname, 'public')));
+  
+  // Disable aggressive caching so client updates load immediately
+  app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
+  app.use(express.static(path.join(__dirname, 'public'), { etag: false, maxAge: 0 }));
 
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'yesilgolet2026';
 

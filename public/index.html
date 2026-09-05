@@ -1255,6 +1255,17 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    // Helper: HTML escape
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     let currentSort = 'totalXp';
     let allUsers = [];
     let currentAdminPassword = sessionStorage.getItem('kiri_admin_pwd') || '';
@@ -1320,19 +1331,23 @@
 
     async function loadLeaderboard() {
       const listEl = document.getElementById('leaderboardList');
-      const searchVal = document.getElementById('searchInput').value;
+      const searchInputEl = document.getElementById('searchInput');
+      const searchVal = searchInputEl ? searchInputEl.value.trim() : '';
       
       try {
         const res = await fetch(`/api/leaderboard?sortBy=${currentSort}&search=${encodeURIComponent(searchVal)}`);
         const data = await res.json();
         
-        if (!data.success || data.users.length === 0) {
-          listEl.innerHTML = `
-            <div class="text-center py-12 text-gray-500 text-sm">
-              ${searchVal ? 'Aramana uygun üye bulunamadı 🔍' : 'Henüz kaydedilmiş seviye verisi bulunmuyor 🌱'}
-            </div>
-          `;
-          document.getElementById('podiumSection').classList.add('hidden');
+        if (!data.success || !data.users || data.users.length === 0) {
+          if (listEl) {
+            listEl.innerHTML = `
+              <div class="text-center py-12 text-gray-500 text-sm">
+                ${searchVal ? 'Aramana uygun üye bulunamadı 🔍' : 'Henüz kaydedilmiş seviye verisi bulunmuyor 🌱'}
+              </div>
+            `;
+          }
+          const podiumSection = document.getElementById('podiumSection');
+          if (podiumSection) podiumSection.classList.add('hidden');
           return;
         }
 
@@ -1340,7 +1355,10 @@
         renderPodium(data.users);
         renderTable(data.users);
       } catch (err) {
-        listEl.innerHTML = `<div class="text-center py-8 text-rose-400 text-sm">Veri yüklenirken hata oluştu ⚠️</div>`;
+        console.error('loadLeaderboard error:', err);
+        if (listEl) {
+          listEl.innerHTML = `<div class="text-center py-8 text-rose-400 text-sm">Veri yüklenirken hata oluştu ⚠️ (${escapeHtml(err.message)})</div>`;
+        }
       }
     }
 
@@ -1395,8 +1413,11 @@
     function renderPodium(users) {
       const podiumEl = document.getElementById('podiumCards');
       const podiumSection = document.getElementById('podiumSection');
+      const searchInputEl = document.getElementById('searchInput');
       
-      if (users.length < 3 || document.getElementById('searchInput').value) {
+      if (!podiumEl || !podiumSection) return;
+
+      if (users.length < 3 || (searchInputEl && searchInputEl.value.trim())) {
         podiumSection.classList.add('hidden');
         return;
       }
@@ -1418,7 +1439,7 @@
               <img src="${second.avatar}" class="w-16 h-16 rounded-full object-cover group-hover:scale-105 transition bg-black">
             </div>
           </div>
-          <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${second.username}</h4>
+          <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${escapeHtml(second.username)}</h4>
           <div class="mt-1 flex justify-center">
             ${renderRolePill(second.frogRole)}
           </div>
@@ -1436,7 +1457,7 @@
               <img src="${first.avatar}" class="w-20 h-20 rounded-full object-cover group-hover:scale-105 transition bg-black">
             </div>
           </div>
-          <h4 class="font-extrabold text-white text-base mt-2 truncate group-hover:text-yellow-300 transition">${first.username}</h4>
+          <h4 class="font-extrabold text-white text-base mt-2 truncate group-hover:text-yellow-300 transition">${escapeHtml(first.username)}</h4>
           <div class="mt-1 flex justify-center">
             ${renderRolePill(first.frogRole)}
           </div>
@@ -1454,7 +1475,7 @@
               <img src="${third.avatar}" class="w-16 h-16 rounded-full object-cover group-hover:scale-105 transition bg-black">
             </div>
           </div>
-          <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${third.username}</h4>
+          <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${escapeHtml(third.username)}</h4>
           <div class="mt-1 flex justify-center">
             ${renderRolePill(third.frogRole)}
           </div>
@@ -1486,7 +1507,7 @@
               </div>
               <div class="truncate">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-white text-sm truncate group-hover:text-pond-400 transition">${user.username}</span>
+                  <span class="font-bold text-white text-sm truncate group-hover:text-pond-400 transition">${escapeHtml(user.username)}</span>
                   ${renderRolePill(user.frogRole)}
                 </div>
                 <div class="text-[11px] text-gray-400 flex items-center gap-2 mt-0.5">
@@ -1601,17 +1622,6 @@
       window.location.hash = '';
       document.getElementById('navAdminBtn').classList.add('hidden');
       showTab('leaderboard');
-    }
-
-    // Helper: HTML escape
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
     }
 
     let currentAdminSubtab = 'analytics';
