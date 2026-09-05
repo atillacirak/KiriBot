@@ -165,6 +165,113 @@ export function startDashboard(client, port = 3000) {
     }
   });
 
+  // API: Single User Profile & Role Milestone Details
+  app.get('/api/user/:userId', async (req, res) => {
+    try {
+      const defaultGuildId = '1315029372519846039';
+      const guildId = req.query.guildId || defaultGuildId;
+      const { userId } = req.params;
+
+      const guild = client.guilds.cache.get(guildId) || client.guilds.cache.first();
+      const settings = getGuildSettings(guild ? guild.id : defaultGuildId);
+
+      const u = getUserData(guild ? guild.id : defaultGuildId, userId);
+      checkAndResetTimeBuckets(u);
+
+      // Resolve Discord user
+      let userObj = client.users.cache.get(userId);
+      if (!userObj && client.users) {
+        try {
+          userObj = await client.users.fetch(userId).catch(() => null);
+        } catch {}
+      }
+
+      let memberObj = null;
+      if (guild) {
+        try {
+          memberObj = await guild.members.fetch(userId).catch(() => null);
+        } catch {}
+      }
+
+      const username = memberObj ? memberObj.displayName : (userObj ? (userObj.globalName || userObj.username) : `Üye (${userId.slice(-4)})`);
+      const tag = userObj ? userObj.tag : `user#${userId.slice(-4)}`;
+      const avatar = userObj ? userObj.displayAvatarURL({ size: 256 }) : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+      // Rank calculation
+      const allGuildUsers = Array.from(levelCache.values())
+        .filter(user => !guild || user.guildId === guild.id)
+        .sort((a, b) => (b.totalXp || 0) - (a.totalXp || 0));
+
+      const rank = allGuildUsers.findIndex(user => user.userId === userId) + 1 || (allGuildUsers.length + 1);
+
+      const currentLevel = u.level || 0;
+      const currentLevelBaseXp = getXpForLevel(currentLevel);
+      const nextLevelXp = getXpForLevel(currentLevel + 1);
+      const progressInLevel = Math.max(0, (u.totalXp || 0) - currentLevelBaseXp);
+      const neededInLevel = Math.max(1, nextLevelXp - currentLevelBaseXp);
+      const progressPercent = Math.min(100, Math.floor((progressInLevel / neededInLevel) * 100));
+
+      // Role milestone calculation
+      const milestones = [
+        { level: 25, name: 'Kurbağa', badge: '🐸' },
+        { level: 50, name: 'Göl Müdavimi Kurbağa', badge: '🌿' },
+        { level: 80, name: 'Bu Direkt Göl Olmuş', badge: '👑' }
+      ];
+
+      const currentFrogRole = getFrogRole(currentLevel, settings.roleRewards);
+      const nextMilestone = milestones.find(m => m.level > currentLevel);
+
+      let nextRoleInfo = null;
+      if (nextMilestone) {
+        const targetXp = getXpForLevel(nextMilestone.level);
+        const xpRemaining = Math.max(0, targetXp - (u.totalXp || 0));
+        const levelsRemaining = nextMilestone.level - currentLevel;
+        
+        // Progress towards next role
+        const prevLevel = milestones.filter(m => m.level <= currentLevel).pop()?.level || 0;
+        const prevXp = getXpForLevel(prevLevel);
+        const roleProgressPercent = Math.min(100, Math.floor(((u.totalXp - prevXp) / Math.max(1, targetXp - prevXp)) * 100));
+
+        nextRoleInfo = {
+          targetLevel: nextMilestone.level,
+          name: nextMilestone.name,
+          badge: nextMilestone.badge,
+          levelsRemaining,
+          xpRemaining,
+          targetXp,
+          roleProgressPercent: Math.max(0, roleProgressPercent)
+        };
+      }
+
+      res.json({
+        success: true,
+        user: {
+          userId,
+          username,
+          tag,
+          avatar,
+          level: currentLevel,
+          rank,
+          totalUsers: allGuildUsers.length,
+          totalXp: u.totalXp || 0,
+          voiceXp: u.voiceXp || 0,
+          textXp: u.textXp || 0,
+          dailyXp: u.dailyXp || 0,
+          weeklyXp: u.weeklyXp || 0,
+          monthlyXp: u.monthlyXp || 0,
+          voiceHours: (((u.voiceXp || 0) / 25) / 60).toFixed(1),
+          progressInLevel,
+          neededInLevel,
+          progressPercent,
+          currentFrogRole,
+          nextRoleInfo
+        }
+      });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
   // --- ADMIN APIs ---
 
   // Admin Auth Verify & Get Guild Channels / Roles
