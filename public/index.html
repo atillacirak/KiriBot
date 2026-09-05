@@ -260,8 +260,10 @@
             </div>
           </div>
 
-          <button onclick="loadLeaderboard()" title="Yenile" class="p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-white transition">
-            🔄
+          <button onclick="loadLeaderboard()" title="Sıralamayı Yenile" class="group p-2.5 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-pond-300 transition shadow-sm active:scale-95 flex items-center justify-center">
+            <svg class="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
           </button>
         </div>
       </div>
@@ -620,8 +622,10 @@
             <button onclick="changeAnalyticsPeriod('all')" id="periodBtn_all" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
               ♾️ Tüm Zamanlar
             </button>
-            <button onclick="loadAnalyticsData()" title="İstatistikleri Yenile" class="p-1.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition">
-              🔄
+            <button onclick="loadAnalyticsData()" title="İstatistikleri Yenile" class="group p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-pond-300 transition shadow-sm active:scale-95 flex items-center justify-center">
+              <svg class="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
             </button>
           </div>
         </div>
@@ -969,12 +973,15 @@
                 </div>
               </div>
 
-              <div class="pt-2 border-t border-pond-border/40">
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" id="settingMutedEarnsXp" class="w-4 h-4 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0">
-                  <div>
-                    <span class="text-xs font-bold text-white">Susturulmuş / Sağır Üyeler XP Kazansın</span>
-                    <p class="text-[10px] text-gray-400">Kapalı olduğunda self-mute veya server-deaf iken ses XP'si verilmez (Anti-AFK)</p>
+              <div class="pt-3 border-t border-pond-border/40">
+                <label class="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-pond-border/40 hover:border-pond-500/30 transition cursor-pointer select-none">
+                  <div class="pr-3">
+                    <span class="text-xs font-bold text-white block">Susturulmuş / Sağır Üyeler XP Kazansın</span>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Kapalı olduğunda self-mute veya server-deaf iken ses XP'si verilmez (Anti-AFK)</p>
+                  </div>
+                  <div class="relative inline-flex items-center shrink-0">
+                    <input type="checkbox" id="settingMutedEarnsXp" class="sr-only peer">
+                    <div class="w-11 h-6 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_12px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:transition-all peer-checked:after:translate-x-5"></div>
                   </div>
                 </label>
               </div>
@@ -1067,41 +1074,56 @@
             
             <!-- TRIGGER 1: LEVEL UP DM -->
             <div class="p-4 rounded-2xl bg-black/30 border border-pond-border/60 space-y-3 flex flex-col justify-between hover:border-pond-500/40 transition">
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-2xl">🎉</span>
-                  <input type="checkbox" id="settingDmLevelUp" onchange="updateDmSwitchStatus()" class="w-5 h-5 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                  <div class="w-9 h-9 rounded-xl bg-pond-500/10 border border-pond-500/20 flex items-center justify-center text-lg shadow-sm">
+                    🎉
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="settingDmLevelUp" onchange="updateDmSwitchStatus()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_12px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:transition-all peer-checked:after:translate-x-5"></div>
+                  </label>
                 </div>
                 <h4 class="font-bold text-white text-xs">Seviye Atlama DM'i</h4>
-                <p class="text-[11px] text-gray-400">Üye her yeni seviyeye ulaştığında bot tarafından tebrik DM'i ve sıralama linki iletilir.</p>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Üye her yeni seviyeye ulaştığında bot tarafından tebrik DM'i ve sıralama linki iletilir.</p>
               </div>
-              <div id="statusDmLevelUp" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 self-start">⚪ Kapalı</div>
+              <div id="statusDmLevelUp" class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gray-500/10 text-gray-400 border border-gray-500/20 self-start">⚪ Kapalı</div>
             </div>
 
             <!-- TRIGGER 2: ROLE REWARD DM -->
             <div class="p-4 rounded-2xl bg-black/30 border border-pond-border/60 space-y-3 flex flex-col justify-between hover:border-pond-500/40 transition">
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-2xl">👑</span>
-                  <input type="checkbox" id="settingDmRoleReward" onchange="updateDmSwitchStatus()" class="w-5 h-5 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                  <div class="w-9 h-9 rounded-xl bg-pond-500/10 border border-pond-500/20 flex items-center justify-center text-lg shadow-sm">
+                    👑
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="settingDmRoleReward" onchange="updateDmSwitchStatus()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_12px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:transition-all peer-checked:after:translate-x-5"></div>
+                  </label>
                 </div>
                 <h4 class="font-bold text-white text-xs">Rol Kazanım DM'i</h4>
-                <p class="text-[11px] text-gray-400">Üye yeni bir Kurbağa seviye rolü kazandığında özel rol tebriği DM'i iletilir.</p>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Üye yeni bir Kurbağa seviye rolü kazandığında özel rol tebriği DM'i iletilir.</p>
               </div>
-              <div id="statusDmRoleReward" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 self-start">⚪ Kapalı</div>
+              <div id="statusDmRoleReward" class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gray-500/10 text-gray-400 border border-gray-500/20 self-start">⚪ Kapalı</div>
             </div>
 
             <!-- TRIGGER 3: WELCOME DM -->
             <div class="p-4 rounded-2xl bg-black/30 border border-pond-border/60 space-y-3 flex flex-col justify-between hover:border-pond-500/40 transition">
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-2xl">👋</span>
-                  <input type="checkbox" id="settingDmWelcome" onchange="updateDmSwitchStatus()" class="w-5 h-5 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                  <div class="w-9 h-9 rounded-xl bg-pond-500/10 border border-pond-500/20 flex items-center justify-center text-lg shadow-sm">
+                    👋
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="settingDmWelcome" onchange="updateDmSwitchStatus()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_12px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-[18px] after:w-[18px] after:transition-all peer-checked:after:translate-x-5"></div>
+                  </label>
                 </div>
                 <h4 class="font-bold text-white text-xs">Hoş Geldin DM'i</h4>
-                <p class="text-[11px] text-gray-400">Sunucuya yeni katılan üyelere gölet kuralları ve XP sistemi rehberi DM olarak iletilir.</p>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Sunucuya yeni katılan üyelere gölet kuralları ve XP sistemi rehberi DM olarak iletilir.</p>
               </div>
-              <div id="statusDmWelcome" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-500/10 text-gray-400 self-start">⚪ Kapalı</div>
+              <div id="statusDmWelcome" class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gray-500/10 text-gray-400 border border-gray-500/20 self-start">⚪ Kapalı</div>
             </div>
 
           </div>
@@ -1183,10 +1205,15 @@
               </div>
 
               <!-- EMBED OPTIONS -->
-              <div class="p-3 rounded-2xl bg-black/20 border border-pond-border/40 space-y-2.5">
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" id="botMsgAsEmbed" checked class="w-4 h-4 rounded text-pond-500 bg-black/50 border-pond-border focus:ring-0">
-                  <span class="text-xs font-bold text-white">🌿 Yeşil Gölet Tasarımlı Embed Olarak Gönder</span>
+              <div class="p-3.5 rounded-2xl bg-black/20 border border-pond-border/40 space-y-3">
+                <label class="flex items-center justify-between cursor-pointer select-none">
+                  <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>🌿</span> Yeşil Gölet Tasarımlı Embed Olarak Gönder
+                  </span>
+                  <div class="relative inline-flex items-center shrink-0">
+                    <input type="checkbox" id="botMsgAsEmbed" checked class="sr-only peer">
+                    <div class="w-10 h-5 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_10px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[2.5px] after:left-[2.5px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-[15px] after:w-[15px] after:transition-all peer-checked:after:translate-x-5"></div>
+                  </div>
                 </label>
                 <div>
                   <label class="block text-[11px] font-medium text-gray-400 mb-1">Başlık (Embed İse)</label>
@@ -2064,7 +2091,15 @@
                       }">
                         ${isChecked ? '🚫 Devre Dışı' : '✅ Aktif'}
                       </span>
-                      <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleChannelDisabled('${c.id}')" class="w-4 h-4 rounded text-rose-500 bg-black/50 border-pond-border focus:ring-0 cursor-pointer">
+                      <div class="w-5 h-5 rounded-lg border flex items-center justify-center transition-all duration-200 ${
+                        isChecked 
+                          ? 'bg-rose-500 border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.4)] text-white' 
+                          : 'bg-black/50 border-pond-border/80 text-transparent'
+                      }">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 `;
