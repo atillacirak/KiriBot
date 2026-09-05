@@ -1107,6 +1107,26 @@
         monthlyXp: 'Aylık XP'
       };
       return map[currentSort] || 'XP';
+    function renderRolePill(role) {
+      if (!role) return '';
+      if (role.isChio) {
+        return `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-gradient-to-r from-orange-500/25 via-amber-500/20 to-yellow-500/15 text-orange-400 border border-orange-500/50 shadow-md shadow-orange-500/10 shrink-0">
+            <span>👑</span>
+            <span>Chio</span>
+            <span>🔥</span>
+          </span>
+        `;
+      }
+      const color = role.color || '#4CAF50';
+      const bg = role.bg || `${color}25`;
+      const border = role.border || `${color}45`;
+      return `
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold shrink-0 shadow-sm" style="color: ${color}; background-color: ${bg}; border: 1px solid ${border};">
+          <span>${role.badge || '🐸'}</span>
+          <span>${escapeHtml(role.name)}</span>
+        </span>
+      `;
     }
 
     function renderPodium(users) {
@@ -1130,9 +1150,9 @@
           </div>
           <img src="${second.avatar}" class="w-16 h-16 rounded-full mx-auto ring-4 ring-gray-400/40 mt-2 object-cover group-hover:scale-105 transition">
           <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${second.username}</h4>
-          <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-pond-500/20 text-pond-400">
-            ${second.frogRole.badge} ${second.frogRole.name}
-          </span>
+          <div class="mt-1 flex justify-center">
+            ${renderRolePill(second.frogRole)}
+          </div>
           <div class="text-xs text-amberOrange font-bold mt-2">${getDisplayXp(second)} <span class="text-[10px] text-gray-400">${sortLabel}</span></div>
           <div class="text-[11px] text-gray-400">Seviye ${second.level} • <span class="text-pond-400 underline">Profili Gör</span></div>
         </div>
@@ -1144,9 +1164,9 @@
           </div>
           <img src="${first.avatar}" class="w-20 h-20 rounded-full mx-auto ring-4 ring-yellow-400 mt-2 object-cover group-hover:scale-105 transition">
           <h4 class="font-extrabold text-white text-base mt-2 truncate group-hover:text-yellow-300 transition">${first.username}</h4>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
-            ${first.frogRole.badge} ${first.frogRole.name}
-          </span>
+          <div class="mt-1 flex justify-center">
+            ${renderRolePill(first.frogRole)}
+          </div>
           <div class="text-sm text-amberOrange font-extrabold mt-2.5">${getDisplayXp(first)} <span class="text-xs text-gray-300">${sortLabel}</span></div>
           <div class="text-xs text-gray-300 font-semibold">Seviye ${first.level} • <span class="text-yellow-300 underline">Profili Gör</span></div>
         </div>
@@ -1158,9 +1178,9 @@
           </div>
           <img src="${third.avatar}" class="w-16 h-16 rounded-full mx-auto ring-4 ring-amber-700/50 mt-2 object-cover group-hover:scale-105 transition">
           <h4 class="font-bold text-white text-sm mt-2 truncate group-hover:text-pond-400 transition">${third.username}</h4>
-          <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-pond-500/20 text-pond-400">
-            ${third.frogRole.badge} ${third.frogRole.name}
-          </span>
+          <div class="mt-1 flex justify-center">
+            ${renderRolePill(third.frogRole)}
+          </div>
           <div class="text-xs text-amberOrange font-bold mt-2">${getDisplayXp(third)} <span class="text-[10px] text-gray-400">${sortLabel}</span></div>
           <div class="text-[11px] text-gray-400">Seviye ${third.level} • <span class="text-pond-400 underline">Profili Gör</span></div>
         </div>
@@ -1187,9 +1207,7 @@
               <div class="truncate">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-white text-sm truncate group-hover:text-pond-400 transition">${user.username}</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pond-500/15 text-pond-400 border border-pond-500/20 shrink-0">
-                    ${user.frogRole.badge} ${user.frogRole.name}
-                  </span>
+                  ${renderRolePill(user.frogRole)}
                 </div>
                 <div class="text-[11px] text-gray-400 flex items-center gap-2 mt-0.5">
                   <span>💬 ${user.textXp.toLocaleString()} XP</span>
@@ -2031,7 +2049,7 @@
           rankBadge.innerText = `#${u.rank}`;
         }
 
-        document.getElementById('uFrogBadge').innerHTML = `${u.currentFrogRole.badge} ${u.currentFrogRole.name}`;
+        document.getElementById('uFrogBadge').innerHTML = renderRolePill(u.currentFrogRole);
 
         // Level progress bar
         document.getElementById('uLevelProgressPercent').innerText = `%${u.progressPercent}`;

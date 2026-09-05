@@ -25,12 +25,139 @@ export function startDashboard(client, port = 3000) {
 
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'yesilgolet2026';
 
-  // Helper: Get frog role info based on dynamic settings
-  function getFrogRole(level, roleRewards = {}) {
-    if (level >= 80) return { name: 'Bu Direkt Göl Olmuş', color: '#1B5E20', badge: '👑', minLevel: 80 };
-    if (level >= 50) return { name: 'Göl Müdavimi Kurbağa', color: '#2E7D32', badge: '🌿', minLevel: 50 };
-    if (level >= 25) return { name: 'Kurbağa', color: '#4CAF50', badge: '🐸', minLevel: 25 };
-    return { name: 'Gölet Sakini', color: '#8BC34A', badge: '🌱', minLevel: 0 };
+  // Helper: Get user's prominent display role (Chio > Admin > Moderatör > Yetkili > Animatör > İçerik Üreticisi > Teknik Destek > V.I.P > Booster > Frog Roles)
+  function getUserDisplayRole(member, user, level, roleRewards = {}) {
+    const userId = (member ? member.id : (user ? user.id : '')) || '';
+    const username = (member ? member.displayName : (user ? (user.globalName || user.username) : '')) || '';
+    const tag = (user ? user.tag : '') || '';
+
+    // 1. Chio (Special Title / Founder)
+    if (userId === '612643930819002369' || username.toLowerCase() === 'chio' || tag.toLowerCase().startsWith('chio.')) {
+      return {
+        name: 'Chio',
+        color: '#FF7A00',
+        bg: 'rgba(255, 122, 0, 0.25)',
+        border: 'rgba(255, 122, 0, 0.6)',
+        badge: '👑',
+        isChio: true
+      };
+    }
+
+    // Role Matchers
+    const roles = member?.roles?.cache ? Array.from(member.roles.cache.values()) : [];
+    const hasRole = (id, namePattern) => roles.some(r => r.id === id || (namePattern && namePattern.test(r.name)));
+    const getRoleObj = (id, namePattern) => roles.find(r => r.id === id || (namePattern && namePattern.test(r.name)));
+
+    // 2. ADMIN (Role: 1315029510672089129 or Administrator permission)
+    if (member?.permissions?.has?.('Administrator') || hasRole('1315029510672089129', /^admin/i)) {
+      const r = getRoleObj('1315029510672089129', /^admin/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#F3004A';
+      return {
+        name: 'Admin',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '🛡️'
+      };
+    }
+
+    // 3. Moderatör (Role: 1315047438267973652)
+    if (hasRole('1315047438267973652', /mod/i)) {
+      const r = getRoleObj('1315047438267973652', /mod/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#58F5FF';
+      return {
+        name: 'Moderatör',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '⚔️'
+      };
+    }
+
+    // 4. Yetkili (Role: 1439002771557974139)
+    if (hasRole('1439002771557974139', /yetkili/i)) {
+      const r = getRoleObj('1439002771557974139', /yetkili/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#00FF93';
+      return {
+        name: 'Yetkili',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '⚡'
+      };
+    }
+
+    // 5. Animatör (Role: 1459305221896409203)
+    if (hasRole('1459305221896409203', /animatör/i)) {
+      const r = getRoleObj('1459305221896409203', /animatör/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#FF0D0D';
+      return {
+        name: 'Animatör',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '🎬'
+      };
+    }
+
+    // 6. İçerik Üreticisi (Role: 1439005238517432532)
+    if (hasRole('1439005238517432532', /içerik/i)) {
+      const r = getRoleObj('1439005238517432532', /içerik/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#FF3366';
+      return {
+        name: 'İçerik Üreticisi',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '🎨'
+      };
+    }
+
+    // 7. Teknik Destek (Role: 1439009602506326108)
+    if (hasRole('1439009602506326108', /teknik/i)) {
+      const r = getRoleObj('1439009602506326108', /teknik/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#3674E7';
+      return {
+        name: 'Teknik Destek',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '🔧'
+      };
+    }
+
+    // 8. V.I.P (Role: 1439010384215408733)
+    if (hasRole('1439010384215408733', /v\.?i\.?p/i)) {
+      const r = getRoleObj('1439010384215408733', /v\.?i\.?p/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#FFD502';
+      return {
+        name: 'V.I.P',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '⭐'
+      };
+    }
+
+    // 9. Server Booster (Role: 1330653028050534402)
+    if (hasRole('1330653028050534402', /booster/i)) {
+      const r = getRoleObj('1330653028050534402', /booster/i);
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#F47FFF';
+      return {
+        name: 'Server Booster',
+        color: color,
+        bg: `${color}25`,
+        border: `${color}45`,
+        badge: '🚀'
+      };
+    }
+
+    // 10. Default Level Frog Roles
+    const lvl = parseInt(level || 0, 10);
+    if (lvl >= 80) return { name: 'Bu Direkt Göl Olmuş', color: '#1B5E20', bg: 'rgba(27, 94, 32, 0.25)', border: 'rgba(27, 94, 32, 0.45)', badge: '👑', minLevel: 80 };
+    if (lvl >= 50) return { name: 'Göl Müdavimi Kurbağa', color: '#2E7D32', bg: 'rgba(46, 125, 50, 0.25)', border: 'rgba(46, 125, 50, 0.45)', badge: '🌿', minLevel: 50 };
+    if (lvl >= 25) return { name: 'Kurbağa', color: '#4CAF50', bg: 'rgba(76, 175, 80, 0.25)', border: 'rgba(76, 175, 80, 0.45)', badge: '🐸', minLevel: 25 };
+    return { name: 'Gölet Sakini', color: '#8BC34A', bg: 'rgba(139, 195, 74, 0.2)', border: 'rgba(139, 195, 74, 0.35)', badge: '🌱', minLevel: 0 };
   }
 
   // API: Global & Guild Stats
@@ -113,7 +240,14 @@ export function startDashboard(client, port = 3000) {
             } catch {}
           }
 
-          const username = userObj ? (userObj.globalName || userObj.username) : `Üye (${u.userId ? u.userId.slice(-4) : '...' })`;
+          let memberObj = guild ? guild.members.cache.get(u.userId) : null;
+          if (!memberObj && guild) {
+            try {
+              memberObj = await guild.members.fetch(u.userId).catch(() => null);
+            } catch {}
+          }
+
+          const username = memberObj ? memberObj.displayName : (userObj ? (userObj.globalName || userObj.username) : `Üye (${u.userId ? u.userId.slice(-4) : '...' })`);
           const avatar = userObj ? userObj.displayAvatarURL({ size: 128 }) : 'https://cdn.discordapp.com/embed/avatars/0.png';
           const tag = userObj ? userObj.tag : `user#${u.userId ? u.userId.slice(-4) : '0000'}`;
 
@@ -123,6 +257,8 @@ export function startDashboard(client, port = 3000) {
           const progressInLevel = Math.max(0, (u.totalXp || 0) - currentLevelBaseXp);
           const neededInLevel = Math.max(1, nextLevelXp - currentLevelBaseXp);
           const progressPercent = Math.min(100, Math.floor((progressInLevel / neededInLevel) * 100));
+
+          const displayRole = getUserDisplayRole(memberObj, userObj, currentLevel, settings.roleRewards);
 
           return {
             rank: index + 1,
@@ -141,7 +277,7 @@ export function startDashboard(client, port = 3000) {
             progressInLevel,
             neededInLevel,
             progressPercent,
-            frogRole: getFrogRole(currentLevel, settings.roleRewards)
+            frogRole: displayRole
           };
         })
       );
@@ -219,7 +355,7 @@ export function startDashboard(client, port = 3000) {
         { level: 80, name: 'Bu Direkt Göl Olmuş', badge: '👑' }
       ];
 
-      const currentFrogRole = getFrogRole(currentLevel, settings.roleRewards);
+      const currentFrogRole = getUserDisplayRole(memberObj, userObj, currentLevel, settings.roleRewards);
       const nextMilestone = milestones.find(m => m.level > currentLevel);
 
       let nextRoleInfo = null;
