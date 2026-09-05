@@ -686,24 +686,36 @@
           </div>
 
           <!-- TIME PERIOD SELECTOR (FOR ANALYTICS) -->
-          <div id="analyticsPeriodSelector" class="flex items-center gap-1 p-1 rounded-2xl bg-black/40 border border-pond-border text-xs font-semibold self-start sm:self-auto">
-            <button onclick="changeAnalyticsPeriod('today')" id="periodBtn_today" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
-              📅 Bugün
-            </button>
-            <button onclick="changeAnalyticsPeriod('week')" id="periodBtn_week" class="px-3 py-1.5 rounded-xl bg-pond-500 text-white transition">
-              🗓️ Bu Hafta
-            </button>
-            <button onclick="changeAnalyticsPeriod('month')" id="periodBtn_month" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
-              📆 Bu Ay
-            </button>
-            <button onclick="changeAnalyticsPeriod('all')" id="periodBtn_all" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
-              ♾️ Tüm Zamanlar
-            </button>
-            <button onclick="loadAnalyticsData()" title="İstatistikleri Yenile" class="group p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-pond-300 transition shadow-sm active:scale-95 flex items-center justify-center">
-              <svg class="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+          <div class="flex flex-col items-end gap-1">
+            <div id="analyticsPeriodSelector" class="flex items-center gap-1 p-1 rounded-2xl bg-black/40 border border-pond-border text-xs font-semibold self-start sm:self-auto">
+              <button onclick="changeAnalyticsPeriod('today')" id="periodBtn_today" title="Son 24 saatteki (Bugünkü) canlı aktiviteler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>📅</span>
+                <span>Bugün</span>
+                <span class="text-[9px] text-gray-500 font-mono">(Son 24s)</span>
+              </button>
+              <button onclick="changeAnalyticsPeriod('week')" id="periodBtn_week" title="Son 7 gündeki canlı aktiviteler" class="px-3 py-1.5 rounded-xl bg-pond-500 text-white transition flex items-center gap-1 shadow-sm">
+                <span>🗓️</span>
+                <span>Bu Hafta</span>
+                <span class="text-[9px] opacity-75 font-mono">(Son 7 Gün)</span>
+              </button>
+              <button onclick="changeAnalyticsPeriod('month')" id="periodBtn_month" title="Son 30 gündeki canlı aktiviteler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>📆</span>
+                <span>Bu Ay</span>
+                <span class="text-[9px] text-gray-500 font-mono">(Son 30 Gün)</span>
+              </button>
+              <button onclick="changeAnalyticsPeriod('all')" id="periodBtn_all" title="Botun kurulduğu günden itibaren tüm veriler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>♾️</span>
+                <span>Tüm Zamanlar</span>
+              </button>
+              <button onclick="loadAnalyticsData()" title="İstatistikleri Yenile" class="group p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-pond-300 transition shadow-sm active:scale-95 flex items-center justify-center">
+                <svg class="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+            <div id="periodHelperNote" class="text-[10px] text-gray-400 font-medium pr-1">
+              ℹ️ Seçili Zaman Dilimi: <span class="text-pond-400 font-bold">Son 7 Günlük İstatistikler ve Üye Hareketleri</span>
+            </div>
           </div>
         </div>
 
@@ -2701,13 +2713,25 @@
 
     function changeAnalyticsPeriod(period) {
       currentAnalyticsPeriod = period;
+      const periodLabels = {
+        today: 'Son 24 Saatlik (Bugünkü) İstatistikler ve Üye Hareketleri',
+        week: 'Son 7 Günlük İstatistikler ve Üye Hareketleri',
+        month: 'Son 30 Günlük İstatistikler ve Üye Hareketleri',
+        all: 'Tüm Zamanların İstatistikleri ve Üye Hareketleri (Genel)'
+      };
+      
+      const helperEl = document.getElementById('periodHelperNote');
+      if (helperEl) {
+        helperEl.innerHTML = `ℹ️ Seçili Zaman Dilimi: <span class="text-pond-400 font-bold">${periodLabels[period] || ''}</span>`;
+      }
+
       ['today', 'week', 'month', 'all'].forEach(p => {
         const btn = document.getElementById(`periodBtn_${p}`);
         if (btn) {
           if (p === period) {
-            btn.className = "px-3 py-1.5 rounded-xl bg-pond-500 text-white transition";
+            btn.className = "px-3 py-1.5 rounded-xl bg-pond-500 text-white transition flex items-center gap-1 shadow-sm";
           } else {
-            btn.className = "px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition";
+            btn.className = "px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1";
           }
         }
       });
