@@ -298,64 +298,51 @@ export function startDashboard(client, port = 3000) {
       });
 
       // Build rich user models
-      const richUsers = await Promise.all(
-        users.map(async (u, index) => {
-          let userObj = client.users.cache.get(u.userId);
-          if (!userObj && client.users) {
-            try {
-              userObj = await client.users.fetch(u.userId).catch(() => null);
-            } catch {}
-          }
+      const richUsers = users.map((u, index) => {
+        const userObj = client.users ? client.users.cache.get(u.userId) : null;
+        const memberObj = guild ? guild.members.cache.get(u.userId) : null;
 
-          let memberObj = guild ? guild.members.cache.get(u.userId) : null;
-          if (!memberObj && guild) {
-            try {
-              memberObj = await guild.members.fetch(u.userId).catch(() => null);
-            } catch {}
-          }
+        const username = memberObj ? memberObj.displayName : (userObj ? (userObj.globalName || userObj.username) : `Üye (${u.userId ? u.userId.slice(-4) : '...' })`);
+        const avatar = userObj ? userObj.displayAvatarURL({ size: 128 }) : 'https://cdn.discordapp.com/embed/avatars/0.png';
+        const tag = userObj ? userObj.tag : `user#${u.userId ? u.userId.slice(-4) : '0000'}`;
 
-          const username = memberObj ? memberObj.displayName : (userObj ? (userObj.globalName || userObj.username) : `Üye (${u.userId ? u.userId.slice(-4) : '...' })`);
-          const avatar = userObj ? userObj.displayAvatarURL({ size: 128 }) : 'https://cdn.discordapp.com/embed/avatars/0.png';
-          const tag = userObj ? userObj.tag : `user#${u.userId ? u.userId.slice(-4) : '0000'}`;
+        const currentLevel = u.level || 0;
+        const currentLevelBaseXp = getXpForLevel(currentLevel);
+        const nextLevelXp = getXpForLevel(currentLevel + 1);
+        const progressInLevel = Math.max(0, (u.totalXp || 0) - currentLevelBaseXp);
+        const neededInLevel = Math.max(1, nextLevelXp - currentLevelBaseXp);
+        const progressPercent = Math.min(100, Math.floor((progressInLevel / neededInLevel) * 100));
 
-          const currentLevel = u.level || 0;
-          const currentLevelBaseXp = getXpForLevel(currentLevel);
-          const nextLevelXp = getXpForLevel(currentLevel + 1);
-          const progressInLevel = Math.max(0, (u.totalXp || 0) - currentLevelBaseXp);
-          const neededInLevel = Math.max(1, nextLevelXp - currentLevelBaseXp);
-          const progressPercent = Math.min(100, Math.floor((progressInLevel / neededInLevel) * 100));
+        const displayRole = getUserDisplayRole(memberObj, userObj, currentLevel, settings.roleRewards);
+        const filteredXp = computeUserFilteredXp(u, type, period);
 
-          const displayRole = getUserDisplayRole(memberObj, userObj, currentLevel, settings.roleRewards);
-          const filteredXp = computeUserFilteredXp(u, type, period);
-
-          return {
-            rank: index + 1,
-            userId: u.userId,
-            username,
-            tag,
-            avatar,
-            level: currentLevel,
-            totalXp: u.totalXp || 0,
-            voiceXp: u.voiceXp || 0,
-            textXp: u.textXp || 0,
-            dailyXp: u.dailyXp || 0,
-            dailyVoiceXp: u.dailyVoiceXp || 0,
-            dailyTextXp: u.dailyTextXp || 0,
-            weeklyXp: u.weeklyXp || 0,
-            weeklyVoiceXp: u.weeklyVoiceXp || 0,
-            weeklyTextXp: u.weeklyTextXp || 0,
-            monthlyXp: u.monthlyXp || 0,
-            monthlyVoiceXp: u.monthlyVoiceXp || 0,
-            monthlyTextXp: u.monthlyTextXp || 0,
-            filteredXp,
-            voiceHours: (((u.voiceXp || 0) / 25) / 60).toFixed(1),
-            progressInLevel,
-            neededInLevel,
-            progressPercent,
-            frogRole: displayRole
-          };
-        })
-      );
+        return {
+          rank: index + 1,
+          userId: u.userId,
+          username,
+          tag,
+          avatar,
+          level: currentLevel,
+          totalXp: u.totalXp || 0,
+          voiceXp: u.voiceXp || 0,
+          textXp: u.textXp || 0,
+          dailyXp: u.dailyXp || 0,
+          dailyVoiceXp: u.dailyVoiceXp || 0,
+          dailyTextXp: u.dailyTextXp || 0,
+          weeklyXp: u.weeklyXp || 0,
+          weeklyVoiceXp: u.weeklyVoiceXp || 0,
+          weeklyTextXp: u.weeklyTextXp || 0,
+          monthlyXp: u.monthlyXp || 0,
+          monthlyVoiceXp: u.monthlyVoiceXp || 0,
+          monthlyTextXp: u.monthlyTextXp || 0,
+          filteredXp,
+          voiceHours: (((u.voiceXp || 0) / 25) / 60).toFixed(1),
+          progressInLevel,
+          neededInLevel,
+          progressPercent,
+          frogRole: displayRole
+        };
+      });
 
       // Search filter if provided
       let filtered = richUsers;
