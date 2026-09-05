@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KurBot • Hizmet Koşulları & Terms of Service</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📜</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #080E09;
+      color: #E6EDE5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(94, 164, 84, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(247, 159, 54, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+    .glass-card {
+      background: rgba(16, 27, 18, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(94, 164, 84, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
+
+  <div class="max-w-3xl w-full glass-card rounded-3xl p-6 md:p-10 space-y-6 shadow-2xl">
+    
+    <!-- Header with Language Selector Tabs -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-lg">
+          📜
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white tracking-wide">KurBot Hizmet Koşulları</h1>
+          <p class="text-xs text-gray-400 mt-0.5">Yeşil Gölet Discord Ekosistemi • Terms of Service</p>
+        </div>
+      </div>
+
+      <!-- Language Selector Tabs -->
+      <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-black/50 border border-emerald-500/20 self-start sm:self-auto text-xs font-semibold">
+        <button id="langBtnTr" onclick="switchLanguage('tr')" class="px-4 py-2 rounded-xl bg-emerald-600 text-white transition flex items-center gap-1.5 shadow-sm">
+          <span>🇹🇷</span>
+          <span>Türkçe</span>
+        </button>
+        <button id="langBtnEn" onclick="switchLanguage('en')" class="px-4 py-2 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1.5">
+          <span>🇬🇧</span>
+          <span>English</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TURKISH CONTENT -->
+    <div id="contentTr" class="space-y-6 text-sm text-gray-300 leading-relaxed">
+      
+      <p class="text-xs text-emerald-400 font-medium uppercase tracking-wider">
+        Son Güncelleme: 6 Eylül 2026
+      </p>
+
+      <p>
+        Bu Hizmet Koşulları ("Koşullar"), <strong class="text-white">KurBot</strong> ("Bot") ve Yeşil Gölet Discord sunucusu tarafından sağlanan hizmetlerin kullanım şartlarını düzenler. Botu kullanırken bu koşullara uymayı kabul etmiş sayılırsınız.
+      </p>
+
+      <!-- Section 1 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">1.</span> Hizmetin Kullanımı ve Hizmet Şartları
+        </h2>
+        <p>
+          KurBot; sunucu aktiflik takibi, XP seviye sistemi, yapay zeka analizleri ve topluluk desteği sağlamaktadır. Botu kullanırken Discord Topluluk Kurallarına (Discord Terms of Service) uyulması zorunludur.
+        </p>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">2.</span> Yasaklı Kullanımlar
+        </h2>
+        <p>
+          Aşağıdaki eylemler kesinlikle yasaktır ve bot kullanımınızın engellenmesine (blacklist) neden olabilir:
+        </p>
+        <ul class="list-disc list-inside space-y-1.5 text-gray-400 pl-2">
+          <li>Bot komutlarını otomatik yazılımlar veya makrolarla kötüye kullanmak / spamlamak.</li>
+          <li>XP seviye sistemini manipüle etmek amacıyla sahte hesaplar veya botlar kullanmak.</li>
+          <li>Botun altyapısına müdahale etmeye çalışmak veya güvenlik zafiyeti aramak.</li>
+          <li>Bot üzerinden diğer kullanıcılara taciz veya nefret söylemi iletmek.</li>
+        </ul>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">3.</span> Hizmet Sürekliliği
+        </h2>
+        <p>
+          KurBot kesintisiz hizmet vermeyi hedefler ancak bakım, güncelleme veya sunucu arızaları nedeniyle oluşabilecek geçici kesintilerden sorumlu tutulamaz. Geliştirici ekibi, bot özelliklerini dilediği zaman değiştirme veya sonlandırma hakkını saklı tutar.
+        </p>
+      </section>
+
+      <!-- Section 4 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">4.</span> Sorumluluk Sınırı
+        </h2>
+        <p>
+          KurBot "olduğu gibi" (AS IS) sağlanmaktadır. Bot kullanımı sırasında oluşabilecek veri kayıplarından veya sunucu içi anlaşmazlıklardan bot geliştiricileri yasal olarak sorumlu tutulamaz.
+        </p>
+      </section>
+
+      <!-- Section 5 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">5.</span> Gizlilik Politikası
+        </h2>
+        <p>
+          Kullanıcı verilerinin nasıl işlendiğini ve saklandığını öğrenmek için lütfen <a href="/privacy" class="text-emerald-400 hover:underline font-semibold">Gizlilik Politikamızı</a> ziyaret edin.
+        </p>
+      </section>
+
+    </div>
+
+    <!-- ENGLISH CONTENT -->
+    <div id="contentEn" class="hidden space-y-6 text-sm text-gray-300 leading-relaxed">
+      
+      <p class="text-xs text-emerald-400 font-medium uppercase tracking-wider">
+        Last Updated: September 6, 2026
+      </p>
+
+      <p>
+        These Terms of Service ("Terms") govern your use of <strong class="text-white">KurBot</strong> ("Bot") and services provided by the Yeşil Gölet Discord community. By using the Bot, you agree to be bound by these Terms.
+      </p>
+
+      <!-- Section 1 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">1.</span> Acceptable Use
+        </h2>
+        <p>
+          KurBot provides server activity tracking, XP progression, AI profiling, and support tools. You agree to use the Bot in full compliance with Discord's Terms of Service and Community Guidelines.
+        </p>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">2.</span> Prohibited Activities
+        </h2>
+        <ul class="list-disc list-inside space-y-1.5 text-gray-400 pl-2">
+          <li>Spamming bot commands or using automated macros.</li>
+          <li>Manipulating XP leveling using alt accounts or chat bots.</li>
+          <li>Attempting to exploit or reverse engineer the Bot's infrastructure.</li>
+          <li>Distributing harassment or hate speech via the Bot.</li>
+        </ul>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">3.</span> Availability & Updates
+        </h2>
+        <p>
+          KurBot is provided without warranty of continuous operation. We reserve the right to modify or discontinue features at any time.
+        </p>
+      </section>
+
+      <!-- Section 4 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">4.</span> Limitation of Liability
+        </h2>
+        <p>
+          KurBot is provided on an "AS IS" basis. The developers shall not be liable for any indirect damages resulting from the use of the Bot.
+        </p>
+      </section>
+
+      <!-- Section 5 -->
+      <section class="space-y-2">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">5.</span> Privacy Policy
+        </h2>
+        <p>
+          To learn how user data is handled, please review our <a href="/privacy" class="text-emerald-400 hover:underline font-semibold">Privacy Policy</a>.
+        </p>
+      </section>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="pt-6 border-t border-emerald-500/20 flex items-center justify-between text-xs text-gray-400">
+      <a href="/" class="text-emerald-400 hover:text-emerald-300 transition font-medium flex items-center gap-1">
+        <span>←</span> <span id="backText">Liderlik Tablosuna Dön</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="/privacy" class="hover:text-emerald-400 transition">Gizlilik Politikası</a>
+        <span>•</span>
+        <span>© 2026 Yeşil Gölet & KurBot</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchLanguage(lang) {
+      const contentTr = document.getElementById('contentTr');
+      const contentEn = document.getElementById('contentEn');
+      const btnTr = document.getElementById('langBtnTr');
+      const btnEn = document.getElementById('langBtnEn');
+      const backText = document.getElementById('backText');
+
+      if (lang === 'tr') {
+        contentTr.classList.remove('hidden');
+        contentEn.classList.add('hidden');
+        btnTr.className = "px-4 py-2 rounded-xl bg-emerald-600 text-white transition flex items-center gap-1.5 shadow-sm";
+        btnEn.className = "px-4 py-2 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1.5";
+        backText.innerText = 'Liderlik Tablosuna Dön';
+      } else {
+        contentTr.classList.add('hidden');
+        contentEn.classList.remove('hidden');
+        btnEn.className = "px-4 py-2 rounded-xl bg-emerald-600 text-white transition flex items-center gap-1.5 shadow-sm";
+        btnTr.className = "px-4 py-2 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1.5";
+        backText.innerText = 'Back to Leaderboard';
+      }
+    }
+  </script>
+
+</body>
+</html>
