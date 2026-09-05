@@ -555,8 +555,12 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-3">
-            <button onclick="saveAdminSettings()" id="adminSaveSettingsBtn" class="px-5 py-2.5 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/25">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="downloadDatabaseBackup()" class="px-4 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-blue-500/15">
+              <span>📥</span>
+              <span>Yedeği İndir (.JSON)</span>
+            </button>
+            <button onclick="saveAdminSettings()" id="adminSaveSettingsBtn" class="hidden px-5 py-2.5 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/25">
               <span>💾 Ayarları Kaydet</span>
             </button>
             <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-xl bg-black/40 border border-pond-border hover:border-rose-500/50 text-gray-400 hover:text-rose-400 text-xs font-bold transition">
@@ -577,7 +581,7 @@
             </button>
             <button id="adminSubtabSettingsBtn" onclick="switchAdminSubtab('settings')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
               <span>⚙️</span>
-              <span>Bot & XP Ayarları</span>
+              <span>Bot, XP & İletişim</span>
             </button>
           </div>
 
@@ -605,6 +609,48 @@
         <!-- VIEW 1: SERVER ANALYTICS & GROWTH HUB      -->
         <!-- ========================================== -->
         <div id="adminAnalyticsView" class="space-y-6">
+
+          <!-- 4 CORE GLOBAL OVERVIEW STAT TILES -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+              <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Kayıtlı Üye</div>
+              <div id="statTrackedUsers" class="text-2xl md:text-3xl font-display font-bold text-white mt-1">...</div>
+              <div class="text-[11px] text-pond-400 mt-2 flex items-center gap-1">
+                <span>👥</span> Seviye Sisteminde Kayıtlı
+              </div>
+              <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">👥</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+              <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Toplam Sunucu XP</div>
+              <div id="statTotalXp" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
+              <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+                <span>⚡</span> Sesli + Yazılı Sohbet
+              </div>
+              <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">⚡</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+              <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Sesli Sohbet Süresi</div>
+              <div id="statVoiceHours" class="text-2xl md:text-3xl font-display font-bold text-pond-400 mt-1">...</div>
+              <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+                <span>🎙️</span> Saat Boyunca Konuşuldu
+              </div>
+              <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">🎙️</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
+              <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Veritabanı Durumu</div>
+              <div class="text-2xl md:text-3xl font-display font-bold text-emerald-400 mt-1 flex items-center gap-2">
+                <span>Atlas</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">0ms</span>
+              </div>
+              <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
+                <span>☁️</span> MongoDB Bulut Senkron
+              </div>
+              <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">☁️</div>
+            </div>
+          </div>
 
           <!-- 4 CORE KPI METRIC CARDS -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -848,106 +894,13 @@
             </div>
 
           </div>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <button onclick="downloadDatabaseBackup()" class="px-4 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-blue-500/15">
-              <span>📥</span>
-              <span>Yedeği İndir (.JSON)</span>
-            </button>
-            <button onclick="saveAdminSettings()" id="adminSaveSettingsBtn" class="px-5 py-2.5 rounded-xl bg-pond-500 hover:bg-pond-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-pond-500/25">
-              <span>💾 Ayarları Kaydet</span>
-            </button>
-            <button onclick="logoutAdmin()" class="px-3.5 py-2.5 rounded-xl bg-black/40 border border-pond-border hover:border-rose-500/50 text-gray-400 hover:text-rose-400 text-xs font-bold transition">
-              🚪 Çıkış
-            </button>
-          </div>
         </div>
-
-        <!-- NOTIFICATION BANNER -->
-        <div id="adminStatusAlert" class="hidden p-4 rounded-2xl text-xs font-medium items-center justify-between"></div>
-
-        <!-- SUB-TAB SWITCHER (ANALYTICS VS SETTINGS) -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
-          <div class="flex items-center gap-2 p-1 rounded-2xl bg-black/40 border border-pond-border w-full sm:w-auto">
-            <button id="adminSubtabAnalyticsBtn" onclick="switchAdminSubtab('analytics')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center justify-center gap-2 shadow-lg shadow-pond-500/20">
-              <span>📊</span>
-              <span>Sunucu İstatistikleri & Büyüme Analizi</span>
-            </button>
-            <button id="adminSubtabSettingsBtn" onclick="switchAdminSubtab('settings')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
-              <span>⚙️</span>
-              <span>Bot, XP & İletişim</span>
-            </button>
-          </div>
-
-          <!-- TIME PERIOD SELECTOR (FOR ANALYTICS) -->
-          <div id="analyticsPeriodSelector" class="flex items-center gap-1 p-1 rounded-2xl bg-black/40 border border-pond-border text-xs font-semibold self-start sm:self-auto">
-            <button onclick="changeAnalyticsPeriod('today')" id="periodBtn_today" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
-              📅 Bugün
-            </button>
-            <button onclick="changeAnalyticsPeriod('week')" id="periodBtn_week" class="px-3 py-1.5 rounded-xl bg-pond-500 text-white transition">
-              🗓️ Bu Hafta
-            </button>
-            <button onclick="changeAnalyticsPeriod('month')" id="periodBtn_month" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
-              📆 Bu Ay
-            </button>
-            <button onclick="changeAnalyticsPeriod('all')" id="periodBtn_all" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition">
-              ♾️ Tüm Zamanlar
-            </button>
-          </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 1: SERVER ANALYTICS & RETENTION HUB   -->
-        <!-- ========================================== -->
-        <div id="adminAnalyticsView" class="space-y-8">
-          <!-- Live Analytics Cards Rendered Here -->
-        </div>
+        <!-- /#adminAnalyticsView -->
 
         <!-- ========================================== -->
         <!-- VIEW 2: BOT & XP SETTINGS & COMMUNICATION  -->
         <!-- ========================================== -->
         <div id="adminSettingsView" class="hidden space-y-8">
-
-        <!-- LIVE STATS TILES (ADMIN ONLY) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
-            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Kayıtlı Üye</div>
-            <div id="statTrackedUsers" class="text-2xl md:text-3xl font-display font-bold text-white mt-1">...</div>
-            <div class="text-[11px] text-pond-400 mt-2 flex items-center gap-1">
-              <span>👥</span> Seviye Sisteminde Kayıtlı
-            </div>
-            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">👥</div>
-          </div>
-
-          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
-            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Toplam Sunucu XP</div>
-            <div id="statTotalXp" class="text-2xl md:text-3xl font-display font-bold text-amberOrange mt-1">...</div>
-            <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-              <span>⚡</span> Sesli + Yazılı Sohbet
-            </div>
-            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">⚡</div>
-          </div>
-
-          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
-            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Sesli Sohbet Süresi</div>
-            <div id="statVoiceHours" class="text-2xl md:text-3xl font-display font-bold text-pond-400 mt-1">...</div>
-            <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-              <span>🎙️</span> Saat Boyunca Konuşuldu
-            </div>
-            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">🎙️</div>
-          </div>
-
-          <div class="glass-card rounded-2xl p-4 md:p-5 relative overflow-hidden group">
-            <div class="text-gray-400 text-xs font-medium uppercase tracking-wider">Veritabanı Durumu</div>
-            <div class="text-2xl md:text-3xl font-display font-bold text-emerald-400 mt-1 flex items-center gap-2">
-              <span>Atlas</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">0ms</span>
-            </div>
-            <div class="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-              <span>☁️</span> MongoDB Bulut Senkron
-            </div>
-            <div class="absolute -right-2 -bottom-2 text-5xl opacity-5">☁️</div>
-          </div>
-        </div>
 
         <!-- GRID: SETTINGS & BLACKLIST -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
