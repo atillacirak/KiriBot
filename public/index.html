@@ -228,26 +228,36 @@
             <span class="absolute right-3 top-2.5 text-gray-500 text-xs">🔍</span>
           </div>
 
-          <!-- SORT TABS -->
-          <div class="flex flex-wrap items-center p-1 rounded-xl bg-black/40 border border-pond-border text-xs font-semibold gap-1">
-            <button onclick="changeSort('totalXp')" id="sortTotalXp" class="px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition">
-              🏆 Genel
-            </button>
-            <button onclick="changeSort('voiceXp')" id="sortVoiceXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
-              🎙️ Sesli
-            </button>
-            <button onclick="changeSort('textXp')" id="sortTextXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
-              💬 Yazılı
-            </button>
-            <button onclick="changeSort('dailyXp')" id="sortDailyXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
-              📅 Günlük
-            </button>
-            <button onclick="changeSort('weeklyXp')" id="sortWeeklyXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
-              🗓️ Haftalık
-            </button>
-            <button onclick="changeSort('monthlyXp')" id="sortMonthlyXp" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition">
-              📆 Aylık
-            </button>
+          <!-- DUAL FILTER CONTROLS -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- TYPE FILTER (GENEL / SESLİ / YAZILI) -->
+            <div class="flex items-center p-1 rounded-xl bg-black/40 border border-pond-border text-xs font-semibold gap-1">
+              <button onclick="setTypeFilter('all')" id="typeFilter_all" class="px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition flex items-center gap-1 shadow-sm">
+                <span>🏆</span> Genel
+              </button>
+              <button onclick="setTypeFilter('voice')" id="typeFilter_voice" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>🎙️</span> Sesli
+              </button>
+              <button onclick="setTypeFilter('text')" id="typeFilter_text" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>💬</span> Yazılı
+              </button>
+            </div>
+
+            <!-- PERIOD FILTER (TÜMÜ / GÜNLÜK / HAFTALIK / AYLIK) -->
+            <div class="flex items-center p-1 rounded-xl bg-black/40 border border-pond-border text-xs font-semibold gap-1">
+              <button onclick="setPeriodFilter('all')" id="periodFilter_all" class="px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition flex items-center gap-1 shadow-sm">
+                <span>♾️</span> Tümü
+              </button>
+              <button onclick="setPeriodFilter('daily')" id="periodFilter_daily" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>📅</span> Günlük
+              </button>
+              <button onclick="setPeriodFilter('weekly')" id="periodFilter_weekly" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>🗓️</span> Haftalık
+              </button>
+              <button onclick="setPeriodFilter('monthly')" id="periodFilter_monthly" class="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1">
+                <span>📆</span> Aylık
+              </button>
+            </div>
           </div>
 
           <button onclick="loadLeaderboard()" title="Yenile" class="p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-white transition">
@@ -1266,7 +1276,8 @@
         .replace(/'/g, '&#039;');
     }
 
-    let currentSort = 'totalXp';
+    let currentTypeFilter = 'all'; // all | voice | text
+    let currentPeriodFilter = 'all'; // all | daily | weekly | monthly
     let allUsers = [];
     let currentAdminPassword = sessionStorage.getItem('kiri_admin_pwd') || '';
     let guildChannels = [];
@@ -1335,7 +1346,7 @@
       const searchVal = searchInputEl ? searchInputEl.value.trim() : '';
       
       try {
-        const res = await fetch(`/api/leaderboard?sortBy=${currentSort}&search=${encodeURIComponent(searchVal)}`);
+        const res = await fetch(`/api/leaderboard?type=${currentTypeFilter}&period=${currentPeriodFilter}&search=${encodeURIComponent(searchVal)}`);
         const data = await res.json();
         
         if (!data.success || !data.users || data.users.length === 0) {
@@ -1363,20 +1374,46 @@
     }
 
     function getDisplayXp(user) {
-      const val = user[currentSort] !== undefined ? user[currentSort] : user.totalXp;
+      const val = user.filteredXp !== undefined ? user.filteredXp : user.totalXp;
       return (val || 0).toLocaleString();
     }
 
     function getSortLabel() {
-      const map = {
-        totalXp: 'Toplam XP',
-        voiceXp: 'Sesli XP',
-        textXp: 'Yazılı XP',
-        dailyXp: 'Günlük XP',
-        weeklyXp: 'Haftalık XP',
-        monthlyXp: 'Aylık XP'
-      };
-      return map[currentSort] || 'XP';
+      const typeMap = { all: '', voice: 'Sesli', text: 'Yazılı' };
+      const periodMap = { all: 'Toplam', daily: 'Günlük', weekly: 'Haftalık', monthly: 'Aylık' };
+
+      if (currentTypeFilter === 'all' && currentPeriodFilter === 'all') return 'Toplam XP';
+      if (currentTypeFilter === 'all') return `${periodMap[currentPeriodFilter]} XP`;
+      if (currentPeriodFilter === 'all') return `Toplam ${typeMap[currentTypeFilter]} XP`;
+      return `${periodMap[currentPeriodFilter]} ${typeMap[currentTypeFilter]} XP`;
+    }
+
+    function setTypeFilter(type) {
+      currentTypeFilter = type;
+      ['all', 'voice', 'text'].forEach(t => {
+        const btn = document.getElementById(`typeFilter_${t}`);
+        if (!btn) return;
+        if (t === type) {
+          btn.className = "px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition flex items-center gap-1 shadow-sm";
+        } else {
+          btn.className = "px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1";
+        }
+      });
+      loadLeaderboard();
+    }
+
+    function setPeriodFilter(period) {
+      currentPeriodFilter = period;
+      ['all', 'daily', 'weekly', 'monthly'].forEach(p => {
+        const btn = document.getElementById(`periodFilter_${p}`);
+        if (!btn) return;
+        if (p === period) {
+          btn.className = "px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition flex items-center gap-1 shadow-sm";
+        } else {
+          btn.className = "px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition flex items-center gap-1";
+        }
+      });
+      loadLeaderboard();
     }
 
     function renderRolePill(role) {
@@ -1532,10 +1569,10 @@
             <!-- RIGHT: LEVEL & TOTAL XP -->
             <div class="text-right shrink-0 min-w-[100px]">
               <div class="text-sm md:text-base font-display font-bold text-amberOrange">
-                ${(user[currentSort] !== undefined ? user[currentSort] : user.totalXp).toLocaleString()} <span class="text-xs text-gray-400 font-normal">XP</span>
+                ${(user.filteredXp !== undefined ? user.filteredXp : user.totalXp).toLocaleString()} <span class="text-xs text-gray-400 font-normal">XP</span>
               </div>
               <div class="text-xs font-semibold text-pond-400">
-                ${currentSort === 'dailyXp' ? '📅 Günlük' : currentSort === 'weeklyXp' ? '🗓️ Haftalık' : currentSort === 'monthlyXp' ? '📆 Aylık' : `Seviye ${user.level}`}
+                ${getSortLabel()}
               </div>
             </div>
           </div>
@@ -1545,18 +1582,14 @@
       listEl.innerHTML = rows;
     }
 
+    // Legacy changeSort fallback for any internal calls
     function changeSort(type) {
-      currentSort = type;
-      ['totalXp', 'voiceXp', 'textXp', 'dailyXp', 'weeklyXp', 'monthlyXp'].forEach(t => {
-        const btn = document.getElementById(`sort${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        if (!btn) return;
-        if (t === type) {
-          btn.className = "px-2.5 py-1.5 rounded-lg bg-pond-500 text-white transition";
-        } else {
-          btn.className = "px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-white transition";
-        }
-      });
-      loadLeaderboard();
+      if (type === 'voiceXp') { setTypeFilter('voice'); setPeriodFilter('all'); }
+      else if (type === 'textXp') { setTypeFilter('text'); setPeriodFilter('all'); }
+      else if (type === 'dailyXp') { setTypeFilter('all'); setPeriodFilter('daily'); }
+      else if (type === 'weeklyXp') { setTypeFilter('all'); setPeriodFilter('weekly'); }
+      else if (type === 'monthlyXp') { setTypeFilter('all'); setPeriodFilter('monthly'); }
+      else { setTypeFilter('all'); setPeriodFilter('all'); }
     }
 
     // --- ADMIN AUTH & LOGIC ---

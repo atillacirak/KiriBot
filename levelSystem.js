@@ -109,8 +109,14 @@ export async function initLevelSystemMongo(db) {
         voiceXp: doc.voiceXp || 0,
         totalXp: doc.totalXp || 0,
         dailyXp: doc.dailyXp || 0,
+        dailyVoiceXp: doc.dailyVoiceXp || 0,
+        dailyTextXp: doc.dailyTextXp || 0,
         weeklyXp: doc.weeklyXp || 0,
+        weeklyVoiceXp: doc.weeklyVoiceXp || 0,
+        weeklyTextXp: doc.weeklyTextXp || 0,
         monthlyXp: doc.monthlyXp || 0,
+        monthlyVoiceXp: doc.monthlyVoiceXp || 0,
+        monthlyTextXp: doc.monthlyTextXp || 0,
         level: doc.level || 0,
         lastMessageAt: doc.lastMessageAt || 0,
         lastDay: doc.lastDay || '',
@@ -179,6 +185,8 @@ export function checkAndResetTimeBuckets(data) {
   const currentDay = now.toISOString().slice(0, 10);
   if (data.lastDay !== currentDay) {
     data.dailyXp = 0;
+    data.dailyVoiceXp = 0;
+    data.dailyTextXp = 0;
     data.lastDay = currentDay;
   }
 
@@ -191,6 +199,8 @@ export function checkAndResetTimeBuckets(data) {
   const currentWeek = `${d.getUTCFullYear()}-W${weekNo}`;
   if (data.lastWeek !== currentWeek) {
     data.weeklyXp = 0;
+    data.weeklyVoiceXp = 0;
+    data.weeklyTextXp = 0;
     data.lastWeek = currentWeek;
   }
 
@@ -198,6 +208,8 @@ export function checkAndResetTimeBuckets(data) {
   const currentMonth = now.toISOString().slice(0, 7);
   if (data.lastMonth !== currentMonth) {
     data.monthlyXp = 0;
+    data.monthlyVoiceXp = 0;
+    data.monthlyTextXp = 0;
     data.lastMonth = currentMonth;
   }
 }
@@ -213,8 +225,14 @@ export function getUserData(guildId, userId) {
       voiceXp: 0,
       totalXp: 0,
       dailyXp: 0,
+      dailyVoiceXp: 0,
+      dailyTextXp: 0,
       weeklyXp: 0,
+      weeklyVoiceXp: 0,
+      weeklyTextXp: 0,
       monthlyXp: 0,
+      monthlyVoiceXp: 0,
+      monthlyTextXp: 0,
       level: 0,
       lastMessageAt: 0,
       lastDay: '',
@@ -324,8 +342,11 @@ export async function handleTextMessage(message) {
   data.textXp = (data.textXp || 0) + earnedXp;
   data.totalXp = (data.totalXp || 0) + earnedXp;
   data.dailyXp = (data.dailyXp || 0) + earnedXp;
+  data.dailyTextXp = (data.dailyTextXp || 0) + earnedXp;
   data.weeklyXp = (data.weeklyXp || 0) + earnedXp;
+  data.weeklyTextXp = (data.weeklyTextXp || 0) + earnedXp;
   data.monthlyXp = (data.monthlyXp || 0) + earnedXp;
+  data.monthlyTextXp = (data.monthlyTextXp || 0) + earnedXp;
 
   const oldLevel = data.level;
   const newLevel = getLevelForXp(data.totalXp);
@@ -384,8 +405,11 @@ export function startVoiceXpTicker(client) {
             data.voiceXp = (data.voiceXp || 0) + voiceXpAmount;
             data.totalXp = (data.totalXp || 0) + voiceXpAmount;
             data.dailyXp = (data.dailyXp || 0) + voiceXpAmount;
+            data.dailyVoiceXp = (data.dailyVoiceXp || 0) + voiceXpAmount;
             data.weeklyXp = (data.weeklyXp || 0) + voiceXpAmount;
+            data.weeklyVoiceXp = (data.weeklyVoiceXp || 0) + voiceXpAmount;
             data.monthlyXp = (data.monthlyXp || 0) + voiceXpAmount;
+            data.monthlyVoiceXp = (data.monthlyVoiceXp || 0) + voiceXpAmount;
 
             const oldLevel = data.level;
             const newLevel = getLevelForXp(data.totalXp);

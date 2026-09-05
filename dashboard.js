@@ -228,14 +228,50 @@ export function startDashboard(client, port = 3000) {
     }
   });
 
-  // API: Leaderboard with Member Resolution
+  // Helper to calculate user's XP for any (type, period) combination
+  function computeUserFilteredXp(u, type = 'all', period = 'all') {
+    if (type === 'voice') {
+      if (period === 'daily') return u.dailyVoiceXp || (u.textXp === 0 ? (u.dailyXp || 0) : Math.max(0, (u.dailyXp || 0) - (u.dailyTextXp || 0)));
+      if (period === 'weekly') return u.weeklyVoiceXp || (u.textXp === 0 ? (u.weeklyXp || 0) : Math.max(0, (u.weeklyXp || 0) - (u.weeklyTextXp || 0)));
+      if (period === 'monthly') return u.monthlyVoiceXp || (u.textXp === 0 ? (u.monthlyXp || 0) : Math.max(0, (u.monthlyXp || 0) - (u.monthlyTextXp || 0)));
+      return u.voiceXp || 0;
+    }
+    if (type === 'text') {
+      if (period === 'daily') return u.dailyTextXp || (u.voiceXp === 0 ? (u.dailyXp || 0) : Math.max(0, (u.dailyXp || 0) - (u.dailyVoiceXp || 0)));
+      if (period === 'weekly') return u.weeklyTextXp || (u.voiceXp === 0 ? (u.weeklyXp || 0) : Math.max(0, (u.weeklyXp || 0) - (u.weeklyVoiceXp || 0)));
+      if (period === 'monthly') return u.monthlyTextXp || (u.voiceXp === 0 ? (u.monthlyXp || 0) : Math.max(0, (u.monthlyXp || 0) - (u.monthlyVoiceXp || 0)));
+      return u.textXp || 0;
+    }
+    // type === 'all'
+    if (period === 'daily') return u.dailyXp || 0;
+    if (period === 'weekly') return u.weeklyXp || 0;
+    if (period === 'monthly') return u.monthlyXp || 0;
+    return u.totalXp || 0;
+  }
+
+  // API: Leaderboard with Member Resolution & Dual Category Filtering
   app.get('/api/leaderboard', async (req, res) => {
     try {
       const defaultGuildId = '1315029372519846039'; // Yeşil Gölet
       const guildId = req.query.guildId || defaultGuildId;
-      const sortBy = req.query.sortBy || 'totalXp'; // totalXp | voiceXp | textXp | dailyXp | weeklyXp | monthlyXp
+      let type = (req.query.type || '').trim().toLowerCase(); // all | voice | text
+      let period = (req.query.period || '').trim().toLowerCase(); // all | daily | weekly | monthly
+      const sortBy = req.query.sortBy; // Legacy support
       const search = (req.query.search || '').trim().toLowerCase();
       const limit = Math.min(parseInt(req.query.limit || '100', 10), 200);
+
+      // Handle legacy sortBy fallback
+      if (!type && !period && sortBy) {
+        if (sortBy === 'voiceXp') { type = 'voice'; period = 'all'; }
+        else if (sortBy === 'textXp') { type = 'text'; period = 'all'; }
+        else if (sortBy === 'dailyXp') { type = 'all'; period = 'daily'; }
+        else if (sortBy === 'weeklyXp') { type = 'all'; period = 'weekly'; }
+        else if (sortBy === 'monthlyXp') { type = 'all'; period = 'monthly'; }
+        else { type = 'all'; period = 'all'; }
+      } else {
+        if (!type || !['all', 'voice', 'text'].includes(type)) type = 'all';
+        if (!period || !['all', 'daily', 'weekly', 'monthly'].includes(period)) period = 'all';
+      }
 
       const guild = client.guilds.cache.get(guildId) || client.guilds.cache.first();
       const settings = getGuildSettings(guild ? guild.id : defaultGuildId);
@@ -247,8 +283,13 @@ export function startDashboard(client, port = 3000) {
           return u;
         });
 
-      // Sort
-      users.sort((a, b) => (b[sortBy] || 0) - (a[sortBy] || 0));
+      // Sort by active dual filter XP
+      users.sort((a, b) => {
+        const xpA = computeUserFilteredXp(a, type, period);
+        const xpB = computeUserFilteredXp(b, type, period);
+        if (xpB !== xpA) return xpB - xpA;
+        return (b.totalXp || 0) - (a.totalXp || 0);
+      });
 
       // Build rich user models
       const richUsers = await Promise.all(
@@ -279,6 +320,7 @@ export function startDashboard(client, port = 3000) {
           const progressPercent = Math.min(100, Math.floor((progressInLevel / neededInLevel) * 100));
 
           const displayRole = getUserDisplayRole(memberObj, userObj, currentLevel, settings.roleRewards);
+          const filteredXp = computeUserFilteredXp(u, type, period);
 
           return {
             rank: index + 1,
@@ -291,8 +333,15 @@ export function startDashboard(client, port = 3000) {
             voiceXp: u.voiceXp || 0,
             textXp: u.textXp || 0,
             dailyXp: u.dailyXp || 0,
+            dailyVoiceXp: u.dailyVoiceXp || 0,
+            dailyTextXp: u.dailyTextXp || 0,
             weeklyXp: u.weeklyXp || 0,
+            weeklyVoiceXp: u.weeklyVoiceXp || 0,
+            weeklyTextXp: u.weeklyTextXp || 0,
             monthlyXp: u.monthlyXp || 0,
+            monthlyVoiceXp: u.monthlyVoiceXp || 0,
+            monthlyTextXp: u.monthlyTextXp || 0,
+            filteredXp,
             voiceHours: (((u.voiceXp || 0) / 25) / 60).toFixed(1),
             progressInLevel,
             neededInLevel,
@@ -314,6 +363,8 @@ export function startDashboard(client, port = 3000) {
 
       res.json({
         success: true,
+        type,
+        period,
         total: filtered.length,
         users: filtered.slice(0, limit)
       });
