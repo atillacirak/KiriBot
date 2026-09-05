@@ -13,6 +13,12 @@ import {
   getUserData 
 } from './levelSystem.js';
 import { computeServerAnalytics } from './analyticsManager.js';
+import { 
+  getConversationsList, 
+  getUserThread, 
+  markThreadAsRead, 
+  recordDirectMessage 
+} from './messagesManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -710,6 +716,55 @@ export function startDashboard(client, port = 3000) {
     }
   });
 
+  // Admin: Get Conversations List & Total Unread Count
+  app.get('/api/admin/conversations', async (req, res) => {
+    try {
+      const { password } = req.query;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+
+      const data = getConversationsList();
+      res.json({ success: true, ...data });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Admin: Get Thread Messages for a User & Mark Read
+  app.get('/api/admin/conversations/:userId', async (req, res) => {
+    try {
+      const { password } = req.query;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+
+      const { userId } = req.params;
+      const messages = getUserThread(userId);
+      await markThreadAsRead(userId);
+
+      res.json({ success: true, messages });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
+  // Admin: Mark Thread as Read
+  app.post('/api/admin/conversations/:userId/read', async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ success: false, error: 'Geçersiz Admin Parolası!' });
+      }
+
+      const { userId } = req.params;
+      await markThreadAsRead(userId);
+      res.json({ success: true });
+    } catch (e) {
+      res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
   // Admin: Send Bot DM to User
   app.post('/api/admin/send-dm', async (req, res) => {
     try {
@@ -742,8 +797,27 @@ export function startDashboard(client, port = 3000) {
         await user.send(message);
       }
 
+      // Record to direct messages storage
+      const msgRecord = await recordDirectMessage({
+        userId: user.id,
+        userTag: user.tag || user.username,
+        userDisplayName: user.globalName || user.username,
+        userAvatar: user.displayAvatarURL ? user.displayAvatarURL({ dynamic: true, size: 128 }) : '',
+        direction: 'outgoing',
+        content: message,
+        asEmbed: !!asEmbed,
+        embedTitle: title || '🌿 Yeşil Gölet Bildirimi',
+        sentBy: 'admin',
+        timestamp: new Date().toISOString(),
+        read: true
+      });
+
       console.log(`✉️ [Admin DM] ${user.tag} (${userId}) kullanıcısına DM gönderildi.`);
-      res.json({ success: true, message: `Mesaj @${user.tag} kullanıcısına başarıyla iletildi!` });
+      res.json({ 
+        success: true, 
+        message: `Mesaj @${user.tag} kullanıcısına başarıyla iletildi!`,
+        msgRecord 
+      });
     } catch (e) {
       res.status(500).json({ success: false, error: `DM gönderilemedi: ${e.message} (Kullanıcının DM'leri kapalı olabilir)` });
     }

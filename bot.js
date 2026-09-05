@@ -1,6 +1,7 @@
 import { 
   Client, 
   GatewayIntentBits, 
+  Partials,
   EmbedBuilder, 
   SlashCommandBuilder, 
   REST, 
@@ -36,6 +37,10 @@ import {
   recordMemberLeave, 
   recordChannelMessage 
 } from './analyticsManager.js';
+import { 
+  initMessagesMongo, 
+  recordDirectMessage 
+} from './messagesManager.js';
 import { startDashboard } from './dashboard.js';
 
 dotenv.config();
@@ -74,6 +79,9 @@ async function initMongo() {
 
     // Initialize analytics collection
     await initAnalyticsMongo(mongoDb);
+
+    // Initialize messages collection
+    await initMessagesMongo(mongoDb);
 
     // Hydrate profile cache
     const docs = await profilesCollection.find({}).toArray();
@@ -206,7 +214,13 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildVoiceStates
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.DirectMessages
+  ],
+  partials: [
+    Partials.Channel,
+    Partials.Message,
+    Partials.User
   ]
 });
 
@@ -262,12 +276,34 @@ client.once('ready', async () => {
   }
 });
 
-// Track text messages for XP and channel analytics
+// Track text messages for XP, channel analytics, and Direct Messages (Inbox)
 client.on('messageCreate', (message) => {
+  // 1. Direct Message Handling (Inbox: User -> Bot DM)
+  if (!message.guild && !message.author?.bot) {
+    const author = message.author;
+    const attachments = message.attachments ? Array.from(message.attachments.values()).map(a => ({ url: a.url, name: a.name })) : [];
+    recordDirectMessage({
+      id: message.id,
+      userId: author.id,
+      userTag: author.tag || author.username,
+      userDisplayName: author.globalName || author.username,
+      userAvatar: author.displayAvatarURL ? author.displayAvatarURL({ dynamic: true, size: 128 }) : '',
+      direction: 'incoming',
+      content: message.content || '',
+      sentBy: 'user',
+      timestamp: new Date().toISOString(),
+      read: false,
+      attachments
+    }).catch(e => console.warn('Record incoming DM error:', e.message));
+    console.log(`📬 [Gelen DM] @${author.tag || author.username} (${author.id}): "${message.content?.slice(0, 50)}"`);
+    return;
+  }
+
+  // 2. Guild Channel Message Handling (XP & Analytics)
   if (message.guild && message.channel && !message.author?.bot) {
     recordChannelMessage(message.channel.id, message.channel.name, message.guild.id);
+    handleTextMessage(message).catch(err => console.warn('Text XP error:', err.message));
   }
-  handleTextMessage(message).catch(err => console.warn('Text XP error:', err.message));
 });
 
 // Member Join & Leave Tracking

@@ -621,16 +621,21 @@
         <!-- NOTIFICATION BANNER -->
         <div id="adminStatusAlert" class="hidden p-4 rounded-2xl text-xs font-medium items-center justify-between"></div>
 
-        <!-- SUB-TAB SWITCHER (ANALYTICS VS SETTINGS) -->
+        <!-- SUB-TAB SWITCHER (ANALYTICS VS SETTINGS VS MESSAGES) -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
-          <div class="flex items-center gap-2 p-1 rounded-2xl bg-black/40 border border-pond-border w-full sm:w-auto">
-            <button id="adminSubtabAnalyticsBtn" onclick="switchAdminSubtab('analytics')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center justify-center gap-2 shadow-lg shadow-pond-500/20">
+          <div class="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-black/40 border border-pond-border w-full sm:w-auto">
+            <button id="adminSubtabAnalyticsBtn" onclick="switchAdminSubtab('analytics')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center justify-center gap-1.5 shadow-lg shadow-pond-500/20">
               <span>📊</span>
-              <span>Sunucu İstatistikleri & Büyüme Analizi</span>
+              <span>İstatistikler</span>
             </button>
-            <button id="adminSubtabSettingsBtn" onclick="switchAdminSubtab('settings')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
+            <button id="adminSubtabSettingsBtn" onclick="switchAdminSubtab('settings')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-1.5">
               <span>⚙️</span>
-              <span>Bot, XP & İletişim</span>
+              <span>Bot & XP Ayarları</span>
+            </button>
+            <button id="adminSubtabMessagesBtn" onclick="switchAdminSubtab('messages')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-1.5 relative">
+              <span>💬</span>
+              <span>Mesajlar & DM Kutusu</span>
+              <span id="adminTabMessagesBadge" class="hidden px-2 py-0.2 rounded-full text-[10px] font-bold bg-rose-500 text-white animate-pulse">0</span>
             </button>
           </div>
 
@@ -1237,13 +1242,13 @@
                     <span>🌿</span> Yeşil Gölet Tasarımlı Embed Olarak Gönder
                   </span>
                   <div class="relative inline-flex items-center shrink-0">
-                    <input type="checkbox" id="botMsgAsEmbed" checked class="sr-only peer">
+                    <input type="checkbox" id="botMsgAsEmbed" checked onchange="updateCard4LivePreview()" class="sr-only peer">
                     <div class="w-10 h-5 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_10px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[2.5px] after:left-[2.5px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-[15px] after:w-[15px] after:transition-all peer-checked:after:translate-x-5"></div>
                   </div>
                 </label>
                 <div>
                   <label class="block text-[11px] font-medium text-gray-400 mb-1">Başlık (Embed İse)</label>
-                  <input type="text" id="botMsgEmbedTitle" placeholder="Örn: 🌿 Yeşil Gölet Yönetim Bildirisi" class="w-full bg-black/40 border border-pond-border rounded-xl px-3 py-1.5 text-xs text-white focus:border-pond-500 focus:outline-none">
+                  <input type="text" id="botMsgEmbedTitle" oninput="updateCard4LivePreview()" placeholder="Örn: 🌿 Yeşil Gölet Yönetim Bildirisi" class="w-full bg-black/40 border border-pond-border rounded-xl px-3 py-1.5 text-xs text-white focus:border-pond-500 focus:outline-none">
                 </div>
               </div>
             </div>
@@ -1252,7 +1257,45 @@
             <div class="lg:col-span-7 flex flex-col justify-between space-y-3">
               <div>
                 <label class="block text-xs font-bold text-gray-300 mb-1.5">Mesaj İçeriği</label>
-                <textarea id="botMsgContentInput" rows="4" placeholder="Kullanıcıya veya kanala iletilecek mesajınızı buraya yazın..." class="w-full bg-black/40 border border-pond-border rounded-2xl p-3.5 text-xs text-white placeholder-gray-500 focus:border-pond-500 focus:outline-none resize-none"></textarea>
+                <textarea id="botMsgContentInput" rows="3" oninput="updateCard4LivePreview()" placeholder="Kullanıcıya veya kanala iletilecek mesajınızı buraya yazın..." class="w-full bg-black/40 border border-pond-border rounded-2xl p-3.5 text-xs text-white placeholder-gray-500 focus:border-pond-500 focus:outline-none resize-none"></textarea>
+              </div>
+
+              <!-- LIVE DISCORD PREVIEW FOR CARD 4 -->
+              <div class="p-3 rounded-2xl bg-[#313338] border border-[#2b2d31] shadow-inner text-left space-y-1.5">
+                <div class="text-[10px] font-bold text-[#949ba4] uppercase tracking-wider flex items-center justify-between">
+                  <span>👁️ Canlı Discord Görünümü</span>
+                  <span class="text-[#5865F2] font-semibold text-[9px]">1:1 Önizleme</span>
+                </div>
+                
+                <div class="flex items-start gap-2.5">
+                  <div class="w-9 h-9 rounded-full bg-pond-500 flex items-center justify-center text-lg shrink-0 overflow-hidden shadow-sm">
+                    🐸
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-bold text-white text-xs">Kiri Bot</span>
+                      <span class="bg-[#5865F2] text-white text-[9px] font-bold px-1 py-0.2 rounded">BOT</span>
+                      <span class="text-[10px] text-[#949ba4] ml-1">Bugün <span id="card4PreviewTime">00:30</span></span>
+                    </div>
+
+                    <!-- Plain Text Mode Preview -->
+                    <div id="card4PlainPreview" class="hidden text-xs text-[#dbdee1] mt-1 whitespace-pre-wrap break-words leading-relaxed">
+                      Henüz bir mesaj içeriği yazılmadı...
+                    </div>
+
+                    <!-- Embed Mode Preview -->
+                    <div id="card4EmbedPreview" class="mt-1.5 p-3 rounded-lg bg-[#2b2d31] border-l-4 border-pond-500 max-w-full space-y-1.5">
+                      <div id="card4EmbedPreviewTitle" class="font-bold text-white text-xs">🌿 Yeşil Gölet Bildirisi</div>
+                      <div id="card4EmbedPreviewContent" class="text-[11px] text-[#dbdee1] whitespace-pre-wrap break-words leading-relaxed">
+                        Mesaj kutusuna yazdığınız metin burada anlık olarak görünecektir.
+                      </div>
+                      <div class="flex items-center gap-1 text-[9px] text-[#949ba4] pt-1 border-t border-white/5">
+                        <span>🐸</span>
+                        <span>Yeşil Gölet • Yönetim Bildirisi</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="flex items-center justify-between pt-1">
@@ -1329,6 +1372,174 @@
 
         </div>
         <!-- /#adminSettingsView -->
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: DIRECT MESSAGES HUB & INBOX        -->
+        <!-- ========================================== -->
+        <div id="adminMessagesView" class="hidden space-y-6">
+
+          <!-- 2-COL MESSAGES LAYOUT -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT COL: CONVERSATIONS LIST (4 COLS) -->
+            <div class="lg:col-span-4 glass-card rounded-3xl p-5 space-y-4 flex flex-col h-[720px]">
+              <div class="flex items-center justify-between border-b border-pond-border/60 pb-3">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">💬</span>
+                  <div>
+                    <h3 class="font-display font-bold text-white text-base">Gelen & Giden DM Kutusu</h3>
+                    <p class="text-[11px] text-gray-400">KiriBot ile üye sohbet geçmişi</p>
+                  </div>
+                </div>
+                <button onclick="loadAdminConversations()" title="Sohbetleri Yenile" class="group p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-pond-300 transition shadow-sm active:scale-95 flex items-center justify-center">
+                  <svg class="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- SEARCH & FILTER TABS -->
+              <div class="space-y-2">
+                <div class="relative">
+                  <span class="absolute left-3.5 top-2.5 text-xs text-gray-500">🔍</span>
+                  <input type="text" id="dmSearchQuery" oninput="filterDmConversations()" placeholder="Kullanıcı veya mesaj ara..." class="w-full bg-black/40 border border-pond-border rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pond-500">
+                </div>
+
+                <div class="flex items-center gap-1 p-1 rounded-xl bg-black/40 border border-pond-border text-[11px] font-semibold">
+                  <button onclick="setDmFilter('all')" id="dmFilterBtn_all" class="flex-1 py-1.5 rounded-lg bg-pond-500 text-white transition text-center">Tümü</button>
+                  <button onclick="setDmFilter('incoming')" id="dmFilterBtn_incoming" class="flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center">Gelenler 📥</button>
+                  <button onclick="setDmFilter('outgoing')" id="dmFilterBtn_outgoing" class="flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center">Gidenler 📤</button>
+                </div>
+              </div>
+
+              <!-- CONVERSATION ITEMS LIST -->
+              <div id="dmConversationsList" class="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+                <div class="text-xs text-gray-500 text-center py-10">Sohbetler yükleniyor... ⏳</div>
+              </div>
+            </div>
+
+            <!-- RIGHT COL: ACTIVE CONVERSATION & DISCORD LIVE PREVIEW COMPOSER (8 COLS) -->
+            <div class="lg:col-span-8 glass-card rounded-3xl p-6 flex flex-col justify-between h-[720px] relative">
+              
+              <!-- EMPTY STATE (NO USER SELECTED) -->
+              <div id="dmEmptyChatState" class="flex flex-col items-center justify-center h-full text-center space-y-3 py-16">
+                <div class="w-16 h-16 rounded-3xl bg-pond-500/10 border border-pond-500/20 flex items-center justify-center text-3xl shadow-lg">
+                  🐸
+                </div>
+                <h4 class="font-display font-bold text-white text-base">Mesajlaşma ve Destek Merkezi</h4>
+                <p class="text-xs text-gray-400 max-w-md">
+                  Discord üzerinden KiriBot'a gelen şikayet, öneri veya mesajları görmek ya da bir üyeye doğrudan bot adına yanıt iletmek için soldaki listeden bir sohbet seçin.
+                </p>
+                <button onclick="switchAdminSubtab('settings')" class="mt-2 px-4 py-2 rounded-xl bg-pond-500/20 text-pond-300 border border-pond-500/30 text-xs font-bold hover:bg-pond-500/30 transition">
+                  ➕ Yeni Bir Kullanıcıya Mesaj Başlat
+                </button>
+              </div>
+
+              <!-- ACTIVE CHAT VIEW -->
+              <div id="dmActiveChatContainer" class="hidden flex flex-col h-full justify-between space-y-3">
+                
+                <!-- CHAT HEADER -->
+                <div class="flex items-center justify-between border-b border-pond-border/60 pb-3">
+                  <div class="flex items-center gap-3">
+                    <img id="dmActiveUserAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="w-10 h-10 rounded-full border border-pond-border object-cover">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span id="dmActiveUserDisplayName" class="font-bold text-white text-sm">Kullanıcı</span>
+                        <span id="dmActiveUserTag" class="text-xs text-gray-400 font-mono">@user</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-[10px] text-gray-500">
+                        <span>ID: <code id="dmActiveUserId" class="text-pond-400 font-mono">000000</code></span>
+                        <span>•</span>
+                        <span id="dmActiveUserMsgCount">0 Mesaj</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button onclick="refreshActiveThread()" title="Sohbeti Yenile" class="p-2 rounded-xl bg-black/40 border border-pond-border hover:border-pond-500 text-gray-400 hover:text-white transition text-xs">
+                      🔄 Yenile
+                    </button>
+                  </div>
+                </div>
+
+                <!-- CHAT MESSAGES SCROLL VIEW -->
+                <div id="dmChatMessagesBox" class="flex-1 overflow-y-auto p-4 rounded-2xl bg-black/40 border border-pond-border/40 space-y-3.5 scrollbar-thin">
+                  <!-- Injected by JS -->
+                </div>
+
+                <!-- COMPOSER & 1:1 DISCORD LIVE PREVIEW -->
+                <div class="space-y-2.5 pt-2 border-t border-pond-border/60">
+                  
+                  <!-- LIVE DISCORD PREVIEW ACCORDION -->
+                  <div class="p-3 rounded-2xl bg-[#313338] border border-[#2b2d31] shadow-inner text-left space-y-1.5">
+                    <div class="text-[10px] font-bold text-[#949ba4] uppercase tracking-wider flex items-center justify-between">
+                      <span>👁️ Discord Canlı Önizleme (Kullanıcının Göreceği Mesaj)</span>
+                      <span class="text-[#5865F2] font-semibold text-[9px]">1:1 Canlı Render</span>
+                    </div>
+
+                    <div class="flex items-start gap-2.5">
+                      <div class="w-8 h-8 rounded-full bg-pond-500 flex items-center justify-center text-base shrink-0 overflow-hidden shadow-sm">
+                        🐸
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5">
+                          <span class="font-bold text-white text-xs">Kiri Bot</span>
+                          <span class="bg-[#5865F2] text-white text-[9px] font-bold px-1 py-0.2 rounded">BOT</span>
+                          <span class="text-[10px] text-[#949ba4] ml-1">Bugün <span id="dmReplyPreviewTime">00:30</span></span>
+                        </div>
+
+                        <!-- Plain Mode -->
+                        <div id="dmReplyPlainPreview" class="hidden text-xs text-[#dbdee1] mt-1 whitespace-pre-wrap break-words leading-relaxed">
+                          Yanıt mesajınızı aşağıdaki kutucuğa yazın...
+                        </div>
+
+                        <!-- Embed Mode -->
+                        <div id="dmReplyEmbedPreview" class="mt-1.5 p-2.5 rounded-lg bg-[#2b2d31] border-l-4 border-pond-500 max-w-full space-y-1">
+                          <div id="dmReplyEmbedPreviewTitle" class="font-bold text-white text-xs">🌿 Yeşil Gölet Bildirisi</div>
+                          <div id="dmReplyEmbedPreviewContent" class="text-[11px] text-[#dbdee1] whitespace-pre-wrap break-words leading-relaxed">
+                            Yazacağınız yanıt kullanıcının özel mesajına (DM) bu şık gölet kartı ile iletilecektir.
+                          </div>
+                          <div class="flex items-center gap-1 text-[9px] text-[#949ba4] pt-1 border-t border-white/5">
+                            <span>🐸</span>
+                            <span>Yeşil Gölet • Yönetim Yanıtı</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- CONTROLS & INPUT -->
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between gap-3">
+                      <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="dmChatAsEmbed" checked onchange="updateDmChatLivePreview()" class="sr-only peer">
+                        <div class="w-8 h-4 bg-black/60 rounded-full peer border border-pond-border/80 peer-checked:bg-pond-500 peer-checked:border-pond-400 peer-checked:shadow-[0_0_8px_rgba(94,164,84,0.4)] transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 peer-checked:after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+                        <span class="text-xs font-bold text-white">Embed Kartı Olarak İlet</span>
+                      </label>
+
+                      <input type="text" id="dmChatEmbedTitle" oninput="updateDmChatLivePreview()" placeholder="Kart Başlığı (Örn: 🌿 Yeşil Gölet Destek Yanıtı)" class="flex-1 max-w-xs bg-black/40 border border-pond-border rounded-xl px-3 py-1 text-xs text-white focus:border-pond-500 focus:outline-none">
+                    </div>
+
+                    <div class="flex gap-2">
+                      <textarea id="dmChatReplyInput" rows="2" oninput="updateDmChatLivePreview()" placeholder="Kullanıcıya yanıtınızı yazın..." class="flex-1 bg-black/40 border border-pond-border rounded-2xl p-3 text-xs text-white placeholder-gray-500 focus:border-pond-500 focus:outline-none resize-none"></textarea>
+                      
+                      <button onclick="sendDmReplyFromChat()" id="dmChatSendBtn" class="px-5 rounded-2xl bg-pond-500 hover:bg-pond-600 text-white font-bold text-xs transition shadow-lg shadow-pond-500/25 flex flex-col items-center justify-center gap-1 shrink-0">
+                        <span class="text-base">📤</span>
+                        <span>Yanıtla</span>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+        <!-- /#adminMessagesView -->
 
       </div>
 
@@ -1763,6 +1974,19 @@
         populateAdminUI();
         switchAdminSubtab('analytics');
         loadAnalyticsData(currentAnalyticsPeriod);
+        loadAdminConversations();
+
+        // Start background polling for new DMs and analytics
+        if (!window.adminDmPollTimer) {
+          window.adminDmPollTimer = setInterval(() => {
+            if (currentAdminPassword) {
+              loadAdminConversations();
+              if (currentAdminSubtab === 'messages' && currentSelectedDmUserId) {
+                loadActiveThreadMessages(currentSelectedDmUserId);
+              }
+            }
+          }, 10000);
+        }
       } catch (err) {
         if (errEl) {
           errEl.innerText = 'Sunucuya bağlanılamadı: ' + err.message;
@@ -1774,6 +1998,10 @@
     function logoutAdmin() {
       currentAdminPassword = '';
       sessionStorage.removeItem('kiri_admin_pwd');
+      if (window.adminDmPollTimer) {
+        clearInterval(window.adminDmPollTimer);
+        window.adminDmPollTimer = null;
+      }
       document.getElementById('adminPasswordInput').value = '';
       window.location.hash = '';
       document.getElementById('navAdminBtn').classList.add('hidden');
@@ -1785,31 +2013,424 @@
     let disabledChannelsState = new Set();
     let roleRulesState = [];
 
+    // DM & Messaging States
+    let adminConversationsData = [];
+    let currentSelectedDmUserId = null;
+    let currentDmFilter = 'all';
+
     function switchAdminSubtab(tab) {
       currentAdminSubtab = tab;
       const analyticsView = document.getElementById('adminAnalyticsView');
       const settingsView = document.getElementById('adminSettingsView');
+      const messagesView = document.getElementById('adminMessagesView');
+
       const btnAnalytics = document.getElementById('adminSubtabAnalyticsBtn');
       const btnSettings = document.getElementById('adminSubtabSettingsBtn');
+      const btnMessages = document.getElementById('adminSubtabMessagesBtn');
+
       const periodSelector = document.getElementById('analyticsPeriodSelector');
       const saveBtn = document.getElementById('adminSaveSettingsBtn');
 
+      // Hide all views
+      if (analyticsView) analyticsView.classList.add('hidden');
+      if (settingsView) settingsView.classList.add('hidden');
+      if (messagesView) messagesView.classList.add('hidden');
+
+      // Reset button styles
+      const inactiveBtnClass = "px-3.5 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-1.5";
+      if (btnAnalytics) btnAnalytics.className = inactiveBtnClass;
+      if (btnSettings) btnSettings.className = inactiveBtnClass;
+      if (btnMessages) btnMessages.className = inactiveBtnClass + " relative";
+
+      if (periodSelector) periodSelector.classList.add('hidden');
+      if (saveBtn) saveBtn.classList.add('hidden');
+
       if (tab === 'analytics') {
-        analyticsView.classList.remove('hidden');
-        settingsView.classList.add('hidden');
-        btnAnalytics.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center justify-center gap-2 shadow-lg shadow-pond-500/20";
-        btnSettings.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2";
+        if (analyticsView) analyticsView.classList.remove('hidden');
+        if (btnAnalytics) btnAnalytics.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-pond-500 text-white transition flex items-center justify-center gap-1.5 shadow-lg shadow-pond-500/20";
         if (periodSelector) periodSelector.classList.remove('hidden');
-        if (saveBtn) saveBtn.classList.add('hidden');
         loadAnalyticsData(currentAnalyticsPeriod);
-      } else {
-        analyticsView.classList.add('hidden');
-        settingsView.classList.remove('hidden');
-        btnSettings.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-amberOrange text-white transition flex items-center justify-center gap-2 shadow-lg shadow-amberOrange/20";
-        btnAnalytics.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white transition flex items-center justify-center gap-2";
-        if (periodSelector) periodSelector.classList.add('hidden');
+      } else if (tab === 'settings') {
+        if (settingsView) settingsView.classList.remove('hidden');
+        if (btnSettings) btnSettings.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-amberOrange text-white transition flex items-center justify-center gap-1.5 shadow-lg shadow-amberOrange/20";
         if (saveBtn) saveBtn.classList.remove('hidden');
+        updateCard4LivePreview();
+      } else if (tab === 'messages') {
+        if (messagesView) messagesView.classList.remove('hidden');
+        if (btnMessages) btnMessages.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white transition flex items-center justify-center gap-1.5 shadow-lg shadow-blue-500/20 relative";
+        loadAdminConversations();
+        updateDmChatLivePreview();
       }
+    }
+
+    // --- LIVE DISCORD PREVIEWS ---
+    function updateCard4LivePreview() {
+      const content = document.getElementById('botMsgContentInput')?.value || '';
+      const isEmbed = document.getElementById('botMsgAsEmbed')?.checked;
+      const title = document.getElementById('botMsgEmbedTitle')?.value || '🌿 Yeşil Gölet Bildirisi';
+
+      const plainBox = document.getElementById('card4PlainPreview');
+      const embedBox = document.getElementById('card4EmbedPreview');
+      const titleEl = document.getElementById('card4EmbedPreviewTitle');
+      const contentEl = document.getElementById('card4EmbedPreviewContent');
+      const timeEl = document.getElementById('card4PreviewTime');
+
+      if (timeEl) {
+        const now = new Date();
+        timeEl.innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      }
+
+      if (isEmbed) {
+        if (plainBox) plainBox.classList.add('hidden');
+        if (embedBox) embedBox.classList.remove('hidden');
+        if (titleEl) titleEl.innerText = title.trim() || '🌿 Yeşil Gölet Bildirisi';
+        if (contentEl) contentEl.innerText = content.trim() || 'Mesaj kutusuna yazdığınız metin burada anlık olarak görünecektir.';
+      } else {
+        if (embedBox) embedBox.classList.add('hidden');
+        if (plainBox) {
+          plainBox.classList.remove('hidden');
+          plainBox.innerText = content.trim() || 'Henüz bir mesaj içeriği yazılmadı...';
+        }
+      }
+    }
+
+    function updateDmChatLivePreview() {
+      const content = document.getElementById('dmChatReplyInput')?.value || '';
+      const isEmbed = document.getElementById('dmChatAsEmbed')?.checked;
+      const title = document.getElementById('dmChatEmbedTitle')?.value || '🌿 Yeşil Gölet Bildirisi';
+
+      const plainBox = document.getElementById('dmReplyPlainPreview');
+      const embedBox = document.getElementById('dmReplyEmbedPreview');
+      const titleEl = document.getElementById('dmReplyEmbedPreviewTitle');
+      const contentEl = document.getElementById('dmReplyEmbedPreviewContent');
+      const timeEl = document.getElementById('dmReplyPreviewTime');
+
+      if (timeEl) {
+        const now = new Date();
+        timeEl.innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      }
+
+      if (isEmbed) {
+        if (plainBox) plainBox.classList.add('hidden');
+        if (embedBox) embedBox.classList.remove('hidden');
+        if (titleEl) titleEl.innerText = title.trim() || '🌿 Yeşil Gölet Bildirisi';
+        if (contentEl) contentEl.innerText = content.trim() || 'Yazacağınız yanıt kullanıcının özel mesajına (DM) bu şık gölet kartı ile iletilecektir.';
+      } else {
+        if (embedBox) embedBox.classList.add('hidden');
+        if (plainBox) {
+          plainBox.classList.remove('hidden');
+          plainBox.innerText = content.trim() || 'Yanıt mesajınızı aşağıdaki kutucuğa yazın...';
+        }
+      }
+    }
+
+    // --- DIRECT MESSAGES (DM HUB) LOGIC ---
+    async function loadAdminConversations() {
+      if (!currentAdminPassword) return;
+      try {
+        const res = await fetch(`/api/admin/conversations?password=${encodeURIComponent(currentAdminPassword)}`);
+        const data = await res.json();
+        if (data.success) {
+          adminConversationsData = data.conversations || [];
+          
+          // Update Badge
+          const badgeEl = document.getElementById('adminTabMessagesBadge');
+          if (badgeEl) {
+            if (data.totalUnread > 0) {
+              badgeEl.innerText = `${data.totalUnread} Yeni`;
+              badgeEl.classList.remove('hidden');
+            } else {
+              badgeEl.classList.add('hidden');
+            }
+          }
+
+          renderDmConversationsList();
+        }
+      } catch (err) {
+        console.warn('loadAdminConversations error:', err.message);
+      }
+    }
+
+    function setDmFilter(filter) {
+      currentDmFilter = filter;
+      ['all', 'incoming', 'outgoing'].forEach(f => {
+        const btn = document.getElementById(`dmFilterBtn_${f}`);
+        if (btn) {
+          if (f === filter) {
+            btn.className = "flex-1 py-1.5 rounded-lg bg-pond-500 text-white transition text-center";
+          } else {
+            btn.className = "flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center";
+          }
+        }
+      });
+      renderDmConversationsList();
+    }
+
+    function filterDmConversations() {
+      renderDmConversationsList();
+    }
+
+    function renderDmConversationsList() {
+      const container = document.getElementById('dmConversationsList');
+      if (!container) return;
+
+      const q = (document.getElementById('dmSearchQuery')?.value || '').toLowerCase().trim();
+
+      let filtered = adminConversationsData.filter(c => {
+        if (currentDmFilter === 'incoming' && c.lastDirection !== 'incoming') return false;
+        if (currentDmFilter === 'outgoing' && c.lastDirection !== 'outgoing') return false;
+        if (q) {
+          const matchName = (c.userDisplayName || '').toLowerCase().includes(q);
+          const matchTag = (c.userTag || '').toLowerCase().includes(q);
+          const matchId = (c.userId || '').includes(q);
+          const matchMsg = (c.lastMessage || '').toLowerCase().includes(q);
+          if (!matchName && !matchTag && !matchId && !matchMsg) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-xs text-gray-500 text-center py-12">
+            ${q ? 'Aramanıza uygun sohbet bulunamadı.' : 'Henüz gelen veya giden bir DM mesajı bulunmuyor.'}
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(c => {
+        const isSelected = currentSelectedDmUserId === c.userId;
+        const hasUnread = c.unreadCount > 0;
+        const timeStr = formatRelativeTime(c.lastMessageTime);
+        const avatarUrl = c.userAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+        return `
+          <div onclick="selectConversation('${c.userId}')" class="p-3 rounded-2xl border transition cursor-pointer flex items-start gap-3 relative ${
+            isSelected 
+              ? 'bg-pond-500/20 border-pond-500/60 shadow-md' 
+              : hasUnread 
+                ? 'bg-emerald-500/10 hover:bg-emerald-500/15 border-emerald-500/40' 
+                : 'bg-black/25 hover:bg-black/45 border-pond-border/40'
+          }">
+            <div class="relative shrink-0">
+              <img src="${escapeHtml(avatarUrl)}" class="w-10 h-10 rounded-full border border-pond-border object-cover" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+              ${hasUnread ? '<span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-rose-500 rounded-full border-2 border-black"></span>' : ''}
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <span class="font-bold text-xs text-white truncate">${escapeHtml(c.userDisplayName || c.userTag)}</span>
+                <span class="text-[10px] text-gray-400 shrink-0 font-mono">${timeStr}</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[11px] text-gray-400 truncate mt-0.5">
+                <span>${c.lastDirection === 'outgoing' ? '📤 Sen:' : '📥'}</span>
+                <span class="truncate">${escapeHtml(c.lastMessage || '...')}</span>
+              </div>
+              ${hasUnread ? `
+                <div class="mt-1 flex items-center gap-1">
+                  <span class="px-2 py-0.2 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    ${c.unreadCount} Okunmamış Mesaj
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function selectConversation(userId) {
+      currentSelectedDmUserId = userId;
+      renderDmConversationsList();
+
+      const emptyState = document.getElementById('dmEmptyChatState');
+      const chatContainer = document.getElementById('dmActiveChatContainer');
+      if (emptyState) emptyState.classList.add('hidden');
+      if (chatContainer) chatContainer.classList.remove('hidden');
+
+      const userConv = adminConversationsData.find(c => c.userId === userId) || {};
+      
+      const avatarEl = document.getElementById('dmActiveUserAvatar');
+      const nameEl = document.getElementById('dmActiveUserDisplayName');
+      const tagEl = document.getElementById('dmActiveUserTag');
+      const idEl = document.getElementById('dmActiveUserId');
+
+      if (avatarEl) avatarEl.src = userConv.userAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+      if (nameEl) nameEl.innerText = userConv.userDisplayName || userConv.userTag || 'Kullanıcı';
+      if (tagEl) tagEl.innerText = userConv.userTag ? `@${userConv.userTag}` : '';
+      if (idEl) idEl.innerText = userId;
+
+      await loadActiveThreadMessages(userId);
+    }
+
+    async function loadActiveThreadMessages(userId) {
+      const msgBox = document.getElementById('dmChatMessagesBox');
+      if (!msgBox) return;
+
+      try {
+        const res = await fetch(`/api/admin/conversations/${userId}?password=${encodeURIComponent(currentAdminPassword)}`);
+        const data = await res.json();
+        if (data.success) {
+          const messages = data.messages || [];
+          const countEl = document.getElementById('dmActiveUserMsgCount');
+          if (countEl) countEl.innerText = `${messages.length} Mesaj`;
+
+          if (messages.length === 0) {
+            msgBox.innerHTML = `
+              <div class="text-xs text-gray-500 text-center py-16">
+                Bu kullanıcı ile henüz bir mesaj kaydı yok. Aşağıdan ilk mesajı gönderebilirsiniz!
+              </div>
+            `;
+          } else {
+            msgBox.innerHTML = messages.map(m => {
+              const isOutgoing = m.direction === 'outgoing';
+              const timeStr = formatFullTime(m.timestamp);
+              const avatarUrl = isOutgoing 
+                ? 'https://cdn.discordapp.com/embed/avatars/0.png' 
+                : (m.userAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png');
+
+              if (isOutgoing) {
+                // Outgoing (KiriBot -> User)
+                return `
+                  <div class="flex flex-col items-end space-y-1">
+                    <div class="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
+                      <span class="text-pond-400 font-bold">KiriBot</span>
+                      <span class="bg-[#5865F2] text-white text-[8px] font-bold px-1 rounded">BOT</span>
+                      <span>•</span>
+                      <span>${timeStr}</span>
+                    </div>
+
+                    ${m.asEmbed ? `
+                      <div class="p-3.5 rounded-2xl bg-[#2b2d31] border-l-4 border-pond-500 max-w-md space-y-1.5 shadow-lg text-left">
+                        <div class="font-bold text-white text-xs">${escapeHtml(m.embedTitle || '🌿 Yeşil Gölet Bildirisi')}</div>
+                        <div class="text-xs text-[#dbdee1] whitespace-pre-wrap break-words leading-relaxed">${escapeHtml(m.content)}</div>
+                        <div class="flex items-center gap-1 text-[9px] text-[#949ba4] pt-1.5 border-t border-white/5">
+                          <span>🐸</span>
+                          <span>Yeşil Gölet • Yönetim Bildirisi</span>
+                        </div>
+                      </div>
+                    ` : `
+                      <div class="p-3 rounded-2xl bg-pond-600/90 text-white text-xs max-w-md whitespace-pre-wrap break-words leading-relaxed shadow-md">
+                        ${escapeHtml(m.content)}
+                      </div>
+                    `}
+                  </div>
+                `;
+              } else {
+                // Incoming (User -> KiriBot)
+                return `
+                  <div class="flex items-start gap-2.5 max-w-md">
+                    <img src="${escapeHtml(avatarUrl)}" class="w-7 h-7 rounded-full border border-pond-border object-cover mt-0.5 shrink-0" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
+                        <span class="font-bold text-white">${escapeHtml(m.userDisplayName || m.userTag)}</span>
+                        <span>•</span>
+                        <span>${timeStr}</span>
+                      </div>
+                      <div class="p-3 rounded-2xl bg-[#2b2d31] border border-[#313338] text-gray-100 text-xs whitespace-pre-wrap break-words leading-relaxed shadow-sm">
+                        ${escapeHtml(m.content || '(İçerik boş)')}
+                        ${m.attachments && m.attachments.length > 0 ? `
+                          <div class="mt-2 pt-2 border-t border-white/10 space-y-1">
+                            ${m.attachments.map(att => `
+                              <a href="${escapeHtml(att.url)}" target="_blank" class="text-[10px] text-pond-400 hover:underline flex items-center gap-1">
+                                <span>📎</span> ${escapeHtml(att.name || 'Ek dosya')}
+                              </a>
+                            `).join('')}
+                          </div>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }
+            }).join('');
+          }
+
+          // Scroll to bottom
+          setTimeout(() => {
+            msgBox.scrollTop = msgBox.scrollHeight;
+          }, 50);
+
+          // Update badge in case it was marked read
+          loadAdminConversations();
+        }
+      } catch (err) {
+        console.warn('loadActiveThreadMessages error:', err);
+      }
+    }
+
+    async function sendDmReplyFromChat() {
+      if (!currentSelectedDmUserId) return;
+      const inputEl = document.getElementById('dmChatReplyInput');
+      const titleEl = document.getElementById('dmChatEmbedTitle');
+      const isEmbed = document.getElementById('dmChatAsEmbed')?.checked;
+      const sendBtn = document.getElementById('dmChatSendBtn');
+
+      const message = inputEl.value.trim();
+      if (!message) {
+        alert('Lütfen iletilecek bir mesaj içeriği yazın!');
+        inputEl.focus();
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span>⏳</span><span class="text-[10px]">İletiliyor</span>';
+
+      try {
+        const res = await fetch('/api/admin/send-dm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            password: currentAdminPassword,
+            userId: currentSelectedDmUserId,
+            message,
+            asEmbed: !!isEmbed,
+            title: titleEl?.value?.trim() || '🌿 Yeşil Gölet Destek Yanıtı'
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          inputEl.value = '';
+          updateDmChatLivePreview();
+          await loadActiveThreadMessages(currentSelectedDmUserId);
+        } else {
+          alert('DM gönderilemedi: ' + (data.error || 'Bilinmeyen hata'));
+        }
+      } catch (err) {
+        alert('İstek hatası: ' + err.message);
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<span class="text-base">📤</span><span>Yanıtla</span>';
+      }
+    }
+
+    function refreshActiveThread() {
+      if (currentSelectedDmUserId) {
+        loadActiveThreadMessages(currentSelectedDmUserId);
+      }
+    }
+
+    function formatRelativeTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return 'Az önce';
+      if (diffMins < 60) return `${diffMins} dk`;
+      if (diffHours < 24) return `${diffHours} sa`;
+      if (diffDays < 7) return `${diffDays} gün`;
+      return `${date.getDate()}.${date.getMonth() + 1}`;
+    }
+
+    function formatFullTime(isoString) {
+      if (!isoString) return '';
+      const d = new Date(isoString);
+      return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }
 
     function changeAnalyticsPeriod(period) {
