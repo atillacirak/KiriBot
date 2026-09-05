@@ -276,6 +276,14 @@ client.once('ready', async () => {
   const DASHBOARD_PORT = process.env.PORT || 3000;
   startDashboard(client, DASHBOARD_PORT);
 
+  // Pre-fetch all guild members into cache for instant leaderboard profiles
+  try {
+    for (const guild of client.guilds.cache.values()) {
+      await guild.members.fetch().catch(() => null);
+    }
+    console.log('✅ Tüm sunucu üyeleri hafızaya yüklendi!');
+  } catch (e) {}
+
   try {
     const rest = new REST({ version: '10' }).setToken(TOKEN);
     console.log('⚡ Discord Slash komutları kaydediliyor...');
