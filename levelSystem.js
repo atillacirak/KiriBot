@@ -227,17 +227,30 @@ export function getUserData(guildId, userId) {
   return data;
 }
 
+// Special level messages
+const ROLE_CUSTOM_MESSAGES = {
+  25: 'Tebrikler, büyüyüp kurbağa oldun! 🐸',
+  50: 'Tebrikler, artık müdavim bir kurbağasın!! 🌿',
+  80: 'Sen kurbağa değil direkt göl olmuşsun, biraz çimene dokunmak iyi gelebilir!!! 👑🏞️'
+};
+
 // Send DM Congratulation Notification
 export async function sendLevelUpDm(guild, member, newLevel, roleRewardRole = null) {
   if (!member || !member.user || member.user.bot) return;
 
   try {
+    let specialNote = '';
+    if (ROLE_CUSTOM_MESSAGES[newLevel]) {
+      specialNote = `\n\n> 💬 **${ROLE_CUSTOM_MESSAGES[newLevel]}**`;
+    }
+
     const embed = new EmbedBuilder()
       .setColor('#5EA454')
       .setTitle('🎉 TEBRİKLER, SEVİYE ATLADIN!')
       .setDescription(
         `Selam **${member.user.username}**! 🌿\n\n` +
-        `**${guild.name}** sunucusundaki aktifliğin sayesinde **Seviye ${newLevel}** oldun! 🐸✨\n\n` +
+        `**${guild.name}** sunucusundaki aktifliğin sayesinde **Seviye ${newLevel}** oldun! 🐸✨` +
+        specialNote + '\n\n' +
         (roleRewardRole ? `🎖️ **Yeni Rolün:** <@&${roleRewardRole.id}> (${roleRewardRole.name})\n` : '') +
         `🏆 Sıralamadaki yerini ve istatistiklerini görmek için sunucuda \`/rank\` komutunu kullanabilir veya web sitemize göz atabilirsin.`
       )
@@ -329,10 +342,11 @@ export async function handleTextMessage(message) {
 
     const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
     if (Object.keys(roleRewards).map(Number).includes(newLevel)) {
+      const customMsg = ROLE_CUSTOM_MESSAGES[newLevel] || `Tebrikler <@${author.id}>! **Seviye ${newLevel}** seviyesine ulaştın ve yeni kurbağa rolünü kazandın! 🐸✨`;
       const celebrateEmbed = new EmbedBuilder()
         .setColor('#5EA454')
-        .setTitle('🎉 SEVİYE ATLADIN!')
-        .setDescription(`Tebrikler <@${author.id}>! **Seviye ${newLevel}** seviyesine ulaştın ve yeni kurbağa rolünü kazandın! 🐸✨`)
+        .setTitle('🎉 YENİ KURBAĞA ROLÜ KAZANILDI!')
+        .setDescription(`<@${author.id}>\n\n> **${customMsg}**`)
         .setFooter({ text: 'Yeşil Gölet Seviye Sistemi', iconURL: guild.iconURL() });
       channel.send({ embeds: [celebrateEmbed] }).catch(() => {});
     }
