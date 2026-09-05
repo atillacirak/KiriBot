@@ -227,11 +227,46 @@ export function getUserData(guildId, userId) {
   return data;
 }
 
+// Send DM Congratulation Notification
+export async function sendLevelUpDm(guild, member, newLevel, roleRewardRole = null) {
+  if (!member || !member.user || member.user.bot) return;
+
+  try {
+    const embed = new EmbedBuilder()
+      .setColor('#5EA454')
+      .setTitle('🎉 TEBRİKLER, SEVİYE ATLADIN!')
+      .setDescription(
+        `Selam **${member.user.username}**! 🌿\n\n` +
+        `**${guild.name}** sunucusundaki aktifliğin sayesinde **Seviye ${newLevel}** oldun! 🐸✨\n\n` +
+        (roleRewardRole ? `🎖️ **Yeni Rolün:** <@&${roleRewardRole.id}> (${roleRewardRole.name})\n` : '') +
+        `🏆 Sıralamadaki yerini ve istatistiklerini görmek için sunucuda \`/rank\` komutunu kullanabilir veya web sitemize göz atabilirsin.`
+      )
+      .setThumbnail(guild.iconURL({ dynamic: true, size: 256 }) || member.user.displayAvatarURL())
+      .setFooter({ text: `${guild.name} • Seviye Sistemi`, iconURL: guild.iconURL() })
+      .setTimestamp();
+
+    const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('🌐 Sıralama Tablosu')
+        .setStyle(ButtonStyle.Link)
+        .setURL(`${dashboardUrl}/#u/${member.id}`)
+    );
+
+    await member.send({ embeds: [embed], components: [row] });
+    console.log(`✉️ [Level Up DM] ${member.user.tag} kullanıcısına Level ${newLevel} tebrik DM'i gönderildi.`);
+  } catch (err) {
+    // DM'leri kapalı olan kullanıcılar için sessizce hata yakalama
+    console.log(`ℹ️ [Level Up DM Kapalı] ${member.user?.tag || member.id} DM mesajlarına kapalı.`);
+  }
+}
+
 // Check & Award Role Rewards
 export async function checkRoleRewards(guild, member, newLevel) {
-  if (!guild || !member) return;
+  if (!guild || !member) return null;
   const settings = getGuildSettings(guild.id);
   const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
+  let newlyAwardedRole = null;
 
   for (const [lvlReqStr, roleId] of Object.entries(roleRewards)) {
     const lvlReq = parseInt(lvlReqStr, 10);
@@ -239,6 +274,7 @@ export async function checkRoleRewards(guild, member, newLevel) {
       if (!member.roles.cache.has(roleId)) {
         try {
           await member.roles.add(roleId);
+          newlyAwardedRole = guild.roles.cache.get(roleId);
           console.log(`🎉 [Seviye Ödülü] ${member.user.tag} Seviye ${newLevel}'e ulaştı ve rolü aldı: ${roleId}`);
         } catch (err) {
           console.warn(`Rol verme hatası (${roleId}):`, err.message);
@@ -246,6 +282,7 @@ export async function checkRoleRewards(guild, member, newLevel) {
       }
     }
   }
+  return newlyAwardedRole;
 }
 
 // --- TEXT XP HANDLER ---
@@ -283,7 +320,12 @@ export async function handleTextMessage(message) {
   if (newLevel > oldLevel) {
     data.level = newLevel;
     const member = message.member || await guild.members.fetch(author.id).catch(() => null);
-    await checkRoleRewards(guild, member, newLevel);
+    const awardedRole = await checkRoleRewards(guild, member, newLevel);
+
+    // Send DM notification
+    if (member) {
+      await sendLevelUpDm(guild, member, newLevel, awardedRole);
+    }
 
     const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
     if (Object.keys(roleRewards).map(Number).includes(newLevel)) {
@@ -336,7 +378,8 @@ export function startVoiceXpTicker(client) {
 
             if (newLevel > oldLevel) {
               data.level = newLevel;
-              await checkRoleRewards(guild, member, newLevel);
+              const awardedRole = await checkRoleRewards(guild, member, newLevel);
+              await sendLevelUpDm(guild, member, newLevel, awardedRole);
             }
           }
         }
