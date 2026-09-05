@@ -55,9 +55,9 @@ export function startDashboard(client, port = 3000) {
     if (username.toLowerCase().includes('stache') || tag.toLowerCase().includes('stache') || userId === 'stache1') {
       return {
         name: 'Stache',
-        color: '#FFD700',
-        bg: 'rgba(255, 215, 0, 0.25)',
-        border: 'rgba(255, 215, 0, 0.6)',
+        color: '#A855F7',
+        bg: 'rgba(168, 85, 247, 0.25)',
+        border: 'rgba(168, 85, 247, 0.6)',
         badge: '👑',
         isStache: true
       };
