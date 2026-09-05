@@ -60,7 +60,7 @@ export function startDashboard(client, port = 3000) {
     const hasRole = (id, namePattern) => roles.some(r => r.id === id || (namePattern && namePattern.test(r.name)));
     const getRoleObj = (id, namePattern) => roles.find(r => r.id === id || (namePattern && namePattern.test(r.name)));
 
-    // 2. ADMIN (Role: 1315029510672089129 or Administrator permission)
+    // 2. ADMIN (Role: 1315029510672089129 or Administrator permission) -> Kırmızı Çekiç 🔨
     if (member?.permissions?.has?.('Administrator') || hasRole('1315029510672089129', /^admin/i)) {
       const r = getRoleObj('1315029510672089129', /^admin/i);
       const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#F3004A';
@@ -69,11 +69,11 @@ export function startDashboard(client, port = 3000) {
         color: color,
         bg: `${color}25`,
         border: `${color}45`,
-        badge: '🛡️'
+        badge: '🔨'
       };
     }
 
-    // 3. Moderatör (Role: 1315047438267973652)
+    // 3. Moderatör (Role: 1315047438267973652) -> Kalkan 🛡️
     if (hasRole('1315047438267973652', /mod/i)) {
       const r = getRoleObj('1315047438267973652', /mod/i);
       const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#58F5FF';
@@ -82,24 +82,24 @@ export function startDashboard(client, port = 3000) {
         color: color,
         bg: `${color}25`,
         border: `${color}45`,
-        badge: '⚔️'
+        badge: '🛡️'
       };
     }
 
-    // 4. Yetkili (Role: 1439002771557974139)
+    // 4. Yetkili (Role: 1439002771557974139) -> Yeşil Balta 🪓 / Yeşil Renk
     if (hasRole('1439002771557974139', /yetkili/i)) {
       const r = getRoleObj('1439002771557974139', /yetkili/i);
       const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#00FF93';
       return {
         name: 'Yetkili',
-        color: color,
-        bg: `${color}25`,
-        border: `${color}45`,
-        badge: '⚡'
+        color: '#00FF93',
+        bg: 'rgba(0, 255, 147, 0.25)',
+        border: 'rgba(0, 255, 147, 0.6)',
+        badge: '🪓'
       };
     }
 
-    // 5. Animatör (Role: 1459305221896409203)
+    // 5. Animatör (Role: 1459305221896409203) -> Resim Paleti 🎨
     if (hasRole('1459305221896409203', /animatör/i)) {
       const r = getRoleObj('1459305221896409203', /animatör/i);
       const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#FF0D0D';
@@ -108,11 +108,11 @@ export function startDashboard(client, port = 3000) {
         color: color,
         bg: `${color}25`,
         border: `${color}45`,
-        badge: '🎬'
+        badge: '🎨'
       };
     }
 
-    // 6. İçerik Üreticisi (Role: 1439005238517432532)
+    // 6. İçerik Üreticisi (Role: 1439005238517432532) -> Recording Kırmızı Daire 🔴
     if (hasRole('1439005238517432532', /içerik/i)) {
       const r = getRoleObj('1439005238517432532', /içerik/i);
       const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#FF3366';
@@ -121,7 +121,7 @@ export function startDashboard(client, port = 3000) {
         color: color,
         bg: `${color}25`,
         border: `${color}45`,
-        badge: '🎨'
+        badge: '🔴'
       };
     }
 
