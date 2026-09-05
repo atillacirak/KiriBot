@@ -206,22 +206,46 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
     return m.joinedTimestamp >= startTime.getTime();
   });
 
-  let retainedActiveCount = 0;  // > 50 XP (düzenli mesaj / ses)
-  let casualDroppersCount = 0;  // 1 - 50 XP (1-2 mesaj atıp kalan/bırakan)
-  let ghostInactiveCount = 0;   // 0 XP (hiç mesaj yazmayan / sese girmeyen)
+  const retainedActiveUsers = [];
+  const casualDropperUsers = [];
+  const ghostInactiveUsers = [];
 
   cohortMembers.forEach(m => {
-    const u = levelCache.get(`${guild.id}_${m.id}`) || { totalXp: 0, textXp: 0, voiceXp: 0 };
+    const u = levelCache.get(`${guild.id}_${m.id}`) || { totalXp: 0, textXp: 0, voiceXp: 0, level: 0 };
     const xp = u.totalXp || 0;
+    const userSummary = {
+      id: m.id,
+      username: m.user.username,
+      displayName: m.displayName,
+      tag: m.user.tag,
+      avatar: m.user.displayAvatarURL({ size: 64 }),
+      totalXp: xp,
+      level: u.level || 0,
+      joinedAt: m.joinedTimestamp ? new Date(m.joinedTimestamp).toISOString() : null
+    };
 
     if (xp >= 50) {
       retainedActiveCount++;
+      retainedActiveUsers.push(userSummary);
     } else if (xp > 0) {
       casualDroppersCount++;
+      casualDropperUsers.push(userSummary);
     } else {
       ghostInactiveCount++;
+      ghostInactiveUsers.push(userSummary);
     }
   });
+
+  const leftUsers = leavesInPeriod.map(e => ({
+    id: e.userId,
+    username: e.username,
+    displayName: e.displayName || e.username,
+    tag: e.tag || e.username,
+    avatar: e.avatar,
+    totalXp: 0,
+    level: 0,
+    leftAt: e.timestamp
+  }));
 
   // Calculate cohort percentages
   const totalCohortSize = cohortMembers.length + leavesCount;
@@ -276,19 +300,23 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
       joinedInPeriodCount: cohortMembers.length,
       retainedActive: {
         count: retainedActiveCount,
-        percent: retainedActivePercent
+        percent: retainedActivePercent,
+        users: retainedActiveUsers
       },
       casualDroppers: {
         count: casualDroppersCount,
-        percent: casualDroppersPercent
+        percent: casualDroppersPercent,
+        users: casualDropperUsers
       },
       ghostInactive: {
         count: ghostInactiveCount,
-        percent: ghostInactivePercent
+        percent: ghostInactivePercent,
+        users: ghostInactiveUsers
       },
       left: {
         count: leavesCount,
-        percent: leftPercent
+        percent: leftPercent,
+        users: leftUsers
       }
     },
     // Recent logs & Channels

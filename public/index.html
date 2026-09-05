@@ -717,59 +717,75 @@
               </div>
             </div>
 
-            <!-- 4 COHORT DETAIL CARDS -->
+            <!-- 4 COHORT DETAIL CARDS (CLICKABLE) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
               
               <!-- COHORT 1: ACTIVE RETAINED -->
-              <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1.5">
+              <div onclick="openCohortModal('retainedActive')" class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1.5 cursor-pointer hover:bg-emerald-500/20 hover:border-emerald-500/60 hover:-translate-y-1 transition transform group shadow-lg shadow-emerald-500/5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                    <span>🟢</span> Aktif Katılımcı Olanlar
+                    <span>🟢</span> Aktif Katılımcılar
                   </span>
-                  <span id="cohortCountActive" class="text-sm font-bold text-white bg-emerald-500/20 px-2 py-0.5 rounded-lg">0 Kişi</span>
+                  <span id="cohortCountActive" class="text-sm font-bold text-white bg-emerald-500/20 px-2 py-0.5 rounded-lg group-hover:scale-105 transition">0 Kişi</span>
                 </div>
                 <p class="text-[11px] text-gray-300 leading-relaxed">
                   Sunucuya katılıp metin veya ses kanallarında düzenli aktivite gösteren ve XP kazanan üyeler.
                 </p>
+                <div class="text-[10px] text-emerald-400/80 font-bold flex items-center gap-1 pt-1">
+                  <span>👥 Üyeleri İncele</span>
+                  <span>→</span>
+                </div>
               </div>
 
               <!-- COHORT 2: CASUAL DROPPERS -->
-              <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
+              <div onclick="openCohortModal('casualDroppers')" class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1.5 cursor-pointer hover:bg-amber-500/20 hover:border-amber-500/60 hover:-translate-y-1 transition transform group shadow-lg shadow-amber-500/5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-amber-300 flex items-center gap-1">
-                    <span>🟡</span> 1-2 Mesaj Atıp Kalanlar
+                    <span>🟡</span> 1-2 Mesaj Atanlar
                   </span>
-                  <span id="cohortCountCasual" class="text-sm font-bold text-white bg-amber-500/20 px-2 py-0.5 rounded-lg">0 Kişi</span>
+                  <span id="cohortCountCasual" class="text-sm font-bold text-white bg-amber-500/20 px-2 py-0.5 rounded-lg group-hover:scale-105 transition">0 Kişi</span>
                 </div>
                 <p class="text-[11px] text-gray-300 leading-relaxed">
                   Katıldıktan sonra sadece 1-2 mesaj yazıp sohbeti bırakan veya inaktifleşen ziyaretçi üyeler.
                 </p>
+                <div class="text-[10px] text-amber-400/80 font-bold flex items-center gap-1 pt-1">
+                  <span>👥 Üyeleri İncele</span>
+                  <span>→</span>
+                </div>
               </div>
 
               <!-- COHORT 3: GHOST INACTIVE -->
-              <div class="p-4 rounded-2xl bg-gray-500/10 border border-gray-500/30 space-y-1.5">
+              <div onclick="openCohortModal('ghostInactive')" class="p-4 rounded-2xl bg-gray-500/10 border border-gray-500/30 space-y-1.5 cursor-pointer hover:bg-gray-500/20 hover:border-gray-500/60 hover:-translate-y-1 transition transform group shadow-lg shadow-gray-500/5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-gray-300 flex items-center gap-1">
-                    <span>👻</span> Hayalet (0 Etkileşim)
+                    <span>👻</span> Hayalet Üyeler
                   </span>
-                  <span id="cohortCountGhost" class="text-sm font-bold text-white bg-gray-500/20 px-2 py-0.5 rounded-lg">0 Kişi</span>
+                  <span id="cohortCountGhost" class="text-sm font-bold text-white bg-gray-500/20 px-2 py-0.5 rounded-lg group-hover:scale-105 transition">0 Kişi</span>
                 </div>
                 <p class="text-[11px] text-gray-300 leading-relaxed">
                   Sunucuya katılıp hiçbir kanala mesaj atmayan ve hiçbir ses odasına girmeyen üyeler.
                 </p>
+                <div class="text-[10px] text-gray-400 font-bold flex items-center gap-1 pt-1">
+                  <span>👥 Üyeleri İncele</span>
+                  <span>→</span>
+                </div>
               </div>
 
               <!-- COHORT 4: LEFT / CHURNED -->
-              <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1.5">
+              <div onclick="openCohortModal('left')" class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1.5 cursor-pointer hover:bg-rose-500/20 hover:border-rose-500/60 hover:-translate-y-1 transition transform group shadow-lg shadow-rose-500/5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-rose-400 flex items-center gap-1">
                     <span>🔴</span> Sunucudan Ayrılanlar
                   </span>
-                  <span id="cohortCountLeft" class="text-sm font-bold text-white bg-rose-500/20 px-2 py-0.5 rounded-lg">0 Kişi</span>
+                  <span id="cohortCountLeft" class="text-sm font-bold text-white bg-rose-500/20 px-2 py-0.5 rounded-lg group-hover:scale-105 transition">0 Kişi</span>
                 </div>
                 <p class="text-[11px] text-gray-300 leading-relaxed">
                   Belirtilen zaman aralığında sunucudan çıkan veya ayrılan toplam kullanıcı sayısı.
                 </p>
+                <div class="text-[10px] text-rose-400/80 font-bold flex items-center gap-1 pt-1">
+                  <span>👥 Üyeleri İncele</span>
+                  <span>→</span>
+                </div>
               </div>
 
             </div>
@@ -1170,6 +1186,48 @@
 
     </div>
   </main>
+
+  <!-- COHORT MEMBERS DETAIL MODAL -->
+  <div id="cohortMembersModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-card rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col border border-pond-border shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- MODAL HEADER -->
+      <div class="flex items-center justify-between p-5 border-b border-pond-border/60 bg-black/40">
+        <div class="flex items-center gap-3">
+          <span id="cohortModalIcon" class="text-2xl">👥</span>
+          <div>
+            <h3 id="cohortModalTitle" class="font-display font-bold text-white text-base">Üye Listesi</h3>
+            <p id="cohortModalSubtitle" class="text-xs text-gray-400">Bu kategorideki üyelerin detayları</p>
+          </div>
+        </div>
+        <button onclick="closeCohortModal()" class="w-8 h-8 rounded-full bg-black/40 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- SEARCH INPUT IN MODAL -->
+      <div class="p-3.5 border-b border-pond-border/40 bg-black/20">
+        <div class="relative">
+          <span class="absolute left-3.5 top-2.5 text-xs text-gray-500">🔍</span>
+          <input type="text" id="cohortModalSearchInput" oninput="filterCohortModalMembers(this.value)" placeholder="Üye adı veya ID ile filtrele..." class="w-full bg-black/40 border border-pond-border rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:border-pond-500 focus:outline-none placeholder-gray-500">
+        </div>
+      </div>
+
+      <!-- MEMBERS LIST SCROLLABLE BODY -->
+      <div id="cohortModalListContainer" class="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin max-h-[50vh]">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- MODAL FOOTER -->
+      <div class="p-4 border-t border-pond-border/60 bg-black/40 flex items-center justify-between text-xs text-gray-400">
+        <span id="cohortModalFooterCount">0 Üye listelendi</span>
+        <button onclick="closeCohortModal()" class="px-4 py-1.5 rounded-xl bg-pond-500/20 hover:bg-pond-500/30 text-pond-400 border border-pond-500/30 font-bold transition">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer class="glass-card border-t border-pond-border py-6 px-4 text-center text-xs text-gray-500 mt-12">
@@ -1596,6 +1654,7 @@
         if (!data.success || !data.analytics) return;
 
         const a = data.analytics;
+        currentAnalyticsData = a;
 
         // Core KPIs
         document.getElementById('analyticsVoiceUsers').innerText = a.activity.voiceActiveUsersCount.toLocaleString();
@@ -2145,16 +2204,144 @@
       window.scrollTo({ top: alertEl.offsetTop - 100, behavior: 'smooth' });
     }
 
-    // --- DATABASE BACKUP DOWNLOAD ---
-    function downloadDatabaseBackup() {
-      if (!currentAdminPassword) return;
-      const url = `/api/admin/backup-download?password=${encodeURIComponent(currentAdminPassword)}`;
-      window.open(url, '_blank');
+    // --- COHORT DETAIL MODAL LOGIC ---
+    let currentAnalyticsData = null;
+    let currentModalCohortKey = '';
+    let currentModalMembers = [];
+
+    const COHORT_META = {
+      retainedActive: {
+        title: 'Aktif Katılımcı Üyeler',
+        subtitle: 'Sunucuda 50+ XP kazanmış, düzenli sohbet eden veya seste bulunan üyeler',
+        icon: '🟢',
+        badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+      },
+      casualDroppers: {
+        title: '1-2 Mesaj Atıp Kalan Üyeler',
+        subtitle: 'Katıldıktan sonra 1-50 XP arası kazanıp inaktifleşen veya sohbeti bırakan üyeler',
+        icon: '🟡',
+        badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+      },
+      ghostInactive: {
+        title: 'Hayalet Üyeler (0 Etkileşim)',
+        subtitle: 'Sunucuya katılıp hiç mesaj atmayan ve hiçbir ses odasına girmeyen üyeler',
+        icon: '👻',
+        badgeClass: 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+      },
+      left: {
+        title: 'Sunucudan Ayrılan Kullanıcılar',
+        subtitle: 'Belirtilen zaman aralığında sunucudan çıkan veya atılan kullanıcılar',
+        icon: '🔴',
+        badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+      }
+    };
+
+    function openCohortModal(cohortKey) {
+      if (!currentAnalyticsData || !currentAnalyticsData.cohort) return;
+      currentModalCohortKey = cohortKey;
+
+      const meta = COHORT_META[cohortKey] || { title: 'Üye Listesi', subtitle: '', icon: '👥' };
+      const cohortObj = currentAnalyticsData.cohort[cohortKey] || { count: 0, users: [] };
+      currentModalMembers = cohortObj.users || [];
+
+      document.getElementById('cohortModalIcon').innerText = meta.icon;
+      document.getElementById('cohortModalTitle').innerText = `${meta.title} (${cohortObj.count} Kişi)`;
+      document.getElementById('cohortModalSubtitle').innerText = meta.subtitle;
+      document.getElementById('cohortModalSearchInput').value = '';
+
+      renderCohortModalList(currentModalMembers);
+
+      const modal = document.getElementById('cohortMembersModal');
+      modal.classList.remove('hidden');
     }
 
-    // --- BOT MESSAGING (DM & CHANNEL) LOGIC ---
-    let botMsgMode = 'dm'; // 'dm' | 'channel'
-    let adminCachedMembers = [];
+    function closeCohortModal() {
+      const modal = document.getElementById('cohortMembersModal');
+      modal.classList.add('hidden');
+    }
+
+    // Close modal on escape or background click
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeCohortModal();
+    });
+    document.getElementById('cohortMembersModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'cohortMembersModal') closeCohortModal();
+    });
+
+    function filterCohortModalMembers(query) {
+      const q = (query || '').toLowerCase().trim();
+      const filtered = currentModalMembers.filter(m => 
+        (m.username && m.username.toLowerCase().includes(q)) ||
+        (m.displayName && m.displayName.toLowerCase().includes(q)) ||
+        (m.tag && m.tag.toLowerCase().includes(q)) ||
+        (m.id && m.id.includes(q))
+      );
+      renderCohortModalList(filtered);
+    }
+
+    function renderCohortModalList(members) {
+      const container = document.getElementById('cohortModalListContainer');
+      const footerCount = document.getElementById('cohortModalFooterCount');
+
+      footerCount.innerText = `${members.length} üye listeleniyor`;
+
+      if (!members || members.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-gray-500 text-xs">
+            <span>🔍</span> Eşleşen üye kaydı bulunamadı.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = members.map(m => {
+        const isLeft = currentModalCohortKey === 'left';
+        const dateStr = m.joinedAt 
+          ? new Date(m.joinedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
+          : (m.leftAt ? new Date(m.leftAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+
+        return `
+          <div class="flex items-center justify-between p-3 rounded-2xl bg-black/40 border border-pond-border/50 hover:border-pond-500/50 transition">
+            <!-- USER INFO -->
+            <div class="flex items-center gap-3 min-w-0">
+              <img src="${m.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="w-9 h-9 rounded-full object-cover shrink-0 border border-pond-border">
+              <div class="truncate">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-white text-xs truncate">${escapeHtml(m.displayName || m.username)}</span>
+                  <span class="text-[10px] text-gray-400 font-mono">@${escapeHtml(m.tag)}</span>
+                </div>
+                <div class="text-[10px] text-gray-400 flex items-center gap-2 mt-0.5">
+                  <span>${isLeft ? `Çıkış: ${dateStr}` : `Katılım: ${dateStr || 'Bilinmiyor'}`}</span>
+                  ${!isLeft ? `<span>•</span><span>💎 ${(m.totalXp || 0).toLocaleString()} XP</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- ACTIONS / STATS -->
+            <div class="flex items-center gap-2 shrink-0">
+              ${!isLeft ? `
+                <button onclick="openUserProfile('${m.id}')" class="px-2.5 py-1 rounded-lg bg-pond-500/20 hover:bg-pond-500/30 text-pond-300 border border-pond-500/30 text-[10px] font-bold transition">
+                  Profili Aç ↗
+                </button>
+                <button onclick="prefillAdminDm('${m.id}', '${escapeHtml(m.displayName || m.username)}', '${escapeHtml(m.avatar)}')" class="px-2.5 py-1 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-[10px] font-bold transition">
+                  ✉️ DM Yaz
+                </button>
+              ` : `
+                <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">Ayrıldı</span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function prefillAdminDm(id, name, avatar) {
+      closeCohortModal();
+      switchAdminSubtab('settings');
+      switchBotMsgMode('dm');
+      selectBotMsgUser(id, name, avatar, 'Seçilen Üye');
+      document.getElementById('botMsgContentInput')?.focus();
+    }
 
     function switchBotMsgMode(mode) {
       botMsgMode = mode;
