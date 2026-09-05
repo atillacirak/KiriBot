@@ -90,9 +90,11 @@ export function startDashboard(client, port = 3000) {
     }
 
     // 3. Moderatör (Role: 1315047438267973652) -> Kalkan 🛡️
-    if (hasRole('1315047438267973652', /mod/i)) {
+    const isMichi = username.toLowerCase().includes('michi') || tag.toLowerCase().includes('michi') || userId === 'michi';
+    if (hasRole('1315047438267973652', /mod/i) || isMichi) {
       const r = getRoleObj('1315047438267973652', /mod/i);
-      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : '#58F5FF';
+      const defaultColor = isMichi ? '#FF69B4' : '#58F5FF';
+      const color = (r && r.hexColor && r.hexColor !== '#000000') ? r.hexColor : defaultColor;
       return {
         name: 'Moderatör',
         color: color,
