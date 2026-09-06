@@ -387,11 +387,11 @@ export async function handleTempVoiceInteraction(interaction) {
 
   // 1. Transfer Ownership
   if (customId === 'jtc_owner_transfer') {
+    await interaction.deferUpdate();
     const newOwnerId = interaction.values[0];
     tempData.ownerId = newOwnerId;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
@@ -427,6 +427,7 @@ export async function handleTempVoiceInteraction(interaction) {
       modal.addComponents(new ActionRowBuilder().addComponents(nameInput));
       return interaction.showModal(modal);
     } else if (selected.startsWith('prof_')) {
+      await interaction.deferUpdate();
       const profName = selected.replace('prof_', '');
       const userProfiles = await getUserProfiles(tempData.ownerId);
       const targetP = userProfiles.find(p => p.name === profName);
@@ -444,7 +445,6 @@ export async function handleTempVoiceInteraction(interaction) {
         await channel.setName(tempData.channelName);
         await channel.setUserLimit(tempData.userLimit);
         await syncChannelPermissions(channel, tempData);
-        await interaction.deferUpdate();
         await refreshControlPanel(channel, tempData, interaction);
         return;
       }
@@ -453,20 +453,20 @@ export async function handleTempVoiceInteraction(interaction) {
 
   // 3. Select Moderators
   if (customId === 'jtc_mods_select') {
+    await interaction.deferUpdate();
     tempData.moderators = interaction.values;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
 
   // 4. Select Allowed Users
   if (customId === 'jtc_allowed_select') {
+    await interaction.deferUpdate();
     tempData.allowedUsers = interaction.values;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
@@ -505,28 +505,28 @@ export async function handleTempVoiceInteraction(interaction) {
   }
 
   if (customId === 'jtc_btn_lock') {
+    await interaction.deferUpdate();
     tempData.isLocked = !tempData.isLocked;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
 
   if (customId === 'jtc_btn_speak') {
+    await interaction.deferUpdate();
     tempData.isSpeakAllowed = tempData.isSpeakAllowed !== undefined ? !tempData.isSpeakAllowed : false;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
 
   if (customId === 'jtc_btn_stream') {
+    await interaction.deferUpdate();
     tempData.isStreamAllowed = !tempData.isStreamAllowed;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
@@ -546,6 +546,7 @@ export async function handleTempVoiceInteraction(interaction) {
   }
 
   if (customId === 'jtc_rejected_select') {
+    await interaction.deferUpdate();
     tempData.rejectedUsers = interaction.values;
 
     // Kick rejected users if currently in channel
@@ -559,7 +560,6 @@ export async function handleTempVoiceInteraction(interaction) {
 
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
-    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
     return;
   }
