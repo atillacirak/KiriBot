@@ -745,23 +745,29 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
 
 // Generate High-Quality Custom Rank Card Image with Canvas
 async function generateRankCard({ username, tag, avatarUrl, level, currentXp, neededXp, rankPos, totalUsers, textXp, voiceXp }) {
-  const width = 760;
+  const width = 934;
   const height = 240;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  // Background Gradient & Card Base
+  const cardRadius = 18;
+
+  // Background Gradient & Card Base (Rounded Outer Frame)
   const bgGradient = ctx.createLinearGradient(0, 0, width, height);
   bgGradient.addColorStop(0, '#0a150c');
   bgGradient.addColorStop(0.5, '#0f2214');
   bgGradient.addColorStop(1, '#081109');
+  
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(2, 2, width - 4, height - 4, cardRadius);
   ctx.fillStyle = bgGradient;
-  ctx.fillRect(0, 0, width, height);
+  ctx.fill();
 
   // Card Outer Glow & Border
   ctx.strokeStyle = 'rgba(94, 164, 84, 0.4)';
   ctx.lineWidth = 3;
-  ctx.strokeRect(1, 1, width - 2, height - 2);
+  ctx.stroke();
 
   // Decorative Pond Water Accent Line
   const accentGrad = ctx.createLinearGradient(0, 0, width, 0);
@@ -769,24 +775,25 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   accentGrad.addColorStop(0.5, '#F5A623');
   accentGrad.addColorStop(1, '#5EA454');
   ctx.fillStyle = accentGrad;
-  ctx.fillRect(0, 0, width, 5);
+  ctx.fillRect(0, 2, width, 4);
+  ctx.restore();
 
   // Draw Avatar
   try {
     const avatar = await loadImage(avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png');
     ctx.save();
     ctx.beginPath();
-    ctx.arc(95, 120, 55, 0, Math.PI * 2, true);
+    ctx.arc(105, 120, 58, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, 40, 65, 110, 110);
+    ctx.drawImage(avatar, 47, 62, 116, 116);
     ctx.restore();
 
     // Avatar Ring Glow
     ctx.strokeStyle = '#5EA454';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(95, 120, 55, 0, Math.PI * 2, true);
+    ctx.arc(105, 120, 58, 0, Math.PI * 2, true);
     ctx.stroke();
   } catch (err) {
     // Fallback if avatar fails
@@ -794,14 +801,14 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // Username & Tag
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 26px Arial, sans-serif';
+  ctx.font = 'bold 28px Arial, sans-serif';
   let displayName = username;
-  if (displayName.length > 14) displayName = displayName.substring(0, 14) + '...';
-  ctx.fillText(displayName, 175, 78);
+  if (displayName.length > 15) displayName = displayName.substring(0, 15) + '...';
+  ctx.fillText(displayName, 195, 78);
 
   ctx.fillStyle = '#8E9A8F';
   ctx.font = 'bold 15px Arial, sans-serif';
-  ctx.fillText(tag ? `@${tag}` : '', 175, 102);
+  ctx.fillText(tag ? `@${tag}` : '', 195, 104);
 
   // Rank & Level Labels (Top Right Alignment - Prominent & Turkish)
   const rankStr = `${rankPos}`;
@@ -809,39 +816,32 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // SIRALAMA
   ctx.fillStyle = '#F5A623';
-  ctx.font = 'bold 14px Arial, sans-serif';
-  ctx.fillText('SIRALAMA', 460, 58);
+  ctx.font = 'bold 15px Arial, sans-serif';
+  ctx.fillText('SIRALAMA', 650, 58);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 30px Arial, sans-serif';
-  ctx.fillText(rankStr, 460, 95);
+  ctx.font = 'bold 32px Arial, sans-serif';
+  ctx.fillText(rankStr, 650, 96);
 
   // SEVİYE (More Prominent)
   ctx.fillStyle = '#5EA454';
-  ctx.font = 'bold 14px Arial, sans-serif';
-  ctx.fillText('SEVİYE', 610, 58);
+  ctx.font = 'bold 15px Arial, sans-serif';
+  ctx.fillText('SEVİYE', 800, 58);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 38px Arial, sans-serif';
-  ctx.fillText(levelStr, 610, 97);
-
-  // XP Text Stats Above Bar
-  ctx.fillStyle = '#B0BEB2';
-  ctx.font = 'bold 15px Arial, sans-serif';
-  const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
-  const xpTextWidth = ctx.measureText(xpText).width;
-  ctx.fillText(xpText, width - 40 - xpTextWidth, 145);
+  ctx.font = 'bold 40px Arial, sans-serif';
+  ctx.fillText(levelStr, 800, 98);
 
   // Sub-stats (Text & Voice XP) - Clean Text Labels
   ctx.fillStyle = '#9EB1A1';
-  ctx.font = 'bold 13px Arial, sans-serif';
+  ctx.font = 'bold 14px Arial, sans-serif';
   const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
-  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP  •  Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 175, 145);
+  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP   •   Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 195, 148);
 
-  // Progress Bar Outer Background Container
-  const barX = 175;
-  const barY = 162;
-  const barWidth = 545;
+  // Shortened Level Progress Bar (Ends neatly without stretching across full card)
+  const barX = 195;
+  const barY = 164;
+  const barWidth = 440; // Shortened progress bar length
   const barHeight = 22;
   const radius = 11;
 
@@ -866,6 +866,12 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   ctx.beginPath();
   ctx.roundRect(barX, barY, fillWidth, barHeight, radius);
   ctx.fill();
+
+  // XP Text Stats Right Beside Shortened Bar
+  ctx.fillStyle = '#B0BEB2';
+  ctx.font = 'bold 14px Arial, sans-serif';
+  const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
+  ctx.fillText(xpText, barX + barWidth + 18, 180);
 
   return canvas.toBuffer('image/png');
 }
