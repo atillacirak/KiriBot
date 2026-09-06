@@ -321,11 +321,10 @@ export async function handleVoiceStateUpdate(oldState, newState) {
 
       tempVoiceCache.set(tempChannel.id, tempData);
 
-      // Send Control Panel Embed into Voice Channel Text Chat FIRST (before overwrites sync)
+      // Send Control Panel Components directly into Voice Channel Text Chat (No Embed card, exactly matching reference image)
       try {
-        const embed = buildControlPanelEmbed(tempData, member.user);
         const components = await buildControlPanelComponents(tempData, member);
-        const controlMsg = await tempChannel.send({ embeds: [embed], components });
+        const controlMsg = await tempChannel.send({ components });
         tempData.controlMessageId = controlMsg.id;
       } catch (sendErr) {
         console.error('⚠️ Control panel send error:', sendErr.message);
@@ -564,17 +563,15 @@ export async function handleTempVoiceModalSubmit(interaction) {
 
 async function refreshControlPanel(channel, tempData, interaction) {
   try {
-    const ownerUser = await channel.client.users.fetch(tempData.ownerId).catch(() => null);
-    const embed = buildControlPanelEmbed(tempData, ownerUser);
     const components = await buildControlPanelComponents(tempData, interaction.member);
 
     if (tempData.controlMessageId) {
       const msg = await channel.messages.fetch(tempData.controlMessageId).catch(() => null);
       if (msg) {
-        await msg.edit({ embeds: [embed], components });
+        await msg.edit({ components });
       }
     }
   } catch (e) {
-    console.error('Error refreshing control panel embed:', e);
+    console.error('Error refreshing control panel components:', e);
   }
 }
