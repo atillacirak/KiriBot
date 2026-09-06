@@ -595,15 +595,20 @@ async function refreshControlPanel(channel, tempData, interaction) {
   try {
     const components = await buildControlPanelComponents(tempData, interaction.member);
 
-    // interaction.editReply() → Discord'un interaction webhook sistemi üzerinden gider,
-    // doğrudan kanal erişimine ihtiyaç duymaz (Missing Access'i bypass eder).
-    await interaction.editReply({ components }).catch(async (e) => {
-      // Fallback: doğrudan mesaj edit (kanal erişimi varsa)
-      if (tempData.controlMessageId) {
-        const msg = await channel.messages.fetch(tempData.controlMessageId).catch(() => null);
-        if (msg) await msg.edit({ components }).catch(err => console.warn('Fallback edit error:', err.message));
-      }
-    });
+    // interaction.message = butona tıklanan mesaj (kontrol paneli).
+    // Doğrudan bu mesajı edit etmek en güvenilir yöntem — webhook state sorunlarını önler.
+    if (interaction.message) {
+      await interaction.message.edit({ components }).catch(async (e) => {
+        console.warn('Direct message edit failed, fallback editReply:', e.message);
+        await interaction.editReply({ components }).catch(err =>
+          console.warn('EditReply also failed:', err.message)
+        );
+      });
+    } else {
+      await interaction.editReply({ components }).catch(err =>
+        console.warn('EditReply failed:', err.message)
+      );
+    }
   } catch (e) {
     console.error('Error refreshing control panel components:', e);
   }
