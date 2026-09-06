@@ -124,7 +124,7 @@ export async function buildControlPanelComponents(tempData, member) {
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(allowMenu));
 
-  // Row 5: Emojili Butonlar (5 Buttons in 1 Row - Discord Max)
+  // Row 5: Emojili Butonlar (5 Buttons in 1 Row - Exact Reference Matching)
   const nameBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_name')
     .setEmoji('🏷️')
@@ -138,19 +138,19 @@ export async function buildControlPanelComponents(tempData, member) {
   const lockBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_lock')
     .setEmoji(tempData.isLocked ? '🔒' : '🔓')
-    .setStyle(tempData.isLocked ? ButtonStyle.Danger : ButtonStyle.Success);
+    .setStyle(tempData.isLocked ? ButtonStyle.Danger : ButtonStyle.Secondary);
+
+  const speakBtn = new ButtonBuilder()
+    .setCustomId('jtc_btn_speak')
+    .setEmoji('🎙️')
+    .setStyle(ButtonStyle.Secondary);
 
   const streamBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_stream')
     .setEmoji('📹')
-    .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Secondary);
+    .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Danger);
 
-  const rejectBtn = new ButtonBuilder()
-    .setCustomId('jtc_btn_reject_menu')
-    .setEmoji('🚫')
-    .setStyle(ButtonStyle.Danger);
-
-  rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, streamBtn, rejectBtn));
+  rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, speakBtn, streamBtn));
 
   return rows;
 }
@@ -377,8 +377,9 @@ export async function handleTempVoiceInteraction(interaction) {
     tempData.ownerId = newOwnerId;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
-    return interaction.reply({ content: `👑 Oda sahipliği <@${newOwnerId}> kullanıcısına devredildi!`, flags: 64 });
+    return;
   }
 
   // 2. Select / Create Profile
@@ -416,8 +417,9 @@ export async function handleTempVoiceInteraction(interaction) {
         await channel.setName(tempData.channelName);
         await channel.setUserLimit(tempData.userLimit);
         await syncChannelPermissions(channel, tempData);
+        await interaction.deferUpdate();
         await refreshControlPanel(channel, tempData, interaction);
-        return interaction.reply({ content: `📂 \`${profName}\` profili yüklendi!`, flags: 64 });
+        return;
       }
     }
   }
@@ -427,8 +429,9 @@ export async function handleTempVoiceInteraction(interaction) {
     tempData.moderators = interaction.values;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
-    return interaction.reply({ content: '🛡️ Moderatör listesi güncellendi ve kaydedildi!', flags: 64 });
+    return;
   }
 
   // 4. Select Allowed Users
@@ -436,8 +439,9 @@ export async function handleTempVoiceInteraction(interaction) {
     tempData.allowedUsers = interaction.values;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
-    return interaction.reply({ content: '🟢 İzinli üyeler güncellendi ve kaydedildi!', flags: 64 });
+    return;
   }
 
   // 5. Buttons
@@ -477,16 +481,27 @@ export async function handleTempVoiceInteraction(interaction) {
     tempData.isLocked = !tempData.isLocked;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
-    return interaction.reply({ content: tempData.isLocked ? '🔒 Oda kilitlendi!' : '🔓 Oda kiliti açıldı!', flags: 64 });
+    return;
+  }
+
+  if (customId === 'jtc_btn_speak') {
+    tempData.isSpeakAllowed = tempData.isSpeakAllowed !== undefined ? !tempData.isSpeakAllowed : false;
+    await syncChannelPermissions(channel, tempData);
+    await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
+    await refreshControlPanel(channel, tempData, interaction);
+    return;
   }
 
   if (customId === 'jtc_btn_stream') {
     tempData.isStreamAllowed = !tempData.isStreamAllowed;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
-    return interaction.reply({ content: tempData.isStreamAllowed ? '📹 Kamera ve yayın kullanımı açıldı!' : '📹 Kamera ve yayın kullanımı kapatıldı!', flags: 64 });
+    return;
   }
 
   if (customId === 'jtc_btn_reject_menu') {
@@ -517,8 +532,9 @@ export async function handleTempVoiceInteraction(interaction) {
 
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
+    await interaction.deferUpdate();
     await refreshControlPanel(channel, tempData, interaction);
-    return interaction.reply({ content: '🚫 Engellenen kullanıcılar güncellendi ve odadan atıldı!', flags: 64 });
+    return;
   }
 }
 
@@ -534,8 +550,9 @@ export async function handleTempVoiceModalSubmit(interaction) {
       tempData.channelName = newName;
       await channel.setName(newName);
       await autoSaveCurrentState(tempData);
+      await interaction.deferUpdate();
       await refreshControlPanel(channel, tempData, interaction);
-      return interaction.reply({ content: `🏷️ Oda adı \`${newName}\` olarak güncellendi!`, flags: 64 });
+      return;
     }
   }
 
@@ -545,8 +562,9 @@ export async function handleTempVoiceModalSubmit(interaction) {
       tempData.userLimit = limitVal;
       await channel.setUserLimit(limitVal);
       await autoSaveCurrentState(tempData);
+      await interaction.deferUpdate();
       await refreshControlPanel(channel, tempData, interaction);
-      return interaction.reply({ content: `👥 Kişi limiti \`${limitVal === 0 ? 'Sınırsız' : limitVal}\` olarak ayarlandı!`, flags: 64 });
+      return;
     }
   }
 
@@ -555,8 +573,9 @@ export async function handleTempVoiceModalSubmit(interaction) {
     if (profName) {
       tempData.activeProfileName = profName;
       await autoSaveCurrentState(tempData);
+      await interaction.deferUpdate();
       await refreshControlPanel(channel, tempData, interaction);
-      return interaction.reply({ content: `✨ \`${profName}\` isimli yeni profil slotu oluşturuldu ve kaydedildi!`, flags: 64 });
+      return;
     }
   }
 }
