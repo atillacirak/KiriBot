@@ -817,20 +817,20 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   // SIRALAMA
   ctx.fillStyle = '#F5A623';
   ctx.font = 'bold 12px Arial, sans-serif';
-  ctx.fillText('SIRALAMA', 290, 50);
+  ctx.fillText('SIRALAMA', 275, 50);
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 24px Arial, sans-serif';
-  ctx.fillText(rankStr, 290, 78);
+  ctx.fillText(rankStr, 275, 78);
 
   // SEVİYE
   ctx.fillStyle = '#5EA454';
   ctx.font = 'bold 12px Arial, sans-serif';
-  ctx.fillText('SEVİYE', 375, 50);
+  ctx.fillText('SEVİYE', 385, 50);
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 28px Arial, sans-serif';
-  ctx.fillText(levelStr, 375, 80);
+  ctx.fillText(levelStr, 385, 80);
 
   // Sub-stats (Text & Voice XP) - Placed above bar on left
   ctx.fillStyle = '#9EB1A1';
