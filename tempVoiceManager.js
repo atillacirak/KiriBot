@@ -70,19 +70,16 @@ export async function saveUserProfile(userId, profile) {
 // Helper: Build vertical 5-row interactive control panel (Discord API enforces MAX 5 ActionRows per message)
 export async function buildControlPanelComponents(tempData, member) {
   const rows = [];
-
-  // Row 1: Oda Sahibi & Profil Seçimi (StringSelectMenu combining Owner Transfer & Profiles)
   const profiles = await getUserProfiles(tempData.ownerId);
   const maxSlots = getMaxProfileSlots(member);
 
   const profileOptions = [
-    { label: '👑 Oda Sahibini Devret...', description: 'Oda sahipliğini başka birine transfer et', value: 'action_owner_transfer' }
+    { label: '👑 Oda Sahibini Devret...', value: 'action_owner_transfer' }
   ];
 
   profiles.forEach(p => {
     profileOptions.push({
-      label: `Profil: ${p.name}`,
-      description: `Limit: ${p.limit || 'Sınırsız'} | ${p.isLocked ? 'Kilitli' : 'Açık'}`,
+      label: p.name,
       value: `prof_${p.name}`,
       default: tempData.activeProfileName === p.name
     });
@@ -91,21 +88,20 @@ export async function buildControlPanelComponents(tempData, member) {
   if (profiles.length < maxSlots) {
     profileOptions.push({
       label: '➕ Yeni Profil Slotu Oluştur...',
-      description: `Mevcut slot: ${profiles.length}/${maxSlots}`,
       value: 'create_new_profile'
     });
   }
 
   const profileMenu = new StringSelectMenuBuilder()
     .setCustomId('jtc_profile_select')
-    .setPlaceholder('Profil Seç, Slot Oluştur veya Sahip Devret...')
+    .setPlaceholder('Oda Profili')
     .addOptions(profileOptions);
   rows.push(new ActionRowBuilder().addComponents(profileMenu));
 
   // Row 2: Moderatörler (UserSelectMenu)
   const modMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_mods_select')
-    .setPlaceholder('Moderatörler Seç...')
+    .setPlaceholder('Moderatörler')
     .setDefaultUsers(tempData.moderators || [])
     .setMinValues(0)
     .setMaxValues(10);
@@ -114,7 +110,7 @@ export async function buildControlPanelComponents(tempData, member) {
   // Row 3: İzinli Kullanıcılar (UserSelectMenu)
   const allowMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_allowed_select')
-    .setPlaceholder('İzinli Kullanıcılar Seç...')
+    .setPlaceholder('İzinli Kullanıcılar')
     .setDefaultUsers(tempData.allowedUsers || [])
     .setMinValues(0)
     .setMaxValues(10);
@@ -123,7 +119,7 @@ export async function buildControlPanelComponents(tempData, member) {
   // Row 4: Yasaklanan Kullanıcılar (UserSelectMenu)
   const rejectMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_rejected_select')
-    .setPlaceholder('Yasaklanan Kullanıcılar Seç...')
+    .setPlaceholder('Yasaklanan Kullanıcılar')
     .setDefaultUsers(tempData.rejectedUsers || [])
     .setMinValues(0)
     .setMaxValues(10);
@@ -207,10 +203,11 @@ export async function syncChannelPermissions(channel, tempData) {
         }).catch(e => console.warn('Sync allowed user perm error:', e.message));
       }
     } else {
-      await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
-        Connect: true,
-        ViewChannel: true,
-        SendMessages: true
+      // Remove Connect explicit deny override for @everyone so users can join again
+      await channel.permissionOverwrites.delete(channel.guild.roles.everyone).catch(() => {
+        return channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
+          Connect: null
+        });
       }).catch(e => console.warn('Sync unlock perm error:', e.message));
     }
 
