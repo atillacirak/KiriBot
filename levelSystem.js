@@ -745,8 +745,8 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
 
 // Generate High-Quality Custom Rank Card Image with Canvas
 async function generateRankCard({ username, tag, avatarUrl, level, currentXp, neededXp, rankPos, totalUsers, textXp, voiceXp }) {
-  const width = 934;
-  const height = 282;
+  const width = 760;
+  const height = 240;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
@@ -776,17 +776,17 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
     const avatar = await loadImage(avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png');
     ctx.save();
     ctx.beginPath();
-    ctx.arc(110, 141, 65, 0, Math.PI * 2, true);
+    ctx.arc(95, 120, 55, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, 45, 76, 130, 130);
+    ctx.drawImage(avatar, 40, 65, 110, 110);
     ctx.restore();
 
     // Avatar Ring Glow
     ctx.strokeStyle = '#5EA454';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.arc(110, 141, 65, 0, Math.PI * 2, true);
+    ctx.arc(95, 120, 55, 0, Math.PI * 2, true);
     ctx.stroke();
   } catch (err) {
     // Fallback if avatar fails
@@ -794,14 +794,14 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // Username & Tag
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 30px Arial, sans-serif';
+  ctx.font = 'bold 26px Arial, sans-serif';
   let displayName = username;
-  if (displayName.length > 15) displayName = displayName.substring(0, 15) + '...';
-  ctx.fillText(displayName, 210, 95);
+  if (displayName.length > 14) displayName = displayName.substring(0, 14) + '...';
+  ctx.fillText(displayName, 175, 78);
 
   ctx.fillStyle = '#8E9A8F';
-  ctx.font = 'bold 16px Arial, sans-serif';
-  ctx.fillText(tag ? `@${tag}` : '', 210, 122);
+  ctx.font = 'bold 15px Arial, sans-serif';
+  ctx.fillText(tag ? `@${tag}` : '', 175, 102);
 
   // Rank & Level Labels (Top Right Alignment - Prominent & Turkish)
   const rankStr = `${rankPos}`;
@@ -809,41 +809,41 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // SIRALAMA
   ctx.fillStyle = '#F5A623';
-  ctx.font = 'bold 16px Arial, sans-serif';
-  ctx.fillText('SIRALAMA', 560, 65);
+  ctx.font = 'bold 14px Arial, sans-serif';
+  ctx.fillText('SIRALAMA', 460, 58);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 36px Arial, sans-serif';
-  ctx.fillText(rankStr, 560, 105);
+  ctx.font = 'bold 30px Arial, sans-serif';
+  ctx.fillText(rankStr, 460, 95);
 
   // SEVİYE (More Prominent)
   ctx.fillStyle = '#5EA454';
-  ctx.font = 'bold 16px Arial, sans-serif';
-  ctx.fillText('SEVİYE', 740, 65);
+  ctx.font = 'bold 14px Arial, sans-serif';
+  ctx.fillText('SEVİYE', 610, 58);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 44px Arial, sans-serif';
-  ctx.fillText(levelStr, 740, 108);
+  ctx.font = 'bold 38px Arial, sans-serif';
+  ctx.fillText(levelStr, 610, 97);
 
   // XP Text Stats Above Bar
   ctx.fillStyle = '#B0BEB2';
-  ctx.font = 'bold 16px Arial, sans-serif';
+  ctx.font = 'bold 15px Arial, sans-serif';
   const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
   const xpTextWidth = ctx.measureText(xpText).width;
-  ctx.fillText(xpText, width - 50 - xpTextWidth, 175);
+  ctx.fillText(xpText, width - 40 - xpTextWidth, 145);
 
   // Sub-stats (Text & Voice XP) - Clean Text Labels
   ctx.fillStyle = '#9EB1A1';
-  ctx.font = 'bold 14px Arial, sans-serif';
+  ctx.font = 'bold 13px Arial, sans-serif';
   const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
-  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP   •   Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 210, 175);
+  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP  •  Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 175, 145);
 
   // Progress Bar Outer Background Container
-  const barX = 210;
-  const barY = 190;
-  const barWidth = 675;
-  const barHeight = 24;
-  const radius = 12;
+  const barX = 175;
+  const barY = 162;
+  const barWidth = 545;
+  const barHeight = 22;
+  const radius = 11;
 
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
   ctx.strokeStyle = 'rgba(94, 164, 84, 0.3)';
