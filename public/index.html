@@ -2272,10 +2272,8 @@
         document.getElementById('adminControlsSection').classList.remove('hidden');
 
         populateAdminUI();
-        switchAdminSubtab(currentAdminSubtab || 'analytics');
-        if (currentAdminSubtab === 'analytics') {
-          loadAnalyticsData(currentAnalyticsPeriod);
-        }
+        const subtabToLoad = getStoredAdminSubtab();
+        switchAdminSubtab(subtabToLoad);
         loadAdminConversations();
 
         // Start background polling for new DMs and analytics
