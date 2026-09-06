@@ -67,7 +67,7 @@ export async function saveUserProfile(userId, profile) {
   }
 }
 
-// Helper: Build vertical 5-row interactive control panel
+// Helper: Build vertical 5-row interactive control panel (Discord API enforces MAX 5 ActionRows per message)
 export async function buildControlPanelComponents(tempData, member) {
   const rows = [];
 
@@ -124,16 +124,7 @@ export async function buildControlPanelComponents(tempData, member) {
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(allowMenu));
 
-  // Row 5: Yasaklanan / Engellenen Kullanıcılar (UserSelectMenu)
-  const rejectMenu = new UserSelectMenuBuilder()
-    .setCustomId('jtc_rejected_select')
-    .setPlaceholder('Yasaklanan Kullanıcılar Seç...')
-    .setDefaultUsers(tempData.rejectedUsers || [])
-    .setMinValues(0)
-    .setMaxValues(10);
-  rows.push(new ActionRowBuilder().addComponents(rejectMenu));
-
-  // Row 6: Emojili Butonlar (Quick Actions)
+  // Row 5: Emojili Butonlar (5 Buttons in 1 Row - Discord Max)
   const nameBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_name')
     .setEmoji('🏷️')
@@ -154,7 +145,12 @@ export async function buildControlPanelComponents(tempData, member) {
     .setEmoji('📹')
     .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Secondary);
 
-  rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, streamBtn));
+  const rejectBtn = new ButtonBuilder()
+    .setCustomId('jtc_btn_reject_menu')
+    .setEmoji('🚫')
+    .setStyle(ButtonStyle.Danger);
+
+  rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, streamBtn, rejectBtn));
 
   return rows;
 }
