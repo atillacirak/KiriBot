@@ -197,8 +197,9 @@ export async function syncChannelPermissions(channel, tempData) {
       }).catch(e => console.warn('Sync lock perm error:', e.message));
     } else {
       await channel.permissionOverwrites.edit(everyoneRole, {
-        Connect: true
+        Connect: null
       }).catch(e => console.warn('Sync unlock perm error:', e.message));
+      await channel.permissionOverwrites.delete(everyoneRole.id).catch(() => {});
     }
 
     // 3. Stream State on @everyone
