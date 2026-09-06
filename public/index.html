@@ -714,7 +714,7 @@
               </button>
             </div>
             <div id="periodHelperNote" class="text-[10px] text-gray-400 font-medium pr-1">
-              ℹ️ Seçili Zaman Dilimi: <span class="text-pond-400 font-bold">Son 7 Günlük İstatistikler ve Üye Hareketleri</span>
+              📅 <span class="text-pond-400 font-bold font-mono">30 Ağustos 2026 — 6 Eylül 2026</span>
             </div>
           </div>
         </div>
@@ -2752,9 +2752,9 @@
           const endStr = formatDateShortTR(a.endTime);
           let dateRangeText = `${startStr} — ${endStr}`;
           if (period === 'all') {
-            dateRangeText = `Bot Kurulumundan Günümüze Kadar (${endStr})`;
+            dateRangeText = `5 Eylül 2026'dan beri`;
           }
-          helperEl.innerHTML = `📅 Hesaplanan Tarih Aralığı: <span class="text-pond-400 font-bold font-mono">${dateRangeText}</span>`;
+          helperEl.innerHTML = `📅 <span class="text-pond-400 font-bold font-mono">${dateRangeText}</span>`;
         }
 
         // Core KPIs
