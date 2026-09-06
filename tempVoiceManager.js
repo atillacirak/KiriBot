@@ -203,8 +203,9 @@ export async function syncChannelPermissions(channel, tempData) {
         }).catch(e => console.warn('Sync allowed user perm error:', e.message));
       }
     } else {
+      // Set Connect: null to remove explicit deny/allow on @everyone
       await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
-        Connect: true
+        Connect: null
       }).catch(e => console.warn('Sync unlock perm error:', e.message));
     }
 
