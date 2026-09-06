@@ -3,8 +3,8 @@
     "userId": "756802911480315935",
     "guildId": "330105508935499778",
     "textXp": 44,
-    "voiceXp": 6060,
-    "totalXp": 6104,
+    "voiceXp": 6480,
+    "totalXp": 6524,
     "level": 8,
     "lastMessageAt": 1788638898878
   },
@@ -183,8 +183,8 @@
     "userId": "597865343213371412",
     "guildId": "330105508935499778",
     "textXp": 0,
-    "voiceXp": 4845,
-    "totalXp": 4845,
+    "voiceXp": 5220,
+    "totalXp": 5220,
     "level": 7,
     "lastMessageAt": 0
   },
@@ -300,9 +300,9 @@
     "userId": "989491053285486652",
     "guildId": "330105508935499778",
     "textXp": 0,
-    "voiceXp": 1095,
-    "totalXp": 1095,
-    "level": 3,
+    "voiceXp": 1515,
+    "totalXp": 1515,
+    "level": 4,
     "lastMessageAt": 0
   },
   "330105508935499778_466028530732630026": {
@@ -354,9 +354,9 @@
     "userId": "738762619741274123",
     "guildId": "330105508935499778",
     "textXp": 23,
-    "voiceXp": 60,
-    "totalXp": 83,
-    "level": 0,
+    "voiceXp": 150,
+    "totalXp": 173,
+    "level": 1,
     "lastMessageAt": 1788639224233
   },
   "330105508935499778_1101181114569211966": {
@@ -453,8 +453,8 @@
     "userId": "1520659557335040010",
     "guildId": "330105508935499778",
     "textXp": 0,
-    "voiceXp": 645,
-    "totalXp": 645,
+    "voiceXp": 840,
+    "totalXp": 840,
     "level": 2,
     "lastMessageAt": 0
   },
@@ -570,8 +570,8 @@
     "userId": "921415076362219550",
     "guildId": "330105508935499778",
     "textXp": 0,
-    "voiceXp": 510,
-    "totalXp": 510,
+    "voiceXp": 810,
+    "totalXp": 810,
     "level": 2,
     "lastMessageAt": 0
   },
@@ -583,5 +583,14 @@
     "totalXp": 20,
     "level": 0,
     "lastMessageAt": 1788653449643
+  },
+  "330105508935499778_1061230922298568734": {
+    "userId": "1061230922298568734",
+    "guildId": "330105508935499778",
+    "textXp": 0,
+    "voiceXp": 75,
+    "totalXp": 75,
+    "level": 0,
+    "lastMessageAt": 0
   }
 }

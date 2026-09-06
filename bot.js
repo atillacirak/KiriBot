@@ -29,7 +29,8 @@ import {
   handleAddXpCommand,
   handleRemoveXpCommand,
   handleResetLevelCommand,
-  sendWelcomeDm
+  sendWelcomeDm,
+  getGuildSettings
 } from './levelSystem.js';
 import { 
   initAnalyticsMongo, 
@@ -41,6 +42,12 @@ import {
   initMessagesMongo, 
   recordDirectMessage 
 } from './messagesManager.js';
+import {
+  initTempVoiceMongo,
+  handleVoiceStateUpdate,
+  handleTempVoiceInteraction,
+  handleTempVoiceModalSubmit
+} from './tempVoiceManager.js';
 import { startDashboard } from './dashboard.js';
 
 dotenv.config();
@@ -82,6 +89,9 @@ async function initMongo() {
 
     // Initialize messages collection
     await initMessagesMongo(mongoDb);
+
+    // Initialize temp voice collection
+    await initTempVoiceMongo(mongoDb);
 
     // Create TTL Index for auto-expiring raw messages or profile cleanup
     try {
@@ -327,6 +337,11 @@ client.on('messageCreate', (message) => {
   }
 });
 
+// Voice State Update Event (Temp Voice & JTC Management)
+client.on('voiceStateUpdate', (oldState, newState) => {
+  handleVoiceStateUpdate(oldState, newState, getGuildSettings).catch(err => console.warn('Temp voice error:', err.message));
+});
+
 // Member Join & Leave Tracking
 client.on('guildMemberAdd', (member) => {
   recordMemberJoin(member).catch(err => console.warn('Record join error:', err.message));
@@ -341,8 +356,18 @@ client.on('error', (err) => {
   console.warn('⚠️ Discord Client Hatası:', err.message);
 });
 
-// Handle Interactions (Slash Commands & Buttons)
+// Handle Interactions (Slash Commands, Buttons, Select Menus, Modals)
 client.on('interactionCreate', async (interaction) => {
+  // Handle Temp Voice Panel Interactions (Buttons & Select Menus)
+  if (interaction.customId && interaction.customId.startsWith('jtc_')) {
+    if (interaction.isModalSubmit()) {
+      await handleTempVoiceModalSubmit(interaction, getGuildSettings).catch(err => console.warn('Temp voice modal error:', err.message));
+    } else {
+      await handleTempVoiceInteraction(interaction, getGuildSettings).catch(err => console.warn('Temp voice interaction error:', err.message));
+    }
+    return;
+  }
+
   // Handle Interactive Category Buttons for /top
   if (interaction.isButton()) {
     const customId = interaction.customId;

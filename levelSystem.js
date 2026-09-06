@@ -22,6 +22,7 @@ export const DEFAULT_SETTINGS = {
   textCooldownSeconds: 20,
   minVoiceMembers: 2,
   ignoredChannels: ['1439038727644250346', '1315051073781895168', '1439016893322100746'],
+  tempVoiceHubChannelId: '',
   roleRewards: {
     25: '1439006338402484305', // kurbağa
     50: '1439006370769666140', // göl müdavimi kurbağa

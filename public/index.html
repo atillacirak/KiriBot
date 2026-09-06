@@ -1098,6 +1098,17 @@
                 </div>
               </div>
 
+              <!-- TEMP VOICE HUB CHANNEL SELECTOR -->
+              <div class="pt-3 border-t border-pond-border/40 space-y-1.5">
+                <label class="block text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>➕</span> "Oda Oluştur" Ses Kanalı (Geçici Sesli Odalar)
+                </label>
+                <select id="settingTempVoiceHubChannelId" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
+                  <option value="">🚫 Devre Dışı (Seçilmedi)</option>
+                </select>
+                <span class="text-[10px] text-gray-500">Kullanıcı bu ses kanalına katıldığında ona özel ses kanalı ve kontrol paneli oluşturulur.</span>
+              </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs font-bold text-gray-300 mb-1.5">💬 Min Yazılı XP</label>
@@ -3028,6 +3039,17 @@
     function populateAdminUI() {
       if (!currentSettings) return;
 
+      // Populate temp voice hub channel dropdown
+      const tempHubSelect = document.getElementById('settingTempVoiceHubChannelId');
+      if (tempHubSelect) {
+        const voiceChannels = guildChannels.filter(c => c.type === 2 || c.typeName === 'Ses');
+        tempHubSelect.innerHTML = '<option value="">🚫 Devre Dışı (Seçilmedi)</option>' + voiceChannels.map(c => `
+          <option value="${c.id}" ${c.id === (currentSettings.tempVoiceHubChannelId || '') ? 'selected' : ''}>
+            🔊 ${escapeHtml(c.parentName ? `${c.parentName} / ${c.name}` : c.name)}
+          </option>
+        `).join('');
+      }
+
       // Card 1: Engine rates
       document.getElementById('settingVoiceXpPerMinute').value = currentSettings.voiceXpPerMinute || 25;
       document.getElementById('settingTextCooldownSeconds').value = currentSettings.textCooldownSeconds || 20;
@@ -3423,6 +3445,7 @@
       const payloadSettings = {
         voiceXpPerMinute: parseInt(document.getElementById('settingVoiceXpPerMinute').value, 10) || 25,
         textCooldownSeconds: parseInt(document.getElementById('settingTextCooldownSeconds').value, 10) || 20,
+        tempVoiceHubChannelId: document.getElementById('settingTempVoiceHubChannelId')?.value || '',
         textXpMin: parseInt(document.getElementById('settingTextXpMin').value, 10) || 10,
         textXpMax: parseInt(document.getElementById('settingTextXpMax').value, 10) || 15,
         mutedEarnsXp: document.getElementById('settingMutedEarnsXp').checked,
