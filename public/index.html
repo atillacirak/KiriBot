@@ -688,20 +688,17 @@
           <!-- TIME PERIOD SELECTOR (FOR ANALYTICS) -->
           <div class="flex flex-col items-end gap-1">
             <div id="analyticsPeriodSelector" class="flex items-center gap-1 p-1 rounded-2xl bg-black/40 border border-pond-border text-xs font-semibold self-start sm:self-auto">
-              <button onclick="changeAnalyticsPeriod('today')" id="periodBtn_today" title="Son 24 saatteki (Bugünkü) canlı aktiviteler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
+              <button onclick="changeAnalyticsPeriod('today')" id="periodBtn_today" title="Bugünkü canlı aktiviteler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
                 <span>📅</span>
                 <span>Bugün</span>
-                <span class="text-[9px] text-gray-500 font-mono">(Son 24s)</span>
               </button>
-              <button onclick="changeAnalyticsPeriod('week')" id="periodBtn_week" title="Son 7 gündeki canlı aktiviteler" class="px-3 py-1.5 rounded-xl bg-pond-500 text-white transition flex items-center gap-1 shadow-sm">
+              <button onclick="changeAnalyticsPeriod('week')" id="periodBtn_week" title="Bu haftaki canlı aktiviteler" class="px-3 py-1.5 rounded-xl bg-pond-500 text-white transition flex items-center gap-1 shadow-sm">
                 <span>🗓️</span>
                 <span>Bu Hafta</span>
-                <span class="text-[9px] opacity-75 font-mono">(Son 7 Gün)</span>
               </button>
-              <button onclick="changeAnalyticsPeriod('month')" id="periodBtn_month" title="Son 30 gündeki canlı aktiviteler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
+              <button onclick="changeAnalyticsPeriod('month')" id="periodBtn_month" title="Bu aydaki canlı aktiviteler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
                 <span>📆</span>
                 <span>Bu Ay</span>
-                <span class="text-[9px] text-gray-500 font-mono">(Son 30 Gün)</span>
               </button>
               <button onclick="changeAnalyticsPeriod('all')" id="periodBtn_all" title="Botun kurulduğu günden itibaren tüm veriler" class="px-3 py-1.5 rounded-xl text-gray-400 hover:text-white transition flex items-center gap-1">
                 <span>♾️</span>
