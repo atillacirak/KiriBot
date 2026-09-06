@@ -174,13 +174,13 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
     let userVoiceXp = 0;
 
     if (period === 'today') {
-      userTextXp = u.dailyTextXp || (u.dailyXp || 0);
+      userTextXp = u.dailyTextXp || 0;
       userVoiceXp = u.dailyVoiceXp || 0;
     } else if (period === 'week') {
-      userTextXp = u.weeklyTextXp || (u.weeklyXp || 0);
+      userTextXp = u.weeklyTextXp || 0;
       userVoiceXp = u.weeklyVoiceXp || 0;
     } else if (period === 'month') {
-      userTextXp = u.monthlyTextXp || (u.monthlyXp || 0);
+      userTextXp = u.monthlyTextXp || 0;
       userVoiceXp = u.monthlyVoiceXp || 0;
     } else {
       userTextXp = u.textXp || 0;
@@ -200,7 +200,7 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
 
   // Calculate total text XP in period
   const totalTextXpInPeriod = allUsersData.reduce((acc, u) => {
-    let xp = (period === 'all' ? (u.textXp || 0) : (period === 'month' ? (u.monthlyTextXp || u.monthlyXp || 0) : (period === 'week' ? (u.weeklyTextXp || u.weeklyXp || 0) : (u.dailyTextXp || u.dailyXp || 0))));
+    let xp = (period === 'all' ? (u.textXp || 0) : (period === 'month' ? (u.monthlyTextXp || 0) : (period === 'week' ? (u.weeklyTextXp || 0) : (u.dailyTextXp || 0))));
     return acc + xp;
   }, 0);
 
