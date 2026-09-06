@@ -746,7 +746,7 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
 // Generate High-Quality Custom Rank Card Image with Canvas
 async function generateRankCard({ username, tag, avatarUrl, level, currentXp, neededXp, rankPos, totalUsers, textXp, voiceXp }) {
   const width = 640;
-  const height = 200;
+  const height = 195;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
@@ -778,37 +778,37 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   ctx.fillRect(0, 2, width, 4);
   ctx.restore();
 
-  // Draw Avatar
+  // Draw Avatar (Top Left)
   try {
     const avatar = await loadImage(avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png');
     ctx.save();
     ctx.beginPath();
-    ctx.arc(80, 100, 48, 0, Math.PI * 2, true);
+    ctx.arc(68, 68, 42, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, 32, 52, 96, 96);
+    ctx.drawImage(avatar, 26, 26, 84, 84);
     ctx.restore();
 
     // Avatar Ring Glow
     ctx.strokeStyle = '#5EA454';
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(80, 100, 48, 0, Math.PI * 2, true);
+    ctx.arc(68, 68, 42, 0, Math.PI * 2, true);
     ctx.stroke();
   } catch (err) {
     // Fallback if avatar fails
   }
 
-  // Username & Tag
+  // Username & Tag (Next to Avatar)
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 24px Arial, sans-serif';
   let displayName = username;
   if (displayName.length > 13) displayName = displayName.substring(0, 13) + '...';
-  ctx.fillText(displayName, 150, 64);
+  ctx.fillText(displayName, 126, 58);
 
   ctx.fillStyle = '#8E9A8F';
   ctx.font = 'bold 14px Arial, sans-serif';
-  ctx.fillText(tag ? `@${tag}` : '', 150, 86);
+  ctx.fillText(tag ? `@${tag}` : '', 126, 80);
 
   // Rank & Level Labels (Top Right Alignment)
   const rankStr = `${rankPos}`;
@@ -817,40 +817,40 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   // SIRALAMA
   ctx.fillStyle = '#F5A623';
   ctx.font = 'bold 13px Arial, sans-serif';
-  ctx.fillText('SIRALAMA', 430, 48);
+  ctx.fillText('SIRALAMA', 410, 48);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 26px Arial, sans-serif';
-  ctx.fillText(rankStr, 430, 80);
+  ctx.font = 'bold 28px Arial, sans-serif';
+  ctx.fillText(rankStr, 410, 82);
 
   // SEVİYE
   ctx.fillStyle = '#5EA454';
   ctx.font = 'bold 13px Arial, sans-serif';
-  ctx.fillText('SEVİYE', 535, 48);
+  ctx.fillText('SEVİYE', 525, 48);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 34px Arial, sans-serif';
-  ctx.fillText(levelStr, 535, 82);
+  ctx.font = 'bold 36px Arial, sans-serif';
+  ctx.fillText(levelStr, 525, 84);
 
-  // Sub-stats (Text & Voice XP)
+  // Sub-stats (Text & Voice XP) - Placed above the full bar on left
   ctx.fillStyle = '#9EB1A1';
   ctx.font = 'bold 13px Arial, sans-serif';
   const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
-  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP  •  Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 150, 124);
+  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP   •   Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 30, 130);
 
-  // XP Text Stats Above Bar Right-aligned
+  // XP Progress Numbers - Placed above the full bar on right
   ctx.fillStyle = '#B0BEB2';
   ctx.font = 'bold 13px Arial, sans-serif';
   const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
   const xpTextWidth = ctx.measureText(xpText).width;
-  ctx.fillText(xpText, width - 35 - xpTextWidth, 124);
+  ctx.fillText(xpText, width - 30 - xpTextWidth, 130);
 
-  // Level Progress Bar
-  const barX = 150;
-  const barY = 138;
-  const barWidth = 455;
-  const barHeight = 20;
-  const radius = 10;
+  // Full-Width Progress Bar (Extends across the full bottom underneath avatar)
+  const barX = 30;
+  const barY = 144;
+  const barWidth = 580;
+  const barHeight = 22;
+  const radius = 11;
 
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
   ctx.strokeStyle = 'rgba(94, 164, 84, 0.3)';
