@@ -517,31 +517,35 @@ export async function handleTempVoiceInteraction(interaction) {
   }
 
   if (customId === 'jtc_btn_lock') {
-    await interaction.deferUpdate();
     tempData.isLocked = !tempData.isLocked;
-    await syncChannelPermissions(channel, tempData);
-    await autoSaveCurrentState(tempData);
-    await refreshControlPanel(channel, tempData, interaction);
+    const components = await buildControlPanelComponents(tempData, member);
+    await interaction.update({ components });
+
+    // İzinleri ve kaydı arka planda asenkron yap (UI gecikmesini 0'a indirir)
+    syncChannelPermissions(channel, tempData).catch(console.error);
+    autoSaveCurrentState(tempData).catch(console.error);
     return;
   }
 
   if (customId === 'jtc_btn_speak') {
-    await interaction.deferUpdate();
     // null = açık (miras), false = kapalı — toggle: null↔false
     tempData.isSpeakAllowed = tempData.isSpeakAllowed !== false ? false : null;
-    await syncChannelPermissions(channel, tempData);
-    await autoSaveCurrentState(tempData);
-    await refreshControlPanel(channel, tempData, interaction);
+    const components = await buildControlPanelComponents(tempData, member);
+    await interaction.update({ components });
+
+    syncChannelPermissions(channel, tempData).catch(console.error);
+    autoSaveCurrentState(tempData).catch(console.error);
     return;
   }
 
   if (customId === 'jtc_btn_stream') {
-    await interaction.deferUpdate();
     // null = açık (miras), false = kapalı — toggle: null↔false
     tempData.isStreamAllowed = tempData.isStreamAllowed !== false ? false : null;
-    await syncChannelPermissions(channel, tempData);
-    await autoSaveCurrentState(tempData);
-    await refreshControlPanel(channel, tempData, interaction);
+    const components = await buildControlPanelComponents(tempData, member);
+    await interaction.update({ components });
+
+    syncChannelPermissions(channel, tempData).catch(console.error);
+    autoSaveCurrentState(tempData).catch(console.error);
     return;
   }
 }
