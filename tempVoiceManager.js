@@ -219,12 +219,11 @@ export async function syncChannelPermissions(channel, tempData) {
       }
     }
 
-    // 5. Yasaklanan Kullanıcılar — tamamen engellenir
+    // 5. Yasaklanan Kullanıcılar — sadece bağlanma engellenir, kanalı görebilirler
     for (const userId of tempData.rejectedUsers) {
       if (userId !== tempData.ownerId) {
         await channel.permissionOverwrites.edit(userId, {
-          ViewChannel: false,
-          Connect:     false
+          Connect: false
         }).catch(e => console.warn('Sync reject perm error:', e.message));
       }
     }
@@ -268,7 +267,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       const hubChannel = guild.channels.cache.get(hubChannelId);
       const category = hubChannel ? hubChannel.parent : null;
 
-      // Create channel cleanly inheriting category perms
+      // Temiz oluşturma — kategori izinleri kalıtılır, syncChannelPermissions ile yönetilir
       const tempChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildVoice,
@@ -288,8 +287,8 @@ export async function handleVoiceStateUpdate(oldState, newState) {
         channelName: channelName,
         userLimit: 0,
         isLocked: false,
-        isStreamAllowed: true,
-        isSpeakAllowed: true,
+        isStreamAllowed: null,  // null = kategoriden miras (açık), false = açıkça kapalı
+        isSpeakAllowed: null,   // null = kategoriden miras (açık), false = açıkça kapalı
         activeProfileName: 'Varsayılan',
         moderators: [],
         allowedUsers: [],
@@ -528,7 +527,8 @@ export async function handleTempVoiceInteraction(interaction) {
 
   if (customId === 'jtc_btn_speak') {
     await interaction.deferUpdate();
-    tempData.isSpeakAllowed = tempData.isSpeakAllowed !== undefined ? !tempData.isSpeakAllowed : false;
+    // null = açık (miras), false = kapalı — toggle: null↔false
+    tempData.isSpeakAllowed = tempData.isSpeakAllowed !== false ? false : null;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
     await refreshControlPanel(channel, tempData, interaction);
@@ -537,7 +537,8 @@ export async function handleTempVoiceInteraction(interaction) {
 
   if (customId === 'jtc_btn_stream') {
     await interaction.deferUpdate();
-    tempData.isStreamAllowed = tempData.isStreamAllowed !== undefined ? !tempData.isStreamAllowed : false;
+    // null = açık (miras), false = kapalı — toggle: null↔false
+    tempData.isStreamAllowed = tempData.isStreamAllowed !== false ? false : null;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
     await refreshControlPanel(channel, tempData, interaction);
@@ -594,12 +595,15 @@ async function refreshControlPanel(channel, tempData, interaction) {
   try {
     const components = await buildControlPanelComponents(tempData, interaction.member);
 
-    if (tempData.controlMessageId) {
-      const msg = await channel.messages.fetch(tempData.controlMessageId).catch(() => null);
-      if (msg) {
-        await msg.edit({ components });
+    // interaction.editReply() → Discord'un interaction webhook sistemi üzerinden gider,
+    // doğrudan kanal erişimine ihtiyaç duymaz (Missing Access'i bypass eder).
+    await interaction.editReply({ components }).catch(async (e) => {
+      // Fallback: doğrudan mesaj edit (kanal erişimi varsa)
+      if (tempData.controlMessageId) {
+        const msg = await channel.messages.fetch(tempData.controlMessageId).catch(() => null);
+        if (msg) await msg.edit({ components }).catch(err => console.warn('Fallback edit error:', err.message));
       }
-    }
+    });
   } catch (e) {
     console.error('Error refreshing control panel components:', e);
   }
