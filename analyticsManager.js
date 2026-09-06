@@ -204,17 +204,8 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
     return acc + xp;
   }, 0);
 
-  // Filter message events for period
-  const messagesInPeriod = messageEventsCache.filter(m => {
-    if (m.guildId && m.guildId !== guild.id) return false;
-    const t = new Date(m.timestamp);
-    return t >= startTime && t <= now;
-  });
-
-  let totalMessagesCount = messagesInPeriod.length;
-  if (totalMessagesCount === 0 && totalTextXpInPeriod > 0) {
-    totalMessagesCount = Math.max(1, Math.round(totalTextXpInPeriod / 12.5));
-  }
+  // Calculate total text message count strictly from text XP earned in chat (excluding manual edits)
+  const totalMessagesCount = Math.max(0, Math.round(totalTextXpInPeriod / 12.5));
 
   // Calculate voice minutes strictly from voiceXp
   totalVoiceMinutes = Math.floor(allUsersData.reduce((acc, u) => {
