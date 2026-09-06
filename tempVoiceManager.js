@@ -159,83 +159,57 @@ export async function syncChannelPermissions(channel, tempData) {
   try {
     const everyoneRole = channel.guild.roles.everyone;
 
-    // 1. Owner Control (Full Access)
+    // 1. @everyone — tek API çağrısında tüm durumlar (race condition önleme)
+    // null = kategoriden miras al (varsayılan izin), false = açıkça reddet
+    await channel.permissionOverwrites.edit(everyoneRole, {
+      Connect:  tempData.isLocked          ? false : null,
+      Stream:   tempData.isStreamAllowed   !== false ? null : false,
+      Speak:    tempData.isSpeakAllowed    !== false ? null : false,
+    }).catch(e => console.warn('Sync everyone perm error:', e.message));
+
+    // 2. Oda Sahibi — tam kontrol
     await channel.permissionOverwrites.edit(tempData.ownerId, {
       ViewChannel: true,
-      Connect: true,
-      Speak: true,
-      Stream: true,
-      MuteMembers: true,
+      Connect:     true,
+      Speak:       true,
+      Stream:      true,
+      MuteMembers:   true,
       DeafenMembers: true,
-      MoveMembers: true
+      MoveMembers:   true
     }).catch(e => console.warn('Sync owner perm error:', e.message));
 
-    // 2. Lock / Unlock State on @everyone
-    if (tempData.isLocked) {
-      await channel.permissionOverwrites.edit(everyoneRole, {
-        Connect: false
-      }).catch(e => console.warn('Sync lock perm error:', e.message));
-    } else {
-      await channel.permissionOverwrites.edit(everyoneRole, {
-        Connect: true
-      }).catch(e => console.warn('Sync unlock perm error:', e.message));
-      await channel.permissionOverwrites.delete(everyoneRole.id).catch(() => {});
-    }
-
-    // 3. Camera & Stream Permission (Default Enabled)
-    if (tempData.isStreamAllowed !== false) {
-      await channel.permissionOverwrites.edit(everyoneRole, {
-        Stream: true
-      }).catch(e => console.warn('Sync stream allow perm error:', e.message));
-    } else {
-      await channel.permissionOverwrites.edit(everyoneRole, {
-        Stream: false
-      }).catch(e => console.warn('Sync stream deny perm error:', e.message));
-    }
-
-    // 4. Speak Permission
-    if (tempData.isSpeakAllowed !== false) {
-      await channel.permissionOverwrites.edit(everyoneRole, {
-        Speak: true
-      }).catch(e => console.warn('Sync speak allow perm error:', e.message));
-    } else {
-      await channel.permissionOverwrites.edit(everyoneRole, {
-        Speak: false
-      }).catch(e => console.warn('Sync speak deny perm error:', e.message));
-    }
-
-    // 5. Moderators (Full Channel Control)
+    // 3. Moderatörler — tam kanal kontrolü (admin olmadan)
     for (const modId of tempData.moderators) {
       if (modId !== tempData.ownerId) {
         await channel.permissionOverwrites.edit(modId, {
           ViewChannel: true,
-          Connect: true,
-          Speak: true,
-          Stream: true,
+          Connect:     true,
+          Speak:       true,
+          Stream:      true,
           MuteMembers: true,
           MoveMembers: true
         }).catch(e => console.warn('Sync mod perm error:', e.message));
       }
     }
 
-    // 6. Allowed Users (Explicit Connect permission if channel is locked)
+    // 4. İzinli Kullanıcılar — kilitli kanalda bile bağlanabilir
     for (const userId of tempData.allowedUsers) {
       if (userId !== tempData.ownerId && !tempData.moderators.includes(userId)) {
         await channel.permissionOverwrites.edit(userId, {
           ViewChannel: true,
-          Connect: true,
-          Speak: true,
-          Stream: true
+          Connect:     true,
+          Speak:       true,
+          Stream:      true
         }).catch(e => console.warn('Sync allow perm error:', e.message));
       }
     }
 
-    // 7. Rejected Users (Blocked & Disconnected)
+    // 5. Yasaklanan Kullanıcılar — tamamen engellenir
     for (const userId of tempData.rejectedUsers) {
       if (userId !== tempData.ownerId) {
         await channel.permissionOverwrites.edit(userId, {
           ViewChannel: false,
-          Connect: false
+          Connect:     false
         }).catch(e => console.warn('Sync reject perm error:', e.message));
       }
     }
@@ -384,7 +358,15 @@ export async function handleTempVoiceInteraction(interaction) {
   if (customId === 'jtc_owner_transfer') {
     await interaction.deferUpdate();
     const newOwnerId = interaction.values[0];
+    const previousOwnerId = tempData.ownerId;
+
     tempData.ownerId = newOwnerId;
+
+    // Eski sahibin özel izinlerini sil (artık normal üye gibi davranılır)
+    if (previousOwnerId && previousOwnerId !== newOwnerId) {
+      await channel.permissionOverwrites.delete(previousOwnerId).catch(() => {});
+    }
+
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
     await refreshControlPanel(channel, tempData, interaction);
