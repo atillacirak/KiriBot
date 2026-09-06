@@ -20,39 +20,38 @@
 ## 🌟 Öne Çıkan Özellikler
 
 ### 1. ⚡ Gelişmiş Seviye & XP Motoru
-- **Sesli Sohbet XP (Dakika Başına):** Ses kanallarında geçirilen süreye göre her 60 saniyede otomatik XP dağıtımı.
-- **Anti-AFK & Bot Koruması:** Tek başına odada duranlar, sağırlaştırılmış kullanıcılar ve odada sadece bot veya `@roBOT` rolüne sahip hesaplar bulunan üyeler XP kazanamaz.
-- **Yazılı Sohbet XP & Cooldown:** Kanallarda atılan mesajlara dinamik XP dağıtımı (20 saniyelik anti-spam korumasıyla).
-- **Zaman Dilimi Sıralamaları:** Günlük, haftalık, aylık ve tüm zamanlar kategorilerinde otomatik sıfırlanan aktiflik takibi.
-- **Otomatik Kurbağa Rolleri:**
-  - 🐸 **Seviye 25:** `@kurbağa`
-  - 🌿 **Seviye 50:** `@göl müdavimi kurbağa`
-  - 👑 **Seviye 80:** `@bu direkt göl olmuş`
+- **Sesli & Yazılı Sohbet XP:** Ses kanallarında geçirilen süreye ve yazılı sohbet aktivitesine dayalı adil, otomatik XP dağıtımı.
+- **Anti-AFK & Güvenlik Korumaları:** Yalnızca tek başına odada kalan, kendisi/kulaklığı sağırlaştırılmış olan veya sadece bot bulunan kanallarda XP kazanımını engelleyen anti-AFK mekanizması.
+- **Dinamik Zaman Dilimi Sıralamaları:** Günlük, haftalık, aylık ve tüm zamanlar bazında otomatik güncellenen aktiflik tabloları.
+- **Akıllı Rol Yönetimi & Otomatik Değişim:** Üyeler seviye atladıkça kazanılan yeni kurbağa rollerinin (ör. Seviye 25, 50, 80) otomatik tanımlanması ve alt seviye rollerinin temizlenerek rol kirliliğinin önlenmesi.
+- **Yüksek Kaliteli Özel Canvas Kartları (`@napi-rs/canvas`):** Discord istemcisinde görsel şölen sunan kişiselleştirilmiş avatar, derece, seviye ve durum göstergelerine sahip rank kartları.
 
 ### 2. 🤖 Google Gemini AI Kişilik & Uyum Analizi
-- **`/xray`:** Kullanıcının sunucudaki geçmiş mesajlarını analiz ederek MBTI kişilik tipini, aura rengini, toksisite seviyesini ve guilty pleasure alışkanlıklarını çıkartır.
-- **`/ship`:** İki sunucu üyesinin sohbet dinamiklerine göre aşk/arkadaşlık uyumunu hesaplar.
-- **`/ruh-ikizi`:** Mesaj tarzına göre sunucudaki kozmik ruh ikizini bulur.
+- **`/xray`:** Kullanıcının sunucudaki geçmiş mesajlarını analiz ederek MBTI kişilik tipini, aura rengini, toksisite seviyesini ve alışkanlıklarını çıkaran derinlemesine analiz.
+- **`/ship`:** İki sunucu üyesinin sohbet dinamiklerine göre aşk ve arkadaşlık uyumunu değerlendiren yapay zeka analizi.
+- **`/ruh-ikizi`:** Mesaj tarzı ve sunucu etkileşimlerine dayanarak üyenin sunucudaki kozmik ruh ikizini eşleştiren eğlenceli analiz.
 
 ### 3. 🌐 Modern Web Dashboard & Liderlik Tablosu
-- **Top 3 Kürsü (Podium) & Filtreler:** Genel XP, Sesli XP, Yazılı XP, Günlük, Haftalık ve Aylık liderlik sıralamaları.
-- **Kullanıcı Profil Sayfaları (`/#u/<userId>`):**
-  - Doğrudan URL yönlendirme ve tek tıkla profil linki kopyalama.
-  - Seviye ilerleme çubuğu, sonraki kurbağa rolüne kalan seviye/XP bilgisi.
-  - Orijinal Discord yetki rozetleri (👑 Chio, 🛡️ Admin, ⚔️ Moderatör, 🎬 Animatör, 🎨 İçerik Üreticisi vb.).
+- **Top 3 Kürsü & Filtreleme:** Genel XP, Sesli XP, Yazılı XP, Günlük, Haftalık ve Aylık kategorilerinde anlık liderlik sıralaması.
+- **Gelişmiş Kullanıcı Profil Sayfaları (`/#u/<userId>`):**
+  - Profil bağlantısını kolayca kopyalama ve paylaşma.
+  - Seviye ilerlemesi, kalan XP ve hedeflenen kurbağa rolü detayları.
+  - Discord sunucu rollerinin orijinal renk ve ikonlarıyla rozet formatında sergilenmesi.
+  - Özel DM/Sistem Bildirimleri geçmişi sekmesi ("Seviye/Sistem 🎖️").
+- **Tek Parça Modern Glassmorphism Arayüz:** Kullanıcı dostu ve estetik web tasarımı.
 
-### 4. 🛠️ Gizli Admin Paneli (`/#kiriadmin`)
-- Sadece `/#kiriadmin` gizli hash'i ve şifre doğrulaması ile erişilebilir.
-- **ProBot Tarzı Kategori Bazlı Kanal Seçici:** Kanalları kategorilerine göre listeler, XP devre dışı (Blacklist) kanalları rozetlerle yönetir.
-- **Arama Destekli Rol Eşleştirici:** Discord'un orijinal rol renkleri ve ikonlarıyla seviye ödüllerini canlı düzenler.
-- **Hızlı Üye Yöneticisi:** Tek tıkla herhangi bir üyenin seviyesini ayarlama, XP ekleme/çıkarma veya sıfırlama.
+### 4. 🛠️ Gelişmiş Admin Paneli (`/#kiriadmin`) & Sistem Analitiği
+- **Güvenli & Oturum Korumalı Erişim:** 7 günlük kalıcı şifreli oturum yönetimi ve inaktivite zaman aşımı koruması.
+- **Canlı Sunucu & Donanım İstatistikleri:** EC2 sunucusunun anlık CPU kullanımı, RAM doluluğu, çalışma süresi (Uptime) ve bot belleği takibi.
+- **Kategori Bazlı Kanal Seçici & Kara Liste:** XP kazanımına kapalı (Blacklist) kanalları kategorilerine göre yönetme.
+- **Rol & Ödül Eşleme:** Seviye ödüllerini Discord rolleriyle anlık olarak bağlama ve yönetme.
+- **Üye Seviye/XP Yöneticisi:** Üyelerin XP ve seviyelerini canlı olarak düzenleme veya sıfırlama.
 
-### 5. 📊 Sunucu İstatistikleri, Büyüme & Tutundurma (Retention & Cohort)
-- **Zaman Filtreleri:** Bugün, Bu Hafta, Bu Ay ve Tüm Zamanlar.
-- **Sesli & Yazılı Metrikler:** Aktif tekil kullanıcı sayıları, toplam konuşma saatleri, aktiflik oranları.
-- **Büyüme & Net Değişim (+/-):** Sunucuya gelen, ayrılan ve net üye artış/azalış takibi.
-- **Gelen Kullanıcı Tutundurma (Cohort Analizi):** Katılan üyelerin aktif katılımcıya dönüşme, 1-2 mesaj atıp bırakma ve hayalet (0 mesaj) kalma oranları.
-- **Son Üye Hareketleri Akışı & En Aktif Kanallar Sıralaması.**
+### 5. 📊 Büyüme, Tutundurma & Cohort Analizleri
+- **Zaman Dilimi Analitikleri:** Bugün, Bu Hafta, Bu Ay ve Tüm Zamanlar bazında filtreleme.
+- **Aktiflik Metrikleri:** Tekil aktif kullanıcı sayıları, toplam sesli görüşme süreleri ve yazılı aktivite hacmi.
+- **Büyüme & Net Değişim:** Sunucuya yeni katılan, ayrılan ve net üye grafik takibi.
+- **Gelen Kullanıcı Tutundurma (Cohort Analizi):** Katılan üyelerin aktif topluluk üyesine dönüşme, az mesaj atanlar ve hayalet kullanıcı kalma oranlarının analizi.
 
 ---
 
@@ -79,17 +78,17 @@
 - **Node.js:** v18.0.0 veya üzeri
 - **MongoDB:** MongoDB Atlas bağlantı dizesi (URI)
 - **Discord Bot Token:** [Discord Developer Portal](https://discord.com/developers/applications) üzerinden `Message Content` ve `Server Members` intentleri açık olmalıdır.
-- **Google Gemini API Key:** [Google AI Studio](https://ai.google.dev/) üzerinden ücretsiz alınabilir.
+- **Google Gemini API Key:** [Google AI Studio](https://ai.google.dev/) üzerinden alınabilir.
 
 ### 2. Projeyi Klonlama ve Bağımlılıkları Yükleme
 ```bash
-git clone https://github.com/your-username/KurBot.git
-cd KurBot
+git clone https://github.com/atillacirak/KiriBot.git
+cd KiriBot
 npm install
 ```
 
 ### 3. Ortam Değişkenlerini Yapılandırma (`.env`)
-`.env.example` dosyasını `.env` olarak kopyalayın ve kendi bilgilerinizi girin:
+`.env.example` dosyasını `.env` olarak kopyalayın ve bilgilerinizi girin:
 ```bash
 cp .env.example .env
 ```
@@ -99,7 +98,7 @@ DISCORD_BOT_TOKEN=your_bot_token
 GEMINI_API_KEY=your_gemini_key
 MONGODB_URI=mongodb+srv://...
 PORT=3000
-ADMIN_PASSWORD=yesilgolet2026
+ADMIN_PASSWORD=your_admin_password
 ```
 
 ### 4. Başlatma
@@ -113,9 +112,9 @@ npm run dev
 
 ---
 
-## ☁️ Canlı Sunucu (AWS EC2 & PM2)
+## ☁️ Canlı Sunucu Yönetimi (AWS EC2 & PM2)
 
-Proje AWS EC2 üzerinde **Ubuntu 24.04 LTS** ve **PM2** process manager ile 7/24 kesintisiz çalışmaktadır.
+Proje AWS EC2 üzerinde **Ubuntu 24.04 LTS** ve **PM2** süreç yöneticisi ile 7/24 kesintisiz çalışmaktadır.
 
 ```bash
 # PM2 Durumu
@@ -133,17 +132,17 @@ pm2 restart kiribot
 ## 📁 Proje Dizin Yapısı
 
 ```
-KurBot/
-├── public/                 # Web Dashboard & SPA
+KiriBot/
+├── public/                 # Web Dashboard & SPA (HTML, CSS, JS)
 │   ├── index.html          # TailwindCSS & Glassmorphism Arayüzü
 │   └── ...
 ├── bot.js                  # Discord Client & Slash Komut Yönlendirici
 ├── levelSystem.js          # XP Motoru, Anti-AFK & Seviye Mantığı
 ├── analyticsManager.js     # Sunucu İstatistikleri, Büyüme & Cohort Takibi
-├── dashboard.js            # Express API & REST Uç Noktaları
+├── dashboard.js            # Express API, Admin Paneli & REST Uç Noktaları
 ├── package.json            # Proje Bağımlılıkları
 ├── .env.example            # Örnek Yapılandırma Şablonu
-└── README.md               # Detaylı Dokümantasyon
+└── README.md               # Proje Dokümantasyonu
 ```
 
 ---
