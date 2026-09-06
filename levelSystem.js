@@ -367,27 +367,60 @@ export async function sendWelcomeDm(member) {
   }
 }
 
-// Check & Award Role Rewards
+// Check & Award Role Rewards (En yüksek seviye rolünü verir, önceki seviye rollerini geri alır; mini kurbağa sabit kalır)
 export async function checkRoleRewards(guild, member, newLevel) {
   if (!guild || !member) return null;
   const settings = getGuildSettings(guild.id);
   const roleRewards = settings.roleRewards || DEFAULT_SETTINGS.roleRewards;
+  
+  // Sort level requirements ascending: e.g. [[25, roleId1], [50, roleId2], [80, roleId3]]
+  const rewardEntries = Object.entries(roleRewards)
+    .map(([lvlStr, rId]) => [parseInt(lvlStr, 10), rId])
+    .sort((a, b) => a[0] - b[0]);
+
+  if (rewardEntries.length === 0) return null;
+
+  // Identify lowest tier (e.g. level 25 - Mini Kurbağa) which is permanent
+  const permanentRoleId = rewardEntries[0][1];
+
+  // Find target role (highest tier reached)
+  let targetRoleId = null;
+  for (const [lvlReq, roleId] of rewardEntries) {
+    if (newLevel >= lvlReq) {
+      targetRoleId = roleId;
+    }
+  }
+
   let newlyAwardedRole = null;
 
-  for (const [lvlReqStr, roleId] of Object.entries(roleRewards)) {
-    const lvlReq = parseInt(lvlReqStr, 10);
-    if (newLevel >= lvlReq) {
+  // Process role updates
+  for (const [lvlReq, roleId] of rewardEntries) {
+    if (roleId === targetRoleId || roleId === permanentRoleId) {
+      // User should have this role (either highest reached or permanent mini kurbağa)
       if (!member.roles.cache.has(roleId)) {
         try {
           await member.roles.add(roleId);
-          newlyAwardedRole = guild.roles.cache.get(roleId);
-          console.log(`🎉 [Seviye Ödülü] ${member.user.tag} Seviye ${newLevel}'e ulaştı ve rolü aldı: ${roleId}`);
+          if (roleId === targetRoleId) {
+            newlyAwardedRole = guild.roles.cache.get(roleId);
+          }
+          console.log(`🎉 [Seviye Ödülü] ${member.user.tag} Seviye ${newLevel}'e ulaştı ve rol eklendi: ${roleId}`);
         } catch (err) {
           console.warn(`Rol verme hatası (${roleId}):`, err.message);
         }
       }
+    } else {
+      // User surpassed this tier role -> Remove previous intermediate tier role
+      if (member.roles.cache.has(roleId)) {
+        try {
+          await member.roles.remove(roleId);
+          console.log(`🔄 [Seviye Ödülü] ${member.user.tag} terfi etti, eski seviye rolü alındı: ${roleId}`);
+        } catch (err) {
+          console.warn(`Eski rol çıkarma hatası (${roleId}):`, err.message);
+        }
+      }
     }
   }
+
   return newlyAwardedRole;
 }
 
