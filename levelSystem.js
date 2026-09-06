@@ -745,12 +745,12 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
 
 // Generate High-Quality Custom Rank Card Image with Canvas
 async function generateRankCard({ username, tag, avatarUrl, level, currentXp, neededXp, rankPos, totalUsers, textXp, voiceXp }) {
-  const width = 640;
-  const height = 195;
+  const width = 520;
+  const height = 175;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  const cardRadius = 16;
+  const cardRadius = 14;
 
   // Background Gradient & Card Base (Rounded Outer Frame)
   const bgGradient = ctx.createLinearGradient(0, 0, width, height);
@@ -783,17 +783,17 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
     const avatar = await loadImage(avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png');
     ctx.save();
     ctx.beginPath();
-    ctx.arc(68, 68, 42, 0, Math.PI * 2, true);
+    ctx.arc(60, 60, 36, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(avatar, 26, 26, 84, 84);
+    ctx.drawImage(avatar, 24, 24, 72, 72);
     ctx.restore();
 
     // Avatar Ring Glow
     ctx.strokeStyle = '#5EA454';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(68, 68, 42, 0, Math.PI * 2, true);
+    ctx.arc(60, 60, 36, 0, Math.PI * 2, true);
     ctx.stroke();
   } catch (err) {
     // Fallback if avatar fails
@@ -801,14 +801,14 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // Username & Tag (Next to Avatar)
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 24px Arial, sans-serif';
+  ctx.font = 'bold 21px Arial, sans-serif';
   let displayName = username;
-  if (displayName.length > 13) displayName = displayName.substring(0, 13) + '...';
-  ctx.fillText(displayName, 126, 58);
+  if (displayName.length > 12) displayName = displayName.substring(0, 12) + '...';
+  ctx.fillText(displayName, 110, 52);
 
   ctx.fillStyle = '#8E9A8F';
-  ctx.font = 'bold 14px Arial, sans-serif';
-  ctx.fillText(tag ? `@${tag}` : '', 126, 80);
+  ctx.font = 'bold 13px Arial, sans-serif';
+  ctx.fillText(tag ? `@${tag}` : '', 110, 72);
 
   // Rank & Level Labels (Top Right Alignment)
   const rankStr = `${rankPos}`;
@@ -816,41 +816,41 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // SIRALAMA
   ctx.fillStyle = '#F5A623';
-  ctx.font = 'bold 13px Arial, sans-serif';
-  ctx.fillText('SIRALAMA', 410, 48);
+  ctx.font = 'bold 12px Arial, sans-serif';
+  ctx.fillText('SIRALAMA', 330, 44);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 28px Arial, sans-serif';
-  ctx.fillText(rankStr, 410, 82);
+  ctx.font = 'bold 24px Arial, sans-serif';
+  ctx.fillText(rankStr, 330, 74);
 
   // SEVİYE
   ctx.fillStyle = '#5EA454';
-  ctx.font = 'bold 13px Arial, sans-serif';
-  ctx.fillText('SEVİYE', 525, 48);
+  ctx.font = 'bold 12px Arial, sans-serif';
+  ctx.fillText('SEVİYE', 425, 44);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 36px Arial, sans-serif';
-  ctx.fillText(levelStr, 525, 84);
+  ctx.font = 'bold 30px Arial, sans-serif';
+  ctx.fillText(levelStr, 425, 76);
 
-  // Sub-stats (Text & Voice XP) - Placed above the full bar on left
+  // Sub-stats (Text & Voice XP) - Placed above bar on left
   ctx.fillStyle = '#9EB1A1';
-  ctx.font = 'bold 13px Arial, sans-serif';
+  ctx.font = 'bold 12px Arial, sans-serif';
   const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
-  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP   •   Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 30, 130);
+  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP  •  Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 25, 116);
 
-  // XP Progress Numbers - Placed above the full bar on right
+  // XP Progress Numbers - Placed above bar on right
   ctx.fillStyle = '#B0BEB2';
-  ctx.font = 'bold 13px Arial, sans-serif';
+  ctx.font = 'bold 12px Arial, sans-serif';
   const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
   const xpTextWidth = ctx.measureText(xpText).width;
-  ctx.fillText(xpText, width - 30 - xpTextWidth, 130);
+  ctx.fillText(xpText, width - 25 - xpTextWidth, 116);
 
-  // Full-Width Progress Bar (Extends across the full bottom underneath avatar)
-  const barX = 30;
-  const barY = 144;
-  const barWidth = 580;
-  const barHeight = 22;
-  const radius = 11;
+  // Full-Width Progress Bar across bottom
+  const barX = 25;
+  const barY = 128;
+  const barWidth = 470;
+  const barHeight = 20;
+  const radius = 10;
 
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
   ctx.strokeStyle = 'rgba(94, 164, 84, 0.3)';
