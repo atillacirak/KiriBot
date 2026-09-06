@@ -960,7 +960,7 @@ export async function handleSetLevelCommand(interaction) {
     .setDescription(`<@${targetUser.id}> adlı üyenin seviyesi **Level ${targetLevel}** (\`${targetBaseXp.toLocaleString()} XP\`) olarak güncellendi ve rolleri senkronize edildi.`)
     .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
 export async function handleAddXpCommand(interaction) {
@@ -994,7 +994,7 @@ export async function handleAddXpCommand(interaction) {
     .setDescription(`<@${targetUser.id}> adlı üyeye **+${amount.toLocaleString()} XP** eklendi!\n💎 Yeni Toplam: \`${data.totalXp.toLocaleString()} XP\` (Level ${newLevel})`)
     .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
 export async function handleRemoveXpCommand(interaction) {
@@ -1016,7 +1016,7 @@ export async function handleRemoveXpCommand(interaction) {
     .setDescription(`<@${targetUser.id}> adlı üyeden **-${amount.toLocaleString()} XP** düşüldü.\n💎 Yeni Toplam: \`${data.totalXp.toLocaleString()} XP\` (Level ${data.level})`)
     .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
 export async function handleResetLevelCommand(interaction) {
@@ -1041,5 +1041,5 @@ export async function handleResetLevelCommand(interaction) {
     .setDescription(`<@${targetUser.id}> adlı üyenin tüm XP ve seviye verileri sıfırlandı.`)
     .setFooter({ text: `Yetkili: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({ embeds: [embed], ephemeral: true });
 }
