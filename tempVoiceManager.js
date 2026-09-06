@@ -71,28 +71,26 @@ export async function saveUserProfile(userId, profile) {
 export async function buildControlPanelComponents(tempData, member) {
   const rows = [];
 
-  // Row 1: Oda Sahibi Devret (UserSelectMenu with current owner selected)
-  const ownerMenu = new UserSelectMenuBuilder()
-    .setCustomId('jtc_owner_transfer')
-    .setPlaceholder('Oda Sahibi Devret...')
-    .setDefaultUsers(tempData.ownerId ? [tempData.ownerId] : [])
-    .setMinValues(1)
-    .setMaxValues(1);
-  rows.push(new ActionRowBuilder().addComponents(ownerMenu));
-
-  // Row 2: Oda Profili Seçimi (StringSelectMenu)
+  // Row 1: Oda Sahibi & Profil Seçimi (StringSelectMenu combining Owner Transfer & Profiles)
   const profiles = await getUserProfiles(tempData.ownerId);
-  const profileOptions = profiles.map(p => ({
-    label: p.name,
-    description: `Limit: ${p.limit || 'Sınırsız'} | ${p.isLocked ? 'Kilitli' : 'Açık'}`,
-    value: `prof_${p.name}`,
-    default: tempData.activeProfileName === p.name
-  }));
-
   const maxSlots = getMaxProfileSlots(member);
+
+  const profileOptions = [
+    { label: '👑 Oda Sahibini Devret...', description: 'Oda sahipliğini başka birine transfer et', value: 'action_owner_transfer' }
+  ];
+
+  profiles.forEach(p => {
+    profileOptions.push({
+      label: `Profil: ${p.name}`,
+      description: `Limit: ${p.limit || 'Sınırsız'} | ${p.isLocked ? 'Kilitli' : 'Açık'}`,
+      value: `prof_${p.name}`,
+      default: tempData.activeProfileName === p.name
+    });
+  });
+
   if (profiles.length < maxSlots) {
     profileOptions.push({
-      label: 'Yeni Profil Slotu Oluştur...',
+      label: '➕ Yeni Profil Slotu Oluştur...',
       description: `Mevcut slot: ${profiles.length}/${maxSlots}`,
       value: 'create_new_profile'
     });
@@ -100,11 +98,11 @@ export async function buildControlPanelComponents(tempData, member) {
 
   const profileMenu = new StringSelectMenuBuilder()
     .setCustomId('jtc_profile_select')
-    .setPlaceholder('Profil Seç veya Yeni Slot Oluştur...')
-    .addOptions(profileOptions.length > 0 ? profileOptions : [{ label: 'Varsayılan Profil', value: 'default' }]);
+    .setPlaceholder('Profil Seç, Slot Oluştur veya Sahip Devret...')
+    .addOptions(profileOptions);
   rows.push(new ActionRowBuilder().addComponents(profileMenu));
 
-  // Row 3: Moderatörler (UserSelectMenu)
+  // Row 2: Moderatörler (UserSelectMenu)
   const modMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_mods_select')
     .setPlaceholder('Moderatörler Seç...')
@@ -112,6 +110,15 @@ export async function buildControlPanelComponents(tempData, member) {
     .setMinValues(0)
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(modMenu));
+
+  // Row 3: İzinli Kullanıcılar (UserSelectMenu)
+  const allowMenu = new UserSelectMenuBuilder()
+    .setCustomId('jtc_allowed_select')
+    .setPlaceholder('İzinli Kullanıcılar Seç...')
+    .setDefaultUsers(tempData.allowedUsers || [])
+    .setMinValues(0)
+    .setMaxValues(10);
+  rows.push(new ActionRowBuilder().addComponents(allowMenu));
 
   // Row 4: Yasaklanan Kullanıcılar (UserSelectMenu)
   const rejectMenu = new UserSelectMenuBuilder()
@@ -122,7 +129,7 @@ export async function buildControlPanelComponents(tempData, member) {
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(rejectMenu));
 
-  // Row 5: Emojili Butonlar (5 Buttons in 1 Row - Exact Reference Matching)
+  // Row 5: Emojili Butonlar (5 Buttons in 1 Row)
   const nameBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_name')
     .setEmoji('🏷️')
@@ -145,7 +152,7 @@ export async function buildControlPanelComponents(tempData, member) {
 
   const streamBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_stream')
-    .setEmoji(tempData.isStreamAllowed ? '📹' : '📹')
+    .setEmoji('📹')
     .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Danger);
 
   rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, speakBtn, streamBtn));
@@ -380,10 +387,23 @@ export async function handleTempVoiceInteraction(interaction) {
     return;
   }
 
-  // 2. Select / Create Profile
+  // 2. Select / Create Profile / Transfer Owner
   if (customId === 'jtc_profile_select') {
     const selected = interaction.values[0];
-    if (selected === 'create_new_profile') {
+    if (selected === 'action_owner_transfer') {
+      const ownerMenu = new UserSelectMenuBuilder()
+        .setCustomId('jtc_owner_transfer')
+        .setPlaceholder('Oda Sahibi Devret...')
+        .setDefaultUsers(tempData.ownerId ? [tempData.ownerId] : [])
+        .setMinValues(1)
+        .setMaxValues(1);
+
+      return interaction.reply({
+        content: '👑 Yeni oda sahibini seçin:',
+        components: [new ActionRowBuilder().addComponents(ownerMenu)],
+        flags: 64
+      });
+    } else if (selected === 'create_new_profile') {
       const modal = new ModalBuilder()
         .setCustomId('jtc_modal_new_profile')
         .setTitle('➕ Yeni Profil Slotu Oluştur');
