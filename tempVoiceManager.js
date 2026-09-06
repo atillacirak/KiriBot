@@ -71,19 +71,20 @@ export async function saveUserProfile(userId, profile) {
 export async function buildControlPanelComponents(tempData, member) {
   const rows = [];
 
-  // Row 1: 👑 ODA SAHİBİ & DEVİR (UserSelectMenu)
+  // Row 1: Oda Sahibi Devret (UserSelectMenu with current owner selected)
   const ownerMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_owner_transfer')
-    .setPlaceholder('👑 Oda Sahibi Devret...')
+    .setPlaceholder('Oda Sahibi Devret...')
+    .setDefaultUsers(tempData.ownerId ? [tempData.ownerId] : [])
     .setMinValues(1)
     .setMaxValues(1);
   rows.push(new ActionRowBuilder().addComponents(ownerMenu));
 
-  // Row 2: 📂 ODA PROFİLİ SEÇİMİ (StringSelectMenu)
+  // Row 2: Oda Profili Seçimi (StringSelectMenu)
   const profiles = await getUserProfiles(tempData.ownerId);
   const profileOptions = profiles.map(p => ({
     label: p.name,
-    description: `👥 Limit: ${p.limit || 'Sınırsız'} | 🔒 ${p.isLocked ? 'Kilitli' : 'Açık'}`,
+    description: `Limit: ${p.limit || 'Sınırsız'} | ${p.isLocked ? 'Kilitli' : 'Açık'}`,
     value: `prof_${p.name}`,
     emoji: '🎮',
     default: tempData.activeProfileName === p.name
@@ -92,7 +93,7 @@ export async function buildControlPanelComponents(tempData, member) {
   const maxSlots = getMaxProfileSlots(member);
   if (profiles.length < maxSlots) {
     profileOptions.push({
-      label: '➕ Yeni Profil Slotu Oluştur...',
+      label: 'Yeni Profil Slotu Oluştur...',
       description: `Mevcut slot: ${profiles.length}/${maxSlots}`,
       value: 'create_new_profile',
       emoji: '✨'
@@ -101,53 +102,59 @@ export async function buildControlPanelComponents(tempData, member) {
 
   const profileMenu = new StringSelectMenuBuilder()
     .setCustomId('jtc_profile_select')
-    .setPlaceholder('📂 Profil Seç veya Yeni Slot Oluştur...')
+    .setPlaceholder('Profil Seç veya Yeni Slot Oluştur...')
     .addOptions(profileOptions.length > 0 ? profileOptions : [{ label: 'Varsayılan Profil', value: 'default', emoji: '⚙️' }]);
   rows.push(new ActionRowBuilder().addComponents(profileMenu));
 
-  // Row 3: 🛡️ MODERATÖRLER (UserSelectMenu)
+  // Row 3: Moderatörler (UserSelectMenu)
   const modMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_mods_select')
-    .setPlaceholder('🛡️ Oda Moderatörlerini Seç...')
+    .setPlaceholder('Moderatörler Seç...')
+    .setDefaultUsers(tempData.moderators || [])
     .setMinValues(0)
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(modMenu));
 
-  // Row 4: 🟢 İZİNLİ / GİREBİLEN KULLANICILAR (UserSelectMenu)
+  // Row 4: İzinli Kullanıcılar (UserSelectMenu)
   const allowMenu = new UserSelectMenuBuilder()
     .setCustomId('jtc_allowed_select')
-    .setPlaceholder('🟢 İzinli Kullanıcıları Seç (Kilitli İçin)...')
+    .setPlaceholder('İzinli Kullanıcılar Seç...')
+    .setDefaultUsers(tempData.allowedUsers || [])
     .setMinValues(0)
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(allowMenu));
 
-  // Row 5: 🧰 HIZLI EYLEMLER (5 Buttons in 1 Row - Discord Max)
+  // Row 5: Yasaklanan / Engellenen Kullanıcılar (UserSelectMenu)
+  const rejectMenu = new UserSelectMenuBuilder()
+    .setCustomId('jtc_rejected_select')
+    .setPlaceholder('Yasaklanan Kullanıcılar Seç...')
+    .setDefaultUsers(tempData.rejectedUsers || [])
+    .setMinValues(0)
+    .setMaxValues(10);
+  rows.push(new ActionRowBuilder().addComponents(rejectMenu));
+
+  // Row 6: Emojili Butonlar (Quick Actions)
   const nameBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_name')
-    .setLabel('🏷️ Ad')
+    .setEmoji('🏷️')
     .setStyle(ButtonStyle.Secondary);
 
   const limitBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_limit')
-    .setLabel('👥 Limit')
+    .setEmoji('👥')
     .setStyle(ButtonStyle.Secondary);
 
   const lockBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_lock')
-    .setLabel(tempData.isLocked ? '🔒 Kilitli' : '🔓 Açık')
+    .setEmoji(tempData.isLocked ? '🔒' : '🔓')
     .setStyle(tempData.isLocked ? ButtonStyle.Danger : ButtonStyle.Success);
 
   const streamBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_stream')
-    .setLabel(tempData.isStreamAllowed ? '📹 Kamera Açık' : '📹 Kamera Kapalı')
+    .setEmoji('📹')
     .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Secondary);
 
-  const rejectBtn = new ButtonBuilder()
-    .setCustomId('jtc_btn_reject_menu')
-    .setLabel('🚫 Engelle / At')
-    .setStyle(ButtonStyle.Danger);
-
-  rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, streamBtn, rejectBtn));
+  rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, streamBtn));
 
   return rows;
 }
@@ -156,10 +163,6 @@ export function buildControlPanelEmbed(tempData, ownerUser) {
   return new EmbedBuilder()
     .setColor('#5EA454')
     .setTitle(`🎙️ ${tempData.channelName} — Kontrol Paneli`)
-    .setDescription(
-      `Odanızı aşağıdaki dikey panel menülerini kullanarak kolayca özelleştirebilirsiniz.\n` +
-      `*Yaptığınız tüm değişiklikler seçili profilinize anında **otomatik kaydedilir**.*`
-    )
     .addFields(
       { name: '👑 Oda Sahibi', value: `<@${tempData.ownerId}>`, inline: true },
       { name: '📂 Aktif Profil', value: `\`${tempData.activeProfileName || 'Özel Profil'}\``, inline: true },
