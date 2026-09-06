@@ -84,10 +84,10 @@ function loadLocalLevels() {
   }
 }
 
-function saveLocalLevels() {
+async function saveLocalLevels() {
   try {
     const obj = Object.fromEntries(levelCache.entries());
-    fs.writeFileSync(LEVELS_DB_FILE, JSON.stringify(obj, null, 2), 'utf8');
+    await fs.promises.writeFile(LEVELS_DB_FILE, JSON.stringify(obj, null, 2), 'utf8');
   } catch (e) {
     console.error('Local levels save error:', e.message);
   }
