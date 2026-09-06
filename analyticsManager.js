@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -345,6 +346,18 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
         percent: leftPercent,
         users: leftUsers
       }
+    },
+    // System & Hardware Resource Metrics
+    system: {
+      processMemoryMb: Math.round(process.memoryUsage().rss / (1024 * 1024)),
+      totalMemoryMb: Math.round(os.totalmem() / (1024 * 1024)),
+      freeMemoryMb: Math.round(os.freemem() / (1024 * 1024)),
+      usedMemoryMb: Math.round((os.totalmem() - os.freemem()) / (1024 * 1024)),
+      memoryUsagePercent: Math.round(((os.totalmem() - os.freemem()) / os.totalmem()) * 100),
+      cpuLoadAvg: os.loadavg()[0].toFixed(2),
+      cpuCount: os.cpus().length,
+      uptimeSeconds: Math.floor(process.uptime()),
+      platform: os.platform()
     },
     // Recent logs & Channels
     recentEvents,

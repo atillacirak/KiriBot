@@ -1009,6 +1009,59 @@
             </div>
 
           </div>
+
+          <!-- SYSTEM & HARDWARE RESOURCE METRICS CARD -->
+          <div class="glass-card rounded-3xl p-6 space-y-4 border-pond-500/30">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-pond-border/60 pb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🖥️</span>
+                <div>
+                  <h3 class="font-display font-bold text-white text-base">Sunucu & Donanım Kaynak Durumu</h3>
+                  <p class="text-xs text-gray-400">EC2 sunucusunun anlık CPU, RAM tüketimi ve çalışma süresi</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 self-start sm:self-auto flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistem Sağlıklı
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <!-- CPU LOAD -->
+              <div class="p-3.5 rounded-2xl bg-black/30 border border-pond-border/60 space-y-1">
+                <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span>⚡ CPU Yükü</span>
+                  <span id="sysCpuCoreBadge" class="text-[9px] text-pond-400 font-mono">1 Çekirdek</span>
+                </div>
+                <div id="sysCpuLoad" class="text-xl md:text-2xl font-display font-bold text-emerald-400">0.0 %</div>
+                <div class="text-[10px] text-gray-500">Ortalama İşlemci Yükü</div>
+              </div>
+
+              <!-- RAM USAGE -->
+              <div class="p-3.5 rounded-2xl bg-black/30 border border-pond-border/60 space-y-1">
+                <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                  <span>💾 Toplam RAM Tüketimi</span>
+                  <span id="sysRamPercent" class="text-[9px] text-amberOrange font-mono">%0</span>
+                </div>
+                <div id="sysRamUsed" class="text-xl md:text-2xl font-display font-bold text-amberOrange">0 / 0 MB</div>
+                <div id="sysRamFree" class="text-[10px] text-gray-500">0 MB Kullanılabilir Boş RAM</div>
+              </div>
+
+              <!-- BOT PROCESS MEMORY -->
+              <div class="p-3.5 rounded-2xl bg-black/30 border border-pond-border/60 space-y-1">
+                <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">🤖 KurBot RAM Hissesi</div>
+                <div id="sysBotMemory" class="text-xl md:text-2xl font-display font-bold text-pond-400">0 MB</div>
+                <div class="text-[10px] text-gray-500">Node.js RSS Bellek Tüketimi</div>
+              </div>
+
+              <!-- UPTIME & PLATFORM -->
+              <div class="p-3.5 rounded-2xl bg-black/30 border border-pond-border/60 space-y-1">
+                <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">⏱️ Bot Çalışma Süresi</div>
+                <div id="sysUptime" class="text-xl md:text-2xl font-display font-bold text-white">0s</div>
+                <div id="sysPlatform" class="text-[10px] text-gray-500">AWS EC2 (Linux)</div>
+              </div>
+            </div>
+          </div>
+
         </div>
         <!-- /#adminAnalyticsView -->
 
@@ -2912,6 +2965,31 @@
               </div>
             `;
           }).join('');
+        }
+
+        // Hardware & System Metrics
+        if (a.system) {
+          const s = a.system;
+          if (document.getElementById('sysCpuLoad')) document.getElementById('sysCpuLoad').innerText = `%${s.cpuLoadAvg || 0}`;
+          if (document.getElementById('sysCpuCoreBadge')) document.getElementById('sysCpuCoreBadge').innerText = `${s.cpuCount || 1} Çekirdek`;
+          if (document.getElementById('sysRamUsed')) document.getElementById('sysRamUsed').innerText = `${s.usedMemoryMb} / ${s.totalMemoryMb} MB`;
+          if (document.getElementById('sysRamPercent')) document.getElementById('sysRamPercent').innerText = `%${s.memoryUsagePercent}`;
+          if (document.getElementById('sysRamFree')) document.getElementById('sysRamFree').innerText = `${s.freeMemoryMb} MB Kullanılabilir Boş RAM`;
+          if (document.getElementById('sysBotMemory')) document.getElementById('sysBotMemory').innerText = `${s.processMemoryMb} MB`;
+          
+          if (document.getElementById('sysUptime')) {
+            const days = Math.floor(s.uptimeSeconds / (3600 * 24));
+            const hours = Math.floor((s.uptimeSeconds % (3600 * 24)) / 3600);
+            const mins = Math.floor((s.uptimeSeconds % 3600) / 60);
+            let uptimeText = `${mins}dk`;
+            if (hours > 0 || days > 0) uptimeText = `${hours}sa ${mins}dk`;
+            if (days > 0) uptimeText = `${days}gün ${hours}sa`;
+            document.getElementById('sysUptime').innerText = uptimeText;
+          }
+
+          if (document.getElementById('sysPlatform')) {
+            document.getElementById('sysPlatform').innerText = `AWS EC2 (${s.platform === 'linux' ? 'Ubuntu Linux' : s.platform})`;
+          }
         }
 
       } catch (err) {
