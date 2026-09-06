@@ -239,13 +239,13 @@ export async function syncChannelPermissions(channel, tempData) {
       tempData.allowedUsers.forEach(userId => {
         overwrites.push({
           id: userId,
-          allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Speak]
+          allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Speak, PermissionFlagsBits.SendMessages]
         });
       });
     } else {
       overwrites.push({
         id: channel.guild.roles.everyone.id,
-        allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel]
+        allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
       });
     }
 
@@ -358,10 +358,14 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       await syncChannelPermissions(tempChannel, tempData);
 
       // Send Control Panel Embed into Voice Channel Text Chat
-      const embed = buildControlPanelEmbed(tempData, member.user);
-      const components = await buildControlPanelComponents(tempData, member);
-      const controlMsg = await tempChannel.send({ embeds: [embed], components });
-      tempData.controlMessageId = controlMsg.id;
+      try {
+        const embed = buildControlPanelEmbed(tempData, member.user);
+        const components = await buildControlPanelComponents(tempData, member);
+        const controlMsg = await tempChannel.send({ embeds: [embed], components });
+        tempData.controlMessageId = controlMsg.id;
+      } catch (sendErr) {
+        console.error('⚠️ Control panel send error:', sendErr.message);
+      }
 
     } catch (err) {
       console.error('Error creating temp voice channel:', err);
