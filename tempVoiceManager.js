@@ -86,7 +86,6 @@ export async function buildControlPanelComponents(tempData, member) {
     label: p.name,
     description: `Limit: ${p.limit || 'Sınırsız'} | ${p.isLocked ? 'Kilitli' : 'Açık'}`,
     value: `prof_${p.name}`,
-    emoji: '🎮',
     default: tempData.activeProfileName === p.name
   }));
 
@@ -95,15 +94,14 @@ export async function buildControlPanelComponents(tempData, member) {
     profileOptions.push({
       label: 'Yeni Profil Slotu Oluştur...',
       description: `Mevcut slot: ${profiles.length}/${maxSlots}`,
-      value: 'create_new_profile',
-      emoji: '✨'
+      value: 'create_new_profile'
     });
   }
 
   const profileMenu = new StringSelectMenuBuilder()
     .setCustomId('jtc_profile_select')
     .setPlaceholder('Profil Seç veya Yeni Slot Oluştur...')
-    .addOptions(profileOptions.length > 0 ? profileOptions : [{ label: 'Varsayılan Profil', value: 'default', emoji: '⚙️' }]);
+    .addOptions(profileOptions.length > 0 ? profileOptions : [{ label: 'Varsayılan Profil', value: 'default' }]);
   rows.push(new ActionRowBuilder().addComponents(profileMenu));
 
   // Row 3: Moderatörler (UserSelectMenu)
@@ -115,14 +113,14 @@ export async function buildControlPanelComponents(tempData, member) {
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(modMenu));
 
-  // Row 4: İzinli Kullanıcılar (UserSelectMenu)
-  const allowMenu = new UserSelectMenuBuilder()
-    .setCustomId('jtc_allowed_select')
-    .setPlaceholder('İzinli Kullanıcılar Seç...')
-    .setDefaultUsers(tempData.allowedUsers || [])
+  // Row 4: Yasaklanan Kullanıcılar (UserSelectMenu)
+  const rejectMenu = new UserSelectMenuBuilder()
+    .setCustomId('jtc_rejected_select')
+    .setPlaceholder('Yasaklanan Kullanıcılar Seç...')
+    .setDefaultUsers(tempData.rejectedUsers || [])
     .setMinValues(0)
     .setMaxValues(10);
-  rows.push(new ActionRowBuilder().addComponents(allowMenu));
+  rows.push(new ActionRowBuilder().addComponents(rejectMenu));
 
   // Row 5: Emojili Butonlar (5 Buttons in 1 Row - Exact Reference Matching)
   const nameBtn = new ButtonBuilder()
@@ -147,7 +145,7 @@ export async function buildControlPanelComponents(tempData, member) {
 
   const streamBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_stream')
-    .setEmoji('📹')
+    .setEmoji(tempData.isStreamAllowed ? '📹' : '📹')
     .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Danger);
 
   rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, speakBtn, streamBtn));
