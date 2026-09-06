@@ -803,22 +803,27 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   ctx.font = 'bold 16px Arial, sans-serif';
   ctx.fillText(tag ? `@${tag}` : '', 210, 122);
 
-  // Rank & Level Labels (Top Right Alignment)
+  // Rank & Level Labels (Top Right Alignment - Prominent & Turkish)
+  const rankStr = `${rankPos}`;
+  const levelStr = `${level}`;
+
+  // SIRALAMA
   ctx.fillStyle = '#F5A623';
-  ctx.font = 'bold 20px Arial, sans-serif';
-  ctx.fillText('RANK', 640, 70);
+  ctx.font = 'bold 16px Arial, sans-serif';
+  ctx.fillText('SIRALAMA', 560, 65);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 34px Arial, sans-serif';
-  ctx.fillText(`${rankPos}`, 715, 70);
+  ctx.font = 'bold 36px Arial, sans-serif';
+  ctx.fillText(rankStr, 560, 105);
 
+  // SEVİYE (More Prominent)
   ctx.fillStyle = '#5EA454';
-  ctx.font = 'bold 20px Arial, sans-serif';
-  ctx.fillText('LEVEL', 790, 70);
+  ctx.font = 'bold 16px Arial, sans-serif';
+  ctx.fillText('SEVİYE', 740, 65);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 38px Arial, sans-serif';
-  ctx.fillText(`${level}`, 865, 70);
+  ctx.font = 'bold 44px Arial, sans-serif';
+  ctx.fillText(levelStr, 740, 108);
 
   // XP Text Stats Above Bar
   ctx.fillStyle = '#B0BEB2';
@@ -827,11 +832,11 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
   const xpTextWidth = ctx.measureText(xpText).width;
   ctx.fillText(xpText, width - 50 - xpTextWidth, 175);
 
-  // Sub-stats (Text & Voice XP)
-  ctx.fillStyle = '#8E9A8F';
+  // Sub-stats (Text & Voice XP) - Clean Text Labels
+  ctx.fillStyle = '#9EB1A1';
   ctx.font = 'bold 14px Arial, sans-serif';
   const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
-  ctx.fillText(`💬 Yazı: ${textXp.toLocaleString()} XP   🎙️ Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 210, 175);
+  ctx.fillText(`Yazı: ${textXp.toLocaleString()} XP   •   Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 210, 175);
 
   // Progress Bar Outer Background Container
   const barX = 210;
