@@ -355,9 +355,8 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       }
 
       tempVoiceCache.set(tempChannel.id, tempData);
-      await syncChannelPermissions(tempChannel, tempData);
 
-      // Send Control Panel Embed into Voice Channel Text Chat
+      // Send Control Panel Embed into Voice Channel Text Chat FIRST (before overwrites sync)
       try {
         const embed = buildControlPanelEmbed(tempData, member.user);
         const components = await buildControlPanelComponents(tempData, member);
@@ -366,6 +365,9 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       } catch (sendErr) {
         console.error('⚠️ Control panel send error:', sendErr.message);
       }
+
+      // Sync channel permissions after sending message
+      await syncChannelPermissions(tempChannel, tempData);
 
     } catch (err) {
       console.error('Error creating temp voice channel:', err);
