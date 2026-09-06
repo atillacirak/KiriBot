@@ -1465,10 +1465,11 @@
                   <input type="text" id="dmSearchQuery" oninput="filterDmConversations()" placeholder="Kullanıcı veya mesaj ara..." class="w-full bg-black/40 border border-pond-border rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pond-500">
                 </div>
 
-                <div class="flex items-center gap-1 p-1 rounded-xl bg-black/40 border border-pond-border text-[11px] font-semibold">
+                <div class="flex items-center gap-1 p-1 rounded-xl bg-black/40 border border-pond-border text-[10px] font-semibold">
                   <button onclick="setDmFilter('all')" id="dmFilterBtn_all" class="flex-1 py-1.5 rounded-lg bg-pond-500 text-white transition text-center">Tümü</button>
                   <button onclick="setDmFilter('incoming')" id="dmFilterBtn_incoming" class="flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center">Gelenler 📥</button>
-                  <button onclick="setDmFilter('outgoing')" id="dmFilterBtn_outgoing" class="flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center">Gidenler 📤</button>
+                  <button onclick="setDmFilter('outgoing')" id="dmFilterBtn_outgoing" class="flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center">Yönetim 📤</button>
+                  <button onclick="setDmFilter('system')" id="dmFilterBtn_system" class="flex-1 py-1.5 rounded-lg text-gray-400 hover:text-white transition text-center">Seviye/Sistem 🎖️</button>
                 </div>
               </div>
 
@@ -2433,7 +2434,7 @@
 
     function setDmFilter(filter) {
       currentDmFilter = filter;
-      ['all', 'incoming', 'outgoing'].forEach(f => {
+      ['all', 'incoming', 'outgoing', 'system'].forEach(f => {
         const btn = document.getElementById(`dmFilterBtn_${f}`);
         if (btn) {
           if (f === filter) {
@@ -2458,7 +2459,8 @@
 
       let filtered = adminConversationsData.filter(c => {
         if (currentDmFilter === 'incoming' && c.lastDirection !== 'incoming') return false;
-        if (currentDmFilter === 'outgoing' && c.lastDirection !== 'outgoing') return false;
+        if (currentDmFilter === 'outgoing' && (c.lastDirection !== 'outgoing' || c.sentBy === 'system')) return false;
+        if (currentDmFilter === 'system' && c.sentBy !== 'system') return false;
         if (q) {
           const matchName = (c.userDisplayName || '').toLowerCase().includes(q);
           const matchTag = (c.userTag || '').toLowerCase().includes(q);

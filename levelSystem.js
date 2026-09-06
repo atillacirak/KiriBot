@@ -286,6 +286,24 @@ export async function sendLevelUpDm(guild, member, newLevel) {
 
     await member.send({ embeds: [embed], components: [row] });
     console.log(`✉️ [Level Up DM] ${member.user.tag} kullanıcısına Level ${newLevel} tebrik DM'i gönderildi.`);
+
+    // Record system DM log
+    try {
+      const { recordDirectMessage } = await import('./messagesManager.js');
+      await recordDirectMessage({
+        userId: member.id,
+        userTag: member.user?.tag || member.user?.username || member.id,
+        userDisplayName: member.displayName || member.user?.username || 'Kullanıcı',
+        userAvatar: member.user?.displayAvatarURL({ size: 128 }) || '',
+        direction: 'outgoing',
+        content: `🎉 **Seviye ${newLevel}** tebrik DM'i otomatik olarak iletildi.`,
+        asEmbed: true,
+        embedTitle: `🎉 TEBRİKLER, SEVİYE ${newLevel} ATLADIN!`,
+        sentBy: 'system'
+      });
+    } catch (logErr) {
+      console.warn('Level DM kaydı oluşturulamadı:', logErr.message);
+    }
   } catch (err) {
     // Member DMs closed
   }
@@ -326,6 +344,24 @@ export async function sendRoleRewardDm(guild, member, newLevel, roleRewardRole) 
 
     await member.send({ embeds: [embed], components: [row] });
     console.log(`✉️ [Role Reward DM] ${member.user.tag} kullanıcısına ${roleRewardRole.name} ödül DM'i gönderildi.`);
+
+    // Record system DM log
+    try {
+      const { recordDirectMessage } = await import('./messagesManager.js');
+      await recordDirectMessage({
+        userId: member.id,
+        userTag: member.user?.tag || member.user?.username || member.id,
+        userDisplayName: member.displayName || member.user?.username || 'Kullanıcı',
+        userAvatar: member.user?.displayAvatarURL({ size: 128 }) || '',
+        direction: 'outgoing',
+        content: `🎖️ **Seviye ${newLevel}** - **${roleRewardRole.name}** rol tebrik DM'i otomatik olarak iletildi.`,
+        asEmbed: true,
+        embedTitle: `🎖️ YENİ KURBAĞA ROLÜ KAZANDIN! (${roleRewardRole.name})`,
+        sentBy: 'system'
+      });
+    } catch (logErr) {
+      console.warn('Role DM kaydı oluşturulamadı:', logErr.message);
+    }
   } catch (err) {
     // Member DMs closed
   }
