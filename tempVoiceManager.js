@@ -1,5 +1,4 @@
 import { 
-  EmbedBuilder, 
   ActionRowBuilder, 
   ButtonBuilder, 
   ButtonStyle, 
@@ -14,9 +13,10 @@ import {
 import { getGuildSettings } from './levelSystem.js';
 
 let mongoTempVoiceCollection = null;
-const tempVoiceCache = new Map(); // channelId -> data
+const tempVoiceCache = new Map(); // channelId -> tempData
 const userProfilesCache = new Map(); // userId -> Array of profiles
 
+// Initialize MongoDB for JTC profiles and channels
 export function initTempVoiceMongo(db) {
   if (db) {
     mongoTempVoiceCollection = db.collection('temp_voice_channels');
@@ -37,10 +37,7 @@ export function getMaxProfileSlots(member) {
 }
 
 export async function getUserProfiles(userId) {
-  if (userProfilesCache.has(userId)) {
-    return userProfilesCache.get(userId);
-  }
-  return [];
+  return userProfilesCache.get(userId) || [];
 }
 
 export async function saveUserProfile(userId, profile) {
@@ -67,12 +64,13 @@ export async function saveUserProfile(userId, profile) {
   }
 }
 
-// Helper: Build vertical 5-row interactive control panel (Discord API enforces MAX 5 ActionRows per message)
+// Build 5-Row Vertical Control Panel (Strictly matching jtc_design_plan.md)
 export async function buildControlPanelComponents(tempData, member) {
   const rows = [];
   const profiles = await getUserProfiles(tempData.ownerId);
   const maxSlots = getMaxProfileSlots(member);
 
+  // Row 1: Oda Profili (Select Menu with Owner Transfer & Slot creation)
   const profileOptions = [
     { label: '👑 Oda Sahibini Devret...', value: 'action_owner_transfer' }
   ];
@@ -125,7 +123,7 @@ export async function buildControlPanelComponents(tempData, member) {
     .setMaxValues(10);
   rows.push(new ActionRowBuilder().addComponents(rejectMenu));
 
-  // Row 5: Emojili Butonlar (5 Buttons in 1 Row)
+  // Row 5: Action Buttons (Exact Emojis & Dynamic Styles)
   const nameBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_name')
     .setEmoji('🏷️')
@@ -144,42 +142,24 @@ export async function buildControlPanelComponents(tempData, member) {
   const speakBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_speak')
     .setEmoji('🎙️')
-    .setStyle(ButtonStyle.Secondary);
+    .setStyle(tempData.isSpeakAllowed !== false ? ButtonStyle.Secondary : ButtonStyle.Danger);
 
   const streamBtn = new ButtonBuilder()
     .setCustomId('jtc_btn_stream')
     .setEmoji('📹')
-    .setStyle(tempData.isStreamAllowed ? ButtonStyle.Success : ButtonStyle.Danger);
+    .setStyle(tempData.isStreamAllowed !== false ? ButtonStyle.Success : ButtonStyle.Danger);
 
   rows.push(new ActionRowBuilder().addComponents(nameBtn, limitBtn, lockBtn, speakBtn, streamBtn));
 
   return rows;
 }
 
-export function buildControlPanelEmbed(tempData, ownerUser) {
-  return new EmbedBuilder()
-    .setColor('#5EA454')
-    .setTitle(`🎙️ ${tempData.channelName} — Kontrol Paneli`)
-    .addFields(
-      { name: '👑 Oda Sahibi', value: `<@${tempData.ownerId}>`, inline: true },
-      { name: '📂 Aktif Profil', value: `\`${tempData.activeProfileName || 'Özel Profil'}\``, inline: true },
-      { name: '👥 Kişi Limiti', value: tempData.userLimit > 0 ? `\`${tempData.userLimit} Kişi\`` : '`Sınırsız`', inline: true },
-      { name: '🔒 Kilit Durumu', value: tempData.isLocked ? '🔴 **Kilitli** (Sadece İzinliler)' : '🟢 **Açık** (Herkes Katılabilir)', inline: true },
-      { name: '📹 Kamera & Yayın', value: tempData.isStreamAllowed ? '🟢 **İzin Verildi**' : '🔴 **Yasaklandı**', inline: true },
-      { name: '🛡️ Moderatörler', value: tempData.moderators.length > 0 ? tempData.moderators.map(id => `<@${id}>`).join(', ') : '*Yok*', inline: false },
-      { name: '🟢 İzinli Üyeler', value: tempData.allowedUsers.length > 0 ? tempData.allowedUsers.map(id => `<@${id}>`).join(', ') : '*Yok*', inline: false },
-      { name: '🚫 Yasaklananlar', value: tempData.rejectedUsers.length > 0 ? tempData.rejectedUsers.map(id => `<@${id}>`).join(', ') : '*Yok*', inline: false }
-    )
-    .setFooter({ text: 'Yeşil Gölet • Geçici Sesli Oda Yönetimi', iconURL: ownerUser ? ownerUser.displayAvatarURL() : undefined })
-    .setTimestamp();
-}
-
-// Sync permissions on channel
+// Synchronize channel permissions cleanly according to design plan
 export async function syncChannelPermissions(channel, tempData) {
   try {
     const everyoneRole = channel.guild.roles.everyone;
 
-    // 1. Owner Control
+    // 1. Owner Control (Full Access)
     await channel.permissionOverwrites.edit(tempData.ownerId, {
       ViewChannel: true,
       Connect: true,
@@ -197,13 +177,13 @@ export async function syncChannelPermissions(channel, tempData) {
       }).catch(e => console.warn('Sync lock perm error:', e.message));
     } else {
       await channel.permissionOverwrites.edit(everyoneRole, {
-        Connect: null
+        Connect: true
       }).catch(e => console.warn('Sync unlock perm error:', e.message));
       await channel.permissionOverwrites.delete(everyoneRole.id).catch(() => {});
     }
 
-    // 3. Stream State on @everyone
-    if (tempData.isStreamAllowed) {
+    // 3. Camera & Stream Permission (Default Enabled)
+    if (tempData.isStreamAllowed !== false) {
       await channel.permissionOverwrites.edit(everyoneRole, {
         Stream: true
       }).catch(e => console.warn('Sync stream allow perm error:', e.message));
@@ -213,7 +193,18 @@ export async function syncChannelPermissions(channel, tempData) {
       }).catch(e => console.warn('Sync stream deny perm error:', e.message));
     }
 
-    // 4. Moderators
+    // 4. Speak Permission
+    if (tempData.isSpeakAllowed !== false) {
+      await channel.permissionOverwrites.edit(everyoneRole, {
+        Speak: true
+      }).catch(e => console.warn('Sync speak allow perm error:', e.message));
+    } else {
+      await channel.permissionOverwrites.edit(everyoneRole, {
+        Speak: false
+      }).catch(e => console.warn('Sync speak deny perm error:', e.message));
+    }
+
+    // 5. Moderators (Full Channel Control)
     for (const modId of tempData.moderators) {
       if (modId !== tempData.ownerId) {
         await channel.permissionOverwrites.edit(modId, {
@@ -227,7 +218,7 @@ export async function syncChannelPermissions(channel, tempData) {
       }
     }
 
-    // 5. Allowed Users (Explicit Connect permission if channel is locked)
+    // 6. Allowed Users (Explicit Connect permission if channel is locked)
     for (const userId of tempData.allowedUsers) {
       if (userId !== tempData.ownerId && !tempData.moderators.includes(userId)) {
         await channel.permissionOverwrites.edit(userId, {
@@ -239,7 +230,7 @@ export async function syncChannelPermissions(channel, tempData) {
       }
     }
 
-    // 6. Rejected Users
+    // 7. Rejected Users (Blocked & Disconnected)
     for (const userId of tempData.rejectedUsers) {
       if (userId !== tempData.ownerId) {
         await channel.permissionOverwrites.edit(userId, {
@@ -254,7 +245,7 @@ export async function syncChannelPermissions(channel, tempData) {
   }
 }
 
-// Auto-save active state to profile
+// Save current channel state to user active profile
 export async function autoSaveCurrentState(tempData) {
   if (!tempData.ownerId) return;
   const profileObj = {
@@ -263,6 +254,7 @@ export async function autoSaveCurrentState(tempData) {
     limit: tempData.userLimit,
     isLocked: tempData.isLocked,
     isStreamAllowed: tempData.isStreamAllowed,
+    isSpeakAllowed: tempData.isSpeakAllowed,
     moderators: tempData.moderators,
     allowedUsers: tempData.allowedUsers,
     rejectedUsers: tempData.rejectedUsers
@@ -278,7 +270,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
   const hubChannelId = settings.tempVoiceHubChannelId;
   if (!hubChannelId) return;
 
-  // 1. Check if user joined hub channel
+  // 1. User joined hub channel -> Create temp voice channel
   if (newState.channelId === hubChannelId) {
     const member = newState.member;
     const channelName = `🔊 ${member.displayName} Odası`;
@@ -287,13 +279,14 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       const hubChannel = guild.channels.cache.get(hubChannelId);
       const category = hubChannel ? hubChannel.parent : null;
 
+      // Create channel cleanly inheriting category perms
       const tempChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildVoice,
         parent: category ? category.id : undefined
       });
 
-      // Move member to new channel (safely handled if bot lacks move permission)
+      // Move member to new channel
       try {
         await member.voice.setChannel(tempChannel);
       } catch (moveErr) {
@@ -307,6 +300,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
         userLimit: 0,
         isLocked: false,
         isStreamAllowed: true,
+        isSpeakAllowed: true,
         activeProfileName: 'Varsayılan',
         moderators: [],
         allowedUsers: [],
@@ -323,6 +317,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
         tempData.userLimit = lastP.limit || 0;
         tempData.isLocked = !!lastP.isLocked;
         tempData.isStreamAllowed = lastP.isStreamAllowed !== undefined ? lastP.isStreamAllowed : true;
+        tempData.isSpeakAllowed = lastP.isSpeakAllowed !== undefined ? lastP.isSpeakAllowed : true;
         tempData.moderators = lastP.moderators || [];
         tempData.allowedUsers = lastP.allowedUsers || [];
         tempData.rejectedUsers = lastP.rejectedUsers || [];
@@ -333,7 +328,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
 
       tempVoiceCache.set(tempChannel.id, tempData);
 
-      // Send Control Panel Components directly into Voice Channel Text Chat (No Embed card, exactly matching reference image)
+      // Send Control Panel Components directly into Voice Channel Text Chat (No Embed)
       try {
         const components = await buildControlPanelComponents(tempData, member);
         const controlMsg = await tempChannel.send({ components });
@@ -342,7 +337,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
         console.error('⚠️ Control panel send error:', sendErr.message);
       }
 
-      // Sync channel permissions after sending message
+      // Sync channel permissions
       await syncChannelPermissions(tempChannel, tempData);
 
     } catch (err) {
@@ -350,7 +345,7 @@ export async function handleVoiceStateUpdate(oldState, newState) {
     }
   }
 
-  // 2. Cleanup empty temp voice channels
+  // 2. Cleanup empty temp voice channels (0 members)
   if (oldState.channelId && oldState.channelId !== hubChannelId) {
     const oldChannel = guild.channels.cache.get(oldState.channelId);
     if (oldChannel && tempVoiceCache.has(oldChannel.id)) {
@@ -377,7 +372,7 @@ export async function handleTempVoiceInteraction(interaction) {
     return interaction.reply({ content: '❌ Bu kanal geçici bir sesli oda değil.', flags: 64 });
   }
 
-  // Check if member is owner or moderator
+  // Check if member is owner, moderator or admin
   const isOwner = member.id === tempData.ownerId;
   const isMod = tempData.moderators.includes(member.id);
 
@@ -385,7 +380,7 @@ export async function handleTempVoiceInteraction(interaction) {
     return interaction.reply({ content: '❌ Bu odayı yönetme yetkiniz yok!', flags: 64 });
   }
 
-  // 1. Transfer Ownership
+  // 1. Transfer Ownership Menu
   if (customId === 'jtc_owner_transfer') {
     await interaction.deferUpdate();
     const newOwnerId = interaction.values[0];
@@ -396,7 +391,7 @@ export async function handleTempVoiceInteraction(interaction) {
     return;
   }
 
-  // 2. Select / Create Profile / Transfer Owner
+  // 2. Profile Selection / Create Profile / Trigger Owner Transfer
   if (customId === 'jtc_profile_select') {
     const selected = interaction.values[0];
     if (selected === 'action_owner_transfer') {
@@ -438,6 +433,7 @@ export async function handleTempVoiceInteraction(interaction) {
         tempData.userLimit = targetP.limit || 0;
         tempData.isLocked = !!targetP.isLocked;
         tempData.isStreamAllowed = targetP.isStreamAllowed !== undefined ? targetP.isStreamAllowed : true;
+        tempData.isSpeakAllowed = targetP.isSpeakAllowed !== undefined ? targetP.isSpeakAllowed : true;
         tempData.moderators = targetP.moderators || [];
         tempData.allowedUsers = targetP.allowedUsers || [];
         tempData.rejectedUsers = targetP.rejectedUsers || [];
@@ -471,7 +467,27 @@ export async function handleTempVoiceInteraction(interaction) {
     return;
   }
 
-  // 5. Buttons
+  // 5. Select Rejected Users
+  if (customId === 'jtc_rejected_select') {
+    await interaction.deferUpdate();
+    tempData.rejectedUsers = interaction.values;
+
+    // Kick rejected users if currently in channel
+    channel.members.forEach(async (m) => {
+      if (tempData.rejectedUsers.includes(m.id)) {
+        try {
+          await m.voice.disconnect('Oda sahibi tarafından engellendi');
+        } catch (e) {}
+      }
+    });
+
+    await syncChannelPermissions(channel, tempData);
+    await autoSaveCurrentState(tempData);
+    await refreshControlPanel(channel, tempData, interaction);
+    return;
+  }
+
+  // 6. Action Buttons
   if (customId === 'jtc_btn_name') {
     const modal = new ModalBuilder()
       .setCustomId('jtc_modal_change_name')
@@ -479,7 +495,7 @@ export async function handleTempVoiceInteraction(interaction) {
 
     const input = new TextInputBuilder()
       .setCustomId('channel_name')
-      .setLabel('Yeni Oda İsmi (Emojili öneriler: 🎮 💬 🎵)')
+      .setLabel('Yeni Oda İsmi')
       .setValue(tempData.channelName)
       .setStyle(TextInputStyle.Short)
       .setRequired(true);
@@ -524,40 +540,7 @@ export async function handleTempVoiceInteraction(interaction) {
 
   if (customId === 'jtc_btn_stream') {
     await interaction.deferUpdate();
-    tempData.isStreamAllowed = !tempData.isStreamAllowed;
-    await syncChannelPermissions(channel, tempData);
-    await autoSaveCurrentState(tempData);
-    await refreshControlPanel(channel, tempData, interaction);
-    return;
-  }
-
-  if (customId === 'jtc_btn_reject_menu') {
-    const rejectMenu = new UserSelectMenuBuilder()
-      .setCustomId('jtc_rejected_select')
-      .setPlaceholder('🚫 Yasaklanacak / Odadan Atılacak Üyeleri Seç...')
-      .setMinValues(0)
-      .setMaxValues(10);
-
-    return interaction.reply({
-      content: '🚫 Yasaklamak veya odadan atmak istediğiniz kullanıcıları seçin:',
-      components: [new ActionRowBuilder().addComponents(rejectMenu)],
-      flags: 64
-    });
-  }
-
-  if (customId === 'jtc_rejected_select') {
-    await interaction.deferUpdate();
-    tempData.rejectedUsers = interaction.values;
-
-    // Kick rejected users if currently in channel
-    channel.members.forEach(async (m) => {
-      if (tempData.rejectedUsers.includes(m.id)) {
-        try {
-          await m.voice.disconnect('Oda sahibi tarafından engellendi');
-        } catch (e) {}
-      }
-    });
-
+    tempData.isStreamAllowed = tempData.isStreamAllowed !== undefined ? !tempData.isStreamAllowed : false;
     await syncChannelPermissions(channel, tempData);
     await autoSaveCurrentState(tempData);
     await refreshControlPanel(channel, tempData, interaction);
@@ -574,41 +557,42 @@ export async function handleTempVoiceModalSubmit(interaction) {
   if (!tempData || !channel) return;
 
   if (customId === 'jtc_modal_change_name') {
+    await interaction.deferUpdate();
     const newName = interaction.fields.getTextInputValue('channel_name').trim();
     if (newName) {
       tempData.channelName = newName;
       await channel.setName(newName);
       await autoSaveCurrentState(tempData);
-      await interaction.deferUpdate();
       await refreshControlPanel(channel, tempData, interaction);
       return;
     }
   }
 
   if (customId === 'jtc_modal_change_limit') {
+    await interaction.deferUpdate();
     const limitVal = parseInt(interaction.fields.getTextInputValue('channel_limit').trim(), 10);
     if (!isNaN(limitVal) && limitVal >= 0 && limitVal <= 99) {
       tempData.userLimit = limitVal;
       await channel.setUserLimit(limitVal);
       await autoSaveCurrentState(tempData);
-      await interaction.deferUpdate();
       await refreshControlPanel(channel, tempData, interaction);
       return;
     }
   }
 
   if (customId === 'jtc_modal_new_profile') {
+    await interaction.deferUpdate();
     const profName = interaction.fields.getTextInputValue('profile_name').trim();
     if (profName) {
       tempData.activeProfileName = profName;
       await autoSaveCurrentState(tempData);
-      await interaction.deferUpdate();
       await refreshControlPanel(channel, tempData, interaction);
       return;
     }
   }
 }
 
+// Refresh panel components silently without embed card
 async function refreshControlPanel(channel, tempData, interaction) {
   try {
     const components = await buildControlPanelComponents(tempData, interaction.member);
