@@ -87,7 +87,7 @@ export async function buildControlPanelComponents(tempData, member) {
 
   if (profiles.length < maxSlots) {
     profileOptions.push({
-      label: '➕ Yeni Profil Slotu Oluştur...',
+      label: `Yeni Profil Slotu Oluştur... (${profiles.length}/${maxSlots})`,
       value: 'create_new_profile'
     });
   }
