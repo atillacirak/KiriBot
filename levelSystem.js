@@ -429,23 +429,21 @@ export async function checkRoleRewards(guild, member, newLevel) {
 
   let newlyAwardedRole = null;
 
-  // Process role updates
+  // Process role updates: Keep strictly targetRoleId (highest reached), remove all other tier roles
   for (const [lvlReq, roleId] of rewardEntries) {
-    if (roleId === targetRoleId || roleId === permanentRoleId) {
-      // User should have this role (either highest reached or permanent mini kurbağa)
+    if (roleId === targetRoleId) {
+      // Add highest tier role
       if (!member.roles.cache.has(roleId)) {
         try {
           await member.roles.add(roleId);
-          if (roleId === targetRoleId) {
-            newlyAwardedRole = guild.roles.cache.get(roleId);
-          }
+          newlyAwardedRole = guild.roles.cache.get(roleId);
           console.log(`🎉 [Seviye Ödülü] ${member.user.tag} Seviye ${newLevel}'e ulaştı ve rol eklendi: ${roleId}`);
         } catch (err) {
           console.warn(`Rol verme hatası (${roleId}):`, err.message);
         }
       }
     } else {
-      // User surpassed this tier role -> Remove previous intermediate tier role
+      // Remove lower tier role
       if (member.roles.cache.has(roleId)) {
         try {
           await member.roles.remove(roleId);
