@@ -203,11 +203,8 @@ export async function syncChannelPermissions(channel, tempData) {
         }).catch(e => console.warn('Sync allowed user perm error:', e.message));
       }
     } else {
-      // Remove Connect explicit deny override for @everyone so users can join again
-      await channel.permissionOverwrites.delete(channel.guild.roles.everyone).catch(() => {
-        return channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
-          Connect: null
-        });
+      await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
+        Connect: true
       }).catch(e => console.warn('Sync unlock perm error:', e.message));
     }
 
@@ -220,7 +217,7 @@ export async function syncChannelPermissions(channel, tempData) {
     }
 
     // Stream permission override
-    if (!tempData.isStreamAllowed) {
+    if (tempData.isStreamAllowed === false) {
       await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
         Stream: false
       }).catch(e => console.warn('Sync stream perm error:', e.message));
