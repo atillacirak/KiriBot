@@ -267,11 +267,36 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       const hubChannel = guild.channels.cache.get(hubChannelId);
       const category = hubChannel ? hubChannel.parent : null;
 
-      // Create new voice channel in category
+      // Copy permission overwrites from Hub channel, ensuring bot permissions are explicitly preserved
+      const hubOverwrites = hubChannel ? hubChannel.permissionOverwrites.cache.map(o => ({
+        id: o.id,
+        type: o.type,
+        allow: o.allow,
+        deny: o.deny
+      })) : [];
+
+      // Ensure bot gets explicit allowed permissions on top of hub overwrites
+      if (guild.members.me) {
+        hubOverwrites.push({
+          id: guild.members.me.id,
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.EmbedLinks,
+            PermissionFlagsBits.Connect,
+            PermissionFlagsBits.Speak,
+            PermissionFlagsBits.ManageChannels,
+            PermissionFlagsBits.MoveMembers
+          ]
+        });
+      }
+
+      // Create new voice channel in category copying hub channel permissions
       const tempChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildVoice,
-        parent: category ? category.id : undefined
+        parent: category ? category.id : undefined,
+        permissionOverwrites: hubOverwrites
       });
 
       // Move member to new channel (safely handled if bot lacks move permission)
