@@ -1,6 +1,7 @@
-import { EmbedBuilder, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, AttachmentBuilder } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 
 // Local backup files
 const LEVELS_DB_FILE = path.join(process.cwd(), 'database_levels.json');
@@ -742,10 +743,135 @@ export function buildTopEmbedAndButtons(guild, category = 'totalXp', requestUser
   return { embeds: [embed], components: [rowCategory, rowLink] };
 }
 
+// Generate High-Quality Custom Rank Card Image with Canvas
+async function generateRankCard({ username, tag, avatarUrl, level, currentXp, neededXp, rankPos, totalUsers, textXp, voiceXp }) {
+  const width = 934;
+  const height = 282;
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+
+  // Background Gradient & Card Base
+  const bgGradient = ctx.createLinearGradient(0, 0, width, height);
+  bgGradient.addColorStop(0, '#0a150c');
+  bgGradient.addColorStop(0.5, '#0f2214');
+  bgGradient.addColorStop(1, '#081109');
+  ctx.fillStyle = bgGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Card Outer Glow & Border
+  ctx.strokeStyle = 'rgba(94, 164, 84, 0.4)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(1, 1, width - 2, height - 2);
+
+  // Decorative Pond Water Accent Line
+  const accentGrad = ctx.createLinearGradient(0, 0, width, 0);
+  accentGrad.addColorStop(0, '#5EA454');
+  accentGrad.addColorStop(0.5, '#F5A623');
+  accentGrad.addColorStop(1, '#5EA454');
+  ctx.fillStyle = accentGrad;
+  ctx.fillRect(0, 0, width, 5);
+
+  // Draw Avatar
+  try {
+    const avatar = await loadImage(avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png');
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(110, 141, 65, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(avatar, 45, 76, 130, 130);
+    ctx.restore();
+
+    // Avatar Ring Glow
+    ctx.strokeStyle = '#5EA454';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(110, 141, 65, 0, Math.PI * 2, true);
+    ctx.stroke();
+  } catch (err) {
+    // Fallback if avatar fails
+  }
+
+  // Username & Tag
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 30px sans-serif';
+  let displayName = username;
+  if (displayName.length > 15) displayName = displayName.substring(0, 15) + '...';
+  ctx.fillText(displayName, 210, 95);
+
+  ctx.fillStyle = '#8E9A8F';
+  ctx.font = 'bold 16px monospace';
+  ctx.fillText(tag ? `@${tag}` : '', 210, 122);
+
+  // Rank & Level Labels (Top Right Alignment)
+  ctx.fillStyle = '#F5A623';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText('RANK', 640, 70);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 34px sans-serif';
+  ctx.fillText(`${rankPos}`, 715, 70);
+
+  ctx.fillStyle = '#5EA454';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText('LEVEL', 790, 70);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 38px sans-serif';
+  ctx.fillText(`${level}`, 865, 70);
+
+  // XP Text Stats Above Bar
+  ctx.fillStyle = '#B0BEB2';
+  ctx.font = 'bold 16px sans-serif';
+  const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
+  const xpTextWidth = ctx.measureText(xpText).width;
+  ctx.fillText(xpText, width - 50 - xpTextWidth, 175);
+
+  // Sub-stats (Text & Voice XP)
+  ctx.fillStyle = '#8E9A8F';
+  ctx.font = 'bold 14px sans-serif';
+  const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
+  ctx.fillText(`💬 Yazı: ${textXp.toLocaleString()} XP   🎙️ Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 210, 175);
+
+  // Progress Bar Outer Background Container
+  const barX = 210;
+  const barY = 190;
+  const barWidth = 675;
+  const barHeight = 24;
+  const radius = 12;
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.strokeStyle = 'rgba(94, 164, 84, 0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(barX, barY, barWidth, barHeight, radius);
+  ctx.fill();
+  ctx.stroke();
+
+  // Progress Bar Fill
+  const progressRatio = Math.min(1, Math.max(0, currentXp / (neededXp || 1)));
+  const fillWidth = Math.max(radius * 2, barWidth * progressRatio);
+
+  const fillGradient = ctx.createLinearGradient(barX, 0, barX + fillWidth, 0);
+  fillGradient.addColorStop(0, '#388E3C');
+  fillGradient.addColorStop(0.7, '#5EA454');
+  fillGradient.addColorStop(1, '#F5A623');
+
+  ctx.fillStyle = fillGradient;
+  ctx.beginPath();
+  ctx.roundRect(barX, barY, fillWidth, barHeight, radius);
+  ctx.fill();
+
+  return canvas.toBuffer('image/png');
+}
+
 // --- COMMAND HANDLERS ---
 export async function handleRankCommand(interaction) {
   const { guild, user } = interaction;
   const targetUser = interaction.options.getUser('kullanici') || user;
+
+  // Defer reply so user gets smooth loading feedback
+  await interaction.deferReply().catch(() => {});
 
   const data = getUserData(guild.id, targetUser.id);
   const currentLevel = data.level;
@@ -763,38 +889,37 @@ export async function handleRankCommand(interaction) {
   const rankIndex = allGuildUsers.findIndex(d => d.userId === targetUser.id);
   const rankPos = rankIndex !== -1 ? `#${rankIndex + 1}` : '#-';
 
-  const voiceHours = (((data.voiceXp || 0) / 25) / 60).toFixed(1);
+  try {
+    const avatarUrl = targetUser.displayAvatarURL({ extension: 'png', size: 256 });
+    const buffer = await generateRankCard({
+      username: targetUser.username,
+      tag: targetUser.discriminator && targetUser.discriminator !== '0' ? targetUser.discriminator : targetUser.username,
+      avatarUrl,
+      level: currentLevel,
+      currentXp: progressInLevel,
+      neededXp: neededInLevel,
+      rankPos,
+      totalUsers: allGuildUsers.length,
+      textXp: data.textXp || 0,
+      voiceXp: data.voiceXp || 0
+    });
 
-  const embed = new EmbedBuilder()
-    .setColor('#5EA454')
-    .setAuthor({ name: `${targetUser.username} • Seviye Kartı`, iconURL: targetUser.displayAvatarURL() })
-    .setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
-    .addFields(
-      { name: '🏆 Sıralama', value: `\`${rankPos}\` / ${allGuildUsers.length} Üye`, inline: true },
-      { name: '⚡ Seviye', value: `**Level ${currentLevel}**`, inline: true },
-      { name: '💎 Toplam XP', value: `\`${currentXp.toLocaleString()} XP\``, inline: true },
-      { 
-        name: '📊 Sonraki Seviyeye İlerleme', 
-        value: `${makeProgressBar(progressInLevel, neededInLevel, 8)}\n\`${progressInLevel.toLocaleString()} / ${neededInLevel.toLocaleString()} XP\``, 
-        inline: false 
-      },
-      { name: '💬 Yazılı Sohbet XP', value: `\`${data.textXp.toLocaleString()} XP\``, inline: true },
-      { name: '🎙️ Sesli Sohbet XP', value: `\`${data.voiceXp.toLocaleString()} XP\` (${voiceHours} Sa)`, inline: true }
-    )
-    .setFooter({ text: 'KurBot • Yeşil Gölet', iconURL: guild.iconURL() })
-    .setTimestamp();
+    const attachment = new AttachmentBuilder(buffer, { name: `rank_${targetUser.id}.png` });
+    const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
+    const userProfileUrl = `${dashboardUrl}/#u/${targetUser.id}`;
 
-  const dashboardUrl = process.env.DASHBOARD_URL || 'https://yesilgolet.duckdns.org';
-  const userProfileUrl = `${dashboardUrl}/#u/${targetUser.id}`;
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('🌐 Web Profilini Gör')
+        .setStyle(ButtonStyle.Link)
+        .setURL(userProfileUrl)
+    );
 
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setLabel('🌐 Web Profilini Gör')
-      .setStyle(ButtonStyle.Link)
-      .setURL(userProfileUrl)
-  );
-
-  await interaction.reply({ embeds: [embed], components: [row] });
+    await interaction.editReply({ files: [attachment], components: [row] });
+  } catch (err) {
+    console.error('Rank Canvas Error:', err);
+    interaction.editReply({ content: '❌ Seviye kartı oluşturulurken bir hata oluştu.' }).catch(() => {});
+  }
 }
 
 export async function handleTopCommand(interaction) {
