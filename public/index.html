@@ -1099,14 +1099,19 @@
               </div>
 
               <!-- TEMP VOICE HUB CHANNEL SELECTOR -->
-              <div class="pt-3 border-t border-pond-border/40 space-y-1.5">
-                <label class="block text-xs font-bold text-white flex items-center gap-1.5">
-                  <span>➕</span> "Oda Oluştur" Ses Kanalı (Geçici Sesli Odalar)
-                </label>
+              <div class="pt-3 border-t border-pond-border/40 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>➕</span> "Oda Oluştur" Ses Kanalı (Geçici Sesli Odalar)
+                  </label>
+                  <button type="button" onclick="saveAdminSettings()" class="px-3 py-1 rounded-xl bg-pond-500 hover:bg-pond-600 text-white font-bold text-[11px] transition shadow-sm active:scale-95 flex items-center gap-1">
+                    <span>💾</span> Kaydet
+                  </button>
+                </div>
                 <select id="settingTempVoiceHubChannelId" class="w-full bg-black/40 border border-pond-border rounded-xl px-3.5 py-2 text-xs text-white focus:border-pond-500 focus:outline-none">
                   <option value="">🚫 Devre Dışı (Seçilmedi)</option>
                 </select>
-                <span class="text-[10px] text-gray-500">Kullanıcı bu ses kanalına katıldığında ona özel ses kanalı ve kontrol paneli oluşturulur.</span>
+                <span class="text-[10px] text-gray-500 block">Kullanıcı bu ses kanalına katıldığında ona özel ses kanalı ve kontrol paneli oluşturulur.</span>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1844,6 +1849,8 @@
         }
 
         if (currentAdminPassword) {
+          document.getElementById('adminLoginSection').classList.add('hidden');
+          document.getElementById('adminControlsSection').classList.remove('hidden');
           fetchAdminData(currentAdminPassword);
         } else {
           showAdminLogin();
@@ -2265,8 +2272,10 @@
         document.getElementById('adminControlsSection').classList.remove('hidden');
 
         populateAdminUI();
-        switchAdminSubtab('analytics');
-        loadAnalyticsData(currentAnalyticsPeriod);
+        switchAdminSubtab(currentAdminSubtab || 'analytics');
+        if (currentAdminSubtab === 'analytics') {
+          loadAnalyticsData(currentAnalyticsPeriod);
+        }
         loadAdminConversations();
 
         // Start background polling for new DMs and analytics
@@ -2301,7 +2310,15 @@
       showTab('leaderboard');
     }
 
-    let currentAdminSubtab = 'analytics';
+    // Remember last active admin subtab in localStorage
+    function getStoredAdminSubtab() {
+      try { return localStorage.getItem('kiri_admin_subtab') || 'analytics'; } catch (e) { return 'analytics'; }
+    }
+    function saveStoredAdminSubtab(tab) {
+      try { localStorage.setItem('kiri_admin_subtab', tab); } catch (e) {}
+    }
+
+    let currentAdminSubtab = getStoredAdminSubtab();
     let currentAnalyticsPeriod = 'week';
     let disabledChannelsState = new Set();
     let roleRulesState = [];
@@ -2313,6 +2330,7 @@
 
     function switchAdminSubtab(tab) {
       currentAdminSubtab = tab;
+      saveStoredAdminSubtab(tab);
       const analyticsView = document.getElementById('adminAnalyticsView');
       const settingsView = document.getElementById('adminSettingsView');
       const messagesView = document.getElementById('adminMessagesView');
