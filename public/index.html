@@ -1708,7 +1708,34 @@
     let leaderboardLimit = 10; // Default showing 10 items
     let currentPage = 1; // Current page index (1-based)
     let PAGE_SIZE = 30; // Items per page when paginated
-    let currentAdminPassword = sessionStorage.getItem('kiri_admin_pwd') || '';
+    // 7 Days Admin Session Storage
+    function getStoredAdminPassword() {
+      try {
+        const stored = localStorage.getItem('kiri_admin_session');
+        if (!stored) return '';
+        const parsed = JSON.parse(stored);
+        const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - (parsed.timestamp || 0) > SEVEN_DAYS_MS) {
+          localStorage.removeItem('kiri_admin_session');
+          return '';
+        }
+        return parsed.pwd || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function saveStoredAdminPassword(pwd) {
+      try {
+        if (pwd) {
+          localStorage.setItem('kiri_admin_session', JSON.stringify({ pwd, timestamp: Date.now() }));
+        } else {
+          localStorage.removeItem('kiri_admin_session');
+        }
+      } catch (e) {}
+    }
+
+    let currentAdminPassword = getStoredAdminPassword();
     let guildChannels = [];
     let guildRoles = [];
     let currentSettings = null;
@@ -2154,11 +2181,15 @@
 
         // Test credentials by loading channels & roles
         currentAdminPassword = pwd;
-        sessionStorage.setItem('kiri_admin_pwd', pwd);
+        saveStoredAdminPassword(pwd);
 
         guildChannels = data.channels || [];
         guildRoles = data.roles || [];
         currentSettings = data.settings || {};
+
+        // Show Admin nav button persistently
+        const navAdminBtn = document.getElementById('navAdminBtn');
+        if (navAdminBtn) navAdminBtn.classList.remove('hidden');
 
         document.getElementById('adminLoginSection').classList.add('hidden');
         document.getElementById('adminControlsSection').classList.remove('hidden');
@@ -2189,7 +2220,7 @@
 
     function logoutAdmin() {
       currentAdminPassword = '';
-      sessionStorage.removeItem('kiri_admin_pwd');
+      saveStoredAdminPassword('');
       if (window.adminDmPollTimer) {
         clearInterval(window.adminDmPollTimer);
         window.adminDmPollTimer = null;
@@ -3905,12 +3936,15 @@
         }
       }
 
+      if (currentAdminPassword) {
+        document.getElementById('navAdminBtn')?.classList.remove('hidden');
+      }
+
       if (hash.toLowerCase() === '#kiriadmin' || hash.toLowerCase() === '#admin') {
-        document.getElementById('navAdminBtn').classList.remove('hidden');
         showTab('admin');
       } else {
         if (!currentAdminPassword) {
-          document.getElementById('navAdminBtn').classList.add('hidden');
+          document.getElementById('navAdminBtn')?.classList.add('hidden');
         }
         showTab('leaderboard');
       }
