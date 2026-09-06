@@ -794,42 +794,42 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // Username & Tag
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 30px sans-serif';
+  ctx.font = 'bold 30px Arial, sans-serif';
   let displayName = username;
   if (displayName.length > 15) displayName = displayName.substring(0, 15) + '...';
   ctx.fillText(displayName, 210, 95);
 
   ctx.fillStyle = '#8E9A8F';
-  ctx.font = 'bold 16px monospace';
+  ctx.font = 'bold 16px Arial, sans-serif';
   ctx.fillText(tag ? `@${tag}` : '', 210, 122);
 
   // Rank & Level Labels (Top Right Alignment)
   ctx.fillStyle = '#F5A623';
-  ctx.font = 'bold 20px sans-serif';
+  ctx.font = 'bold 20px Arial, sans-serif';
   ctx.fillText('RANK', 640, 70);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 34px sans-serif';
+  ctx.font = 'bold 34px Arial, sans-serif';
   ctx.fillText(`${rankPos}`, 715, 70);
 
   ctx.fillStyle = '#5EA454';
-  ctx.font = 'bold 20px sans-serif';
+  ctx.font = 'bold 20px Arial, sans-serif';
   ctx.fillText('LEVEL', 790, 70);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 38px sans-serif';
+  ctx.font = 'bold 38px Arial, sans-serif';
   ctx.fillText(`${level}`, 865, 70);
 
   // XP Text Stats Above Bar
   ctx.fillStyle = '#B0BEB2';
-  ctx.font = 'bold 16px sans-serif';
+  ctx.font = 'bold 16px Arial, sans-serif';
   const xpText = `${currentXp.toLocaleString()} / ${neededXp.toLocaleString()} XP`;
   const xpTextWidth = ctx.measureText(xpText).width;
   ctx.fillText(xpText, width - 50 - xpTextWidth, 175);
 
   // Sub-stats (Text & Voice XP)
   ctx.fillStyle = '#8E9A8F';
-  ctx.font = 'bold 14px sans-serif';
+  ctx.font = 'bold 14px Arial, sans-serif';
   const voiceHours = ((voiceXp / 25) / 60).toFixed(1);
   ctx.fillText(`💬 Yazı: ${textXp.toLocaleString()} XP   🎙️ Ses: ${voiceXp.toLocaleString()} XP (${voiceHours} Sa)`, 210, 175);
 
