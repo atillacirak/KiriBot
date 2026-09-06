@@ -367,10 +367,12 @@ export async function handleVoiceStateUpdate(oldState, newState) {
 
 // Handle Component Interactions (Buttons, Select Menus)
 export async function handleTempVoiceInteraction(interaction) {
-  const { customId, channel, member, guild } = interaction;
-  const tempData = tempVoiceCache.get(channel.id);
+  const { customId, member, guild } = interaction;
+  const channelId = interaction.channelId || interaction.channel?.id;
+  const channel = interaction.channel || guild?.channels.cache.get(channelId);
+  const tempData = channelId ? tempVoiceCache.get(channelId) : null;
 
-  if (!tempData) {
+  if (!tempData || !channel) {
     return interaction.reply({ content: '❌ Bu kanal geçici bir sesli oda değil.', flags: 64 });
   }
 
@@ -564,9 +566,11 @@ export async function handleTempVoiceInteraction(interaction) {
 
 // Handle Modal Submits
 export async function handleTempVoiceModalSubmit(interaction) {
-  const { customId, channel } = interaction;
-  const tempData = tempVoiceCache.get(channel.id);
-  if (!tempData) return;
+  const { customId, guild } = interaction;
+  const channelId = interaction.channelId || interaction.channel?.id;
+  const channel = interaction.channel || guild?.channels.cache.get(channelId);
+  const tempData = channelId ? tempVoiceCache.get(channelId) : null;
+  if (!tempData || !channel) return;
 
   if (customId === 'jtc_modal_change_name') {
     const newName = interaction.fields.getTextInputValue('channel_name').trim();
