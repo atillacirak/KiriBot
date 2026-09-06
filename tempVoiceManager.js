@@ -185,6 +185,22 @@ export async function syncChannelPermissions(channel, tempData) {
       deny: o.deny
     })) : [];
 
+    // Explicitly ensure Bot Client gets full permissions on the channel
+    if (channel.guild.members.me) {
+      overwrites.push({
+        id: channel.guild.members.me.id,
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.EmbedLinks,
+          PermissionFlagsBits.Connect,
+          PermissionFlagsBits.Speak,
+          PermissionFlagsBits.ManageChannels,
+          PermissionFlagsBits.MoveMembers
+        ]
+      });
+    }
+
     // Owner gets Full Control
     overwrites.push({
       id: tempData.ownerId,
@@ -293,35 +309,11 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       const hubChannel = guild.channels.cache.get(hubChannelId);
       const category = hubChannel ? hubChannel.parent : null;
 
-      // Build permission overwrites cloning hub channel, ensuring bot has full permissions
-      const initialOverwrites = hubChannel ? hubChannel.permissionOverwrites.cache.map(o => ({
-        id: o.id,
-        type: o.type,
-        allow: o.allow,
-        deny: o.deny
-      })) : [];
-
-      // Explicitly grant bot client permissions
-      if (guild.members.me) {
-        initialOverwrites.push({
-          id: guild.members.me.id,
-          allow: [
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.SendMessages,
-            PermissionFlagsBits.EmbedLinks,
-            PermissionFlagsBits.Connect,
-            PermissionFlagsBits.ManageChannels,
-            PermissionFlagsBits.MoveMembers
-          ]
-        });
-      }
-
-      // Create new voice channel copying parent/hub permissions
+      // Create new voice channel in category
       const tempChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildVoice,
-        parent: category ? category.id : undefined,
-        permissionOverwrites: initialOverwrites
+        parent: category ? category.id : undefined
       });
 
       // Move member to new channel (safely handled if bot lacks move permission)
