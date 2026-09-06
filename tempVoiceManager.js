@@ -306,8 +306,12 @@ export async function handleVoiceStateUpdate(oldState, newState) {
         })) : []
       });
 
-      // Move member to new channel
-      await member.voice.setChannel(tempChannel);
+      // Move member to new channel (safely handled if bot lacks move permission)
+      try {
+        await member.voice.setChannel(tempChannel);
+      } catch (moveErr) {
+        console.warn('⚠️ Bot member move permission missing or failed:', moveErr.message);
+      }
 
       const tempData = {
         channelId: tempChannel.id,
