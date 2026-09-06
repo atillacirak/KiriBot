@@ -2605,7 +2605,7 @@
               if (isOutgoing) {
                 // Outgoing (KurBot -> User)
                 return `
-                  <div class="flex flex-col items-end space-y-1">
+                  <div class="flex flex-col items-end gap-1 max-w-[85%] ml-auto">
                     <div class="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
                       <span class="text-pond-400 font-bold">KurBot</span>
                       <span class="bg-[#5865F2] text-white text-[8px] font-bold px-1 rounded">BOT</span>
@@ -2614,7 +2614,7 @@
                     </div>
 
                     ${m.asEmbed ? `
-                      <div class="p-3.5 rounded-2xl bg-[#2b2d31] border-l-4 border-pond-500 max-w-md space-y-1.5 shadow-lg text-left">
+                      <div class="p-3.5 rounded-2xl bg-[#2b2d31] border-l-4 border-pond-500 max-w-md space-y-1.5 shadow-lg text-left self-end" style="width: fit-content;">
                         <div class="font-bold text-white text-xs">${escapeHtml(m.embedTitle || '🌿 Yeşil Gölet Bildirisi')}</div>
                         <div class="text-xs text-[#dbdee1] whitespace-pre-wrap break-words leading-relaxed">${escapeHtml(m.content)}</div>
                         <div class="flex items-center gap-1 text-[9px] text-[#949ba4] pt-1.5 border-t border-white/5">
@@ -2623,8 +2623,8 @@
                         </div>
                       </div>
                     ` : `
-                      <div class="px-3.5 py-2 rounded-2xl rounded-tr-xs bg-pond-600/90 text-white text-xs max-w-md inline-block w-fit whitespace-pre-wrap break-words leading-relaxed shadow-md">
-                        ${escapeHtml(m.content)}
+                      <div class="px-3.5 py-2 rounded-2xl rounded-tr-xs bg-pond-600/90 text-white text-xs max-w-md shadow-md self-end" style="width: fit-content;">
+                        <span class="whitespace-pre-wrap break-words leading-relaxed">${escapeHtml(m.content)}</span>
                       </div>
                     `}
                   </div>
