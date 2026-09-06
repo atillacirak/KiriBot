@@ -267,24 +267,20 @@ export async function handleVoiceStateUpdate(oldState, newState) {
       const hubChannel = guild.channels.cache.get(hubChannelId);
       const category = hubChannel ? hubChannel.parent : null;
 
-      // Create new voice channel in category (inherits category perms automatically)
+      // Clone EXACT permission overwrites from Hub channel onto new channel
+      const exactHubOverwrites = hubChannel ? Array.from(hubChannel.permissionOverwrites.cache.values()).map(o => ({
+        id: o.id,
+        type: o.type,
+        allow: o.allow,
+        deny: o.deny
+      })) : [];
+
       const tempChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildVoice,
-        parent: category ? category.id : undefined
+        parent: category ? category.id : undefined,
+        permissionOverwrites: exactHubOverwrites
       });
-
-      // Copy Hub channel overwrites onto new channel
-      if (hubChannel) {
-        for (const overwrite of hubChannel.permissionOverwrites.cache.values()) {
-          if (overwrite.id !== guild.roles.everyone.id) {
-            await tempChannel.permissionOverwrites.edit(overwrite.id, {
-              ...overwrite.allow.serialize(),
-              ...Object.fromEntries(Object.keys(overwrite.deny.serialize()).map(k => [k, false]))
-            }).catch(e => console.warn('Copy hub overwrite error:', e.message));
-          }
-        }
-      }
 
       // Move member to new channel (safely handled if bot lacks move permission)
       try {
