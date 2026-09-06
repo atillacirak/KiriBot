@@ -177,100 +177,58 @@ export function buildControlPanelEmbed(tempData, ownerUser) {
 // Sync permissions on channel
 export async function syncChannelPermissions(channel, tempData) {
   try {
-    const parent = channel.parent;
-    const overwrites = parent ? Array.from(parent.permissionOverwrites.cache.values()).map(o => ({
-      id: o.id,
-      type: o.type,
-      allow: o.allow,
-      deny: o.deny
-    })) : [];
-
-    // Explicitly ensure Bot Client gets full permissions on the channel
-    if (channel.guild.members.me) {
-      overwrites.push({
-        id: channel.guild.members.me.id,
-        allow: [
-          PermissionFlagsBits.ViewChannel,
-          PermissionFlagsBits.SendMessages,
-          PermissionFlagsBits.EmbedLinks,
-          PermissionFlagsBits.Connect,
-          PermissionFlagsBits.Speak,
-          PermissionFlagsBits.ManageChannels,
-          PermissionFlagsBits.MoveMembers
-        ]
-      });
-    }
-
     // Owner gets Full Control
-    overwrites.push({
-      id: tempData.ownerId,
-      allow: [
-        PermissionFlagsBits.ViewChannel,
-        PermissionFlagsBits.Connect,
-        PermissionFlagsBits.Speak,
-        PermissionFlagsBits.Stream,
-        PermissionFlagsBits.MuteMembers,
-        PermissionFlagsBits.DeafenMembers,
-        PermissionFlagsBits.MoveMembers
-      ]
-    });
+    await channel.permissionOverwrites.edit(tempData.ownerId, {
+      ViewChannel: true,
+      Connect: true,
+      Speak: true,
+      Stream: true,
+      MuteMembers: true,
+      DeafenMembers: true,
+      MoveMembers: true
+    }).catch(e => console.warn('Sync owner perm error:', e.message));
 
-    // Moderators get manage rights
-    tempData.moderators.forEach(modId => {
-      overwrites.push({
-        id: modId,
-        allow: [
-          PermissionFlagsBits.ViewChannel,
-          PermissionFlagsBits.Connect,
-          PermissionFlagsBits.Speak,
-          PermissionFlagsBits.Stream,
-          PermissionFlagsBits.MuteMembers,
-          PermissionFlagsBits.MoveMembers
-        ]
-      });
-    });
-
-    // Handle Lock & Allowed Users
+    // Handle Lock
     if (tempData.isLocked) {
-      overwrites.push({
-        id: channel.guild.roles.everyone.id,
-        deny: [PermissionFlagsBits.Connect]
-      });
-      tempData.allowedUsers.forEach(userId => {
-        overwrites.push({
-          id: userId,
-          allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.Speak, PermissionFlagsBits.SendMessages]
-        });
-      });
+      await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
+        Connect: false
+      }).catch(e => console.warn('Sync lock perm error:', e.message));
+
+      for (const userId of tempData.allowedUsers) {
+        await channel.permissionOverwrites.edit(userId, {
+          Connect: true,
+          ViewChannel: true,
+          Speak: true,
+          SendMessages: true
+        }).catch(e => console.warn('Sync allowed user perm error:', e.message));
+      }
     } else {
-      overwrites.push({
-        id: channel.guild.roles.everyone.id,
-        allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
-      });
+      await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
+        Connect: true,
+        ViewChannel: true,
+        SendMessages: true
+      }).catch(e => console.warn('Sync unlock perm error:', e.message));
     }
 
     // Handle Rejected Users
-    tempData.rejectedUsers.forEach(userId => {
-      overwrites.push({
-        id: userId,
-        deny: [PermissionFlagsBits.Connect, PermissionFlagsBits.ViewChannel]
-      });
-    });
+    for (const userId of tempData.rejectedUsers) {
+      await channel.permissionOverwrites.edit(userId, {
+        Connect: false,
+        ViewChannel: false
+      }).catch(e => console.warn('Sync reject user perm error:', e.message));
+    }
 
     // Stream permission override
     if (!tempData.isStreamAllowed) {
-      overwrites.push({
-        id: channel.guild.roles.everyone.id,
-        deny: [PermissionFlagsBits.Stream]
-      });
+      await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
+        Stream: false
+      }).catch(e => console.warn('Sync stream perm error:', e.message));
     } else {
-      overwrites.push({
-        id: channel.guild.roles.everyone.id,
-        allow: [PermissionFlagsBits.Stream]
-      });
+      await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
+        Stream: true
+      }).catch(e => console.warn('Sync stream allow perm error:', e.message));
     }
 
-    await channel.permissionOverwrites.set(overwrites);
   } catch (e) {
     console.error('Error syncing channel permissions:', e);
   }
