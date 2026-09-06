@@ -2711,19 +2711,14 @@
       return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }
 
+    function formatDateShortTR(isoStr) {
+      if (!isoStr || isoStr === '1970-01-01T00:00:00.000Z') return 'Bot Kurulumu';
+      const d = new Date(isoStr);
+      return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
     function changeAnalyticsPeriod(period) {
       currentAnalyticsPeriod = period;
-      const periodLabels = {
-        today: 'Son 24 Saatlik (Bugünkü) İstatistikler ve Üye Hareketleri',
-        week: 'Son 7 Günlük İstatistikler ve Üye Hareketleri',
-        month: 'Son 30 Günlük İstatistikler ve Üye Hareketleri',
-        all: 'Tüm Zamanların İstatistikleri ve Üye Hareketleri (Genel)'
-      };
-      
-      const helperEl = document.getElementById('periodHelperNote');
-      if (helperEl) {
-        helperEl.innerHTML = `ℹ️ Seçili Zaman Dilimi: <span class="text-pond-400 font-bold">${periodLabels[period] || ''}</span>`;
-      }
 
       ['today', 'week', 'month', 'all'].forEach(p => {
         const btn = document.getElementById(`periodBtn_${p}`);
@@ -2749,6 +2744,18 @@
 
         const a = data.analytics;
         currentAnalyticsData = a;
+
+        // Update exact date range note
+        const helperEl = document.getElementById('periodHelperNote');
+        if (helperEl) {
+          const startStr = formatDateShortTR(a.startTime);
+          const endStr = formatDateShortTR(a.endTime);
+          let dateRangeText = `${startStr} — ${endStr}`;
+          if (period === 'all') {
+            dateRangeText = `Bot Kurulumundan Günümüze Kadar (${endStr})`;
+          }
+          helperEl.innerHTML = `📅 Hesaplanan Tarih Aralığı: <span class="text-pond-400 font-bold font-mono">${dateRangeText}</span>`;
+        }
 
         // Core KPIs
         document.getElementById('analyticsVoiceUsers').innerText = a.activity.voiceActiveUsersCount.toLocaleString();

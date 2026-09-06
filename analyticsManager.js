@@ -308,6 +308,8 @@ export async function computeServerAnalytics(guild, levelCache, period = 'week')
 
   return {
     period,
+    startTime: startTime.toISOString(),
+    endTime: now.toISOString(),
     totalServerMembers,
     // Activity Overview
     activity: {
