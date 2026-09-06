@@ -158,6 +158,21 @@ export async function buildControlPanelComponents(tempData, member) {
 export async function syncChannelPermissions(channel, tempData) {
   try {
     const everyoneRole = channel.guild.roles.everyone;
+    const botMember = channel.guild.members.me;
+
+    // 0. Bot'un kendi izinleri — @everyone kısıtlamalarından etkilenmemesi için her zaman açık tutulur
+    if (botMember) {
+      await channel.permissionOverwrites.edit(botMember, {
+        ViewChannel:     true,
+        Connect:         true,
+        Speak:           true,
+        SendMessages:    true,
+        ReadMessageHistory: true,
+        ManageMessages:  true,
+        ManageChannels:  true,
+        MoveMembers:     true,
+      }).catch(e => console.warn('Sync bot self perm error:', e.message));
+    }
 
     // 1. @everyone — tek API çağrısında tüm durumlar (race condition önleme)
     // null = kategoriden miras al (varsayılan izin), false = açıkça reddet
