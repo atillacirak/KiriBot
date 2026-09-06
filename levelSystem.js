@@ -825,12 +825,12 @@ async function generateRankCard({ username, tag, avatarUrl, level, currentXp, ne
 
   // SEVİYE
   ctx.fillStyle = '#5EA454';
-  ctx.font = 'bold 12px Arial, sans-serif';
-  ctx.fillText('SEVİYE', 385, 50);
+  ctx.font = 'bold 13px Arial, sans-serif';
+  ctx.fillText('SEVİYE', 380, 48);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 28px Arial, sans-serif';
-  ctx.fillText(levelStr, 385, 80);
+  ctx.font = 'bold 34px Arial, sans-serif';
+  ctx.fillText(levelStr, 380, 82);
 
   // Sub-stats (Text & Voice XP) - Placed above bar on left
   ctx.fillStyle = '#9EB1A1';
