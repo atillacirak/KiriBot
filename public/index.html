@@ -2765,6 +2765,12 @@
         const textRate = a.totalServerMembers > 0 ? Math.round((a.activity.textActiveUsersCount / a.totalServerMembers) * 100) : 0;
         document.getElementById('analyticsTextRate').innerText = `%${textRate}`;
 
+        // Sync upper header summary cards with period selection as well
+        const topMsgsEl = document.getElementById('statTotalMessages');
+        const topVoiceEl = document.getElementById('statVoiceHours');
+        if (topMsgsEl) topMsgsEl.innerText = (a.activity.totalMessagesCount || 0).toLocaleString() + ' Mesaj';
+        if (topVoiceEl) topVoiceEl.innerText = a.activity.totalVoiceHours + ' Sa';
+
         const net = a.growth.netGrowth;
         const netEl = document.getElementById('analyticsNetGrowth');
         netEl.innerText = (net >= 0 ? '+' : '') + net;
